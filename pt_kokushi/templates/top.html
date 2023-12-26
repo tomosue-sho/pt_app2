@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}理学療法国試対策{% endblock%}
+{% block content %}
+<div id = "all-display">
+<div id = "top-nav">
+    <div class = "title" backgroud = "img/reha.top.jpg">
+        <h1 id = "title_top">理学療法国試対策アプリ</h1>
+    </div>
+    <div id = "timelimit" name = "year_number">
+        <select id = "select_year">
+            <option value = "59_year">第59回</option>
+            <option value = "60_year">第60回</option>
+            <option value = "61_year">第61回</option>
+            <option value = "62_year">第62回</option>
+        </select>            
+    <p class = "atdays">
+       国試まであと</p>
+    <p id = "countTimer"></p>   
+    </div> 
+</div>
+
+<div id="countdown">
+</div>
+
+<div = id = "side-quest">
+    <div id = "side-bar">
+        <p class = "button-001" id = "grade">成績</p>
+        <p class = "button-001" id = "category">分野ごと</p>
+        <p class = "button-001" id = "year">年度ごと</p>
+        <p class = "button-001" id = "bookmark">ブックマーク問題</p>
+        <p class = "button-001" id = "random">ランダム問題</p>
+        <p class = "button-001" iD = "three-q">3点問題のみ</p>
+        <p class = "button-001" is = "study-mode">学習モード</p>
+        <p class = "button-001" id = "goal">目標設定</p>
+    </div>
+    <div id = "national-examination">
+        <div class = "button national-year even" id = "58-year">第58回</div>
+        <p class = "button national-year odd" id = "57-year">第57回</p>
+        <p class = "button national-year even" id = "56-year">第56回</p>
+        <p class = "button national-year odd" id = "55-year">第55回</p>
+        <p class = "button national-year even" id = "54-year">第54回</p>
+        <p class = "button national-year odd" id = "53-year">第53回</p>
+        <p class = "button national-year even" id = "52-year">第52回</p>
+        <p class = "button national-year odd" id = "51-year">第51回</p>
+        <p class = "button national-year even" id = "50-year">第50回</p>
+        <p class = "button national-year odd" id = "49-year">第49回</p>
+    </div>    
+</div>
+</div>
+{% endblock %}

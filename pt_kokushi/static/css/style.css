@@ -1,0 +1,348 @@
+/*全体の画像*/
+#all-display{
+    height:448px;
+    width:400px;
+    background-color:#8be4f0;
+    width: auto;
+    height: auto;
+    border-radius: 20px;
+    border: solid 3px black;
+}
+
+/*トップのナビのdivの部分の位置関係*/
+#top-nav{
+    background-color: #CCFFFF;
+    width: auto;
+    height: auto;
+    padding: auto;
+    border-radius: 20px 20px 0px 0px;
+}
+
+/*理学療法国試アプリのCSS*/
+#title_top{
+        color: #fff;
+        border: 2px dashed #fff;
+        background-color: #4989ff;
+        box-shadow: 0px 0px 0px 10px #4989ff;
+        padding: 10px;
+        margin: 17px;
+}
+
+/*理学療法国試アプリのdiv要素*/
+.title{
+    display: inline-block;
+}
+
+/*タイマー用のCSS*/
+p.atdays {
+    display: inline-block;
+    margin: auto;
+    background: #f0db3f;
+    color: #313131;
+    padding: 3px 20px;
+    position: relative;
+    border-radius: 2px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+p.atdays:after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    margin-left: -10px;
+    border: 10px solid transparent;
+    border-top: 10px solid #f0db3f;
+    z-index: 2;
+}
+p#countTimer {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.1rem;
+    text-align: center;
+
+}
+p#countTimer span {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-right: 10px;
+}
+/*国試までのタイマーの全体のCSS*/
+#timelimit{
+    display: inline-block;
+    margin: 30px;
+    border: solid 3px black;
+    width: 350px;
+    background-color: beige;
+}
+
+/*サイドバーと問題の位置*/
+#side-quest{
+    display: flex !important;
+    margin: 20px;
+}
+
+#side-bar{
+    font-weight: bold;
+    background-color: whitesmoke;
+    border: solid 3px black;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px;
+}
+
+/*国試の問題の選択肢*/
+#national-examination{
+    margin: 20px;
+    border: solid 3px black;
+    width: 100%;
+    height: auto;
+    border-radius: 30px;
+}
+
+.national-year{
+    margin: 20px;
+    padding: 10px;
+    border: solid 2px #008000;
+    text-align: center;
+    font-weight: bold;
+    display: inline-block;
+    
+}
+
+/*国試年度選択のボタン化*/
+.button{
+  transition: 0.3s all ease-in-out;
+  padding: 15px 30px;
+  color: #00b4ff;
+  text-decoration: none;
+  border: 2px solid #00b4ff;
+  background: rgba(255, 255, 255, 0.9);  
+  border-radius: 50px;
+  box-shadow: inset rgba(97, 202, 246, 0.7) 0px 0px 10px, rgba(97, 202, 246, 0.3) 0px 11px 20px 3px;
+  }
+  .button:hover{
+  color: #ffffff;
+  background: linear-gradient(60deg, #00b3fe, #00b4ff);
+  box-shadow: rgba(97, 202, 246, 0.9) 0px 15px 30px;
+  }
+
+/*国試の問題の奇数と偶数での区分け*/
+.odd{
+    background-color: #CCCCFF;
+    color: #313131;
+}
+
+
+
+
+/*サイドバーのクラス設定*/
+/* ボタンのスタイル */
+.button-001 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    margin:10px;
+    padding: .9em 2em;
+    border: 1px solid #2589d0;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #2589d0;
+    font-size: 1em;
+}
+
+.button-001::after {
+    transform: rotate(45deg);
+    width: 5px;
+    height: 5px;
+    margin-left: 10px;
+    border-top: 2px solid #2589d0;
+    border-right: 2px solid #2589d0;
+    content: '';
+}
+
+.button-001:hover{
+    color: #ffffff;
+    background: linear-gradient(60deg, #00b3fe, #00b4ff);
+    box-shadow: rgba(97, 202, 246, 0.9) 0px 15px 30px;
+}
+
+
+
+
+/*ログイン画面*/
+* {
+    box-sizing: border-box;
+    }
+    
+    *:focus {
+      outline: none;
+    }
+    body {
+    font-family: Arial;
+    height:100vh;
+    background-color: #edfeff;
+    padding: 50px;
+    width: auto;
+    }
+    .login {
+    margin: 20px auto;
+    width: 300px;
+    }
+    .login-screen {
+    background-color: #FFF;
+    padding: 20px;
+    border-radius: 5px
+    }
+    
+    .app-title2 {
+        position: relative;
+        padding: 1rem 1rem 1rem 1.5rem;
+        border: 3px solid #333;
+        font-weight: bold;
+        font-size: 26px;
+    }
+
+    .login-form {
+    text-align: center;
+    }
+    .control-group {
+        margin-bottom: 10px;
+        }
+        
+        input {
+        text-align: center;
+        background-color: #ECF0F1;
+        border: 2px solid transparent;
+        border-radius: 3px;
+        font-size: 16px;
+        font-weight: 200;
+        padding: 10px 0;
+        width: 250px;
+        transition: border .5s;
+        }
+        input:focus {
+            border: 2px solid #3498DB;
+            box-shadow: none;
+            }
+    .btn {
+      border: 2px solid transparent;
+      background: #3498DB;
+      color: #ffffff;
+      font-size: 16px;
+      line-height: 25px;
+      padding: 10px 0;
+      text-decoration: none;
+      text-shadow: none;
+      border-radius: 3px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.713);;
+      transition: 0.25s;
+      display: block;
+      width: 250px;
+      margin: 0 auto;
+    }
+    
+    .btn:hover {
+      background-color: #2980B9;
+    }
+    
+    .login-link {
+      font-size: 12px;
+      color: #444;
+      display: block;
+      margin-top: 12px;
+    }
+
+/*登録画面*/
+.text-center{
+    text-align: center;
+  }
+
+#container {
+    max-width: 450px;
+    max-height: 150px;
+    margin-top: 10px;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    transition: 0.25s;
+    display: block;
+    margin: 0 auto;
+}
+
+.signup-screen {
+    padding: 20px;
+    padding-bottom: 40px;
+    border-radius: 5px;
+    background-color: #fffdfa;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.713);
+    color: #313131;
+}
+
+.space-bot{
+    margin-bottom: 35px;
+}
+
+.input:hover {
+    background-color: #2980B9;
+  }
+
+#user_signup{
+    position: relative;
+    padding: 1rem 1rem 1rem 2.5rem;
+    border: 2px solid #333;
+    background-image:
+        linear-gradient(0deg, transparent 0 10px, #fff 10px),
+        repeating-linear-gradient(135deg, #ddb3dd 0 3px, transparent 3px 6px);
+    color: #353535;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+
+/*登録画面の登録ボタン*/
+/* Button Two */
+
+.button-two {
+    background-color: #1e90ff;
+    box-shadow: 0px 3px #000080;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    line-height: 30px;
+    border-radius: 50px;
+  }
+  
+  .button-two:hover {
+    background-color: #00b3fe;
+  }
+ .button-two:active{
+    box-shadow: none;
+    position: relative;
+    top: 3px;
+ }
+
+/*ログイン画面の新規登録フォーム*/
+#signup_form{
+  display: inline-block;
+  width: 100%;
+  max-width: 350px; /* ボタン幅 */
+  color: #4D9BC1; /* 文字色 */
+  border: 2px solid #4D9BC1; /* 線幅・種類・色 */
+  background: #fff; /* 背景色 */
+  padding: 1em 2em;
+  font-weight: bold; /* 文字の太さ */
+  text-decoration: none;
+  text-align: center;
+  transition: 0.3s;
+}
+
+#signup_form:hover{
+    color: #fff; /* 文字色 */
+    background: #4D9BC1; /* 背景色 */
+}
+
