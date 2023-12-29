@@ -8,7 +8,7 @@
 <body>
     <h1>ログイン</h1>
     <p>{{message}}</p>
-    <form action="{% url 'pt_kokushi:login'%}" method="post">
+    <form action="{% url 'pt_kokush:login'%}" method="post">
     {% csrf_token %}
         {{ form.as_p }}
         <p><input type="hidden" name="next" value="{{next}}"></p>

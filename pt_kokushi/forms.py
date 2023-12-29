@@ -3,28 +3,71 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
+from .models import Profile
+from datetime import datetime
 
 CustomUser = get_user_model()
 
-class SignupForm(UserCreationForm):
-    email = forms.EmailField(
-        label='メールアドレス',
-        help_text = ('必須です')
-        )
-    
-    birth_of_date = forms.DateField(
-        label = '生年月日',
-        help_text = '必須です。YYYY-MM-DD 形式(例:2020-10-06)で入力して下さい。'
-    )
-    
-    school_year = forms.IntegerField(
-        label = '学年',
-        help_text = '卒業生等の学校に無所属の場合は「０」でお願いします'
-    )
-    
+class SignUpForm(UserCreationForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    password1 = forms.CharField(required=False)
+    password2 = password1
+
     class Meta:
         model = CustomUser
-        fields = ['email']
+        fields = ('username', 'email', 'password')
+
+class ProfileForm(forms.ModelForm):
+    CHOICES = (
+        ('female', '女性',),
+        ('male', '男性',),
+        ('not_applicable', '秘密',)
+    )
+    gender = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES, required=False)
+
+    def make_select_object(from_x, to_y, dates, increment=True):
+        if increment:
+            for i in range(from_x, to_y):
+                dates.append([i, i])
+        else:
+            for i in range(from_x, to_y, -1):
+                dates.append([i, i])
+        return dates
+    
+    def make_select_object(from_x, to_y, dates, increment=True):
+        if increment:
+            for i in range(from_x, to_y):
+                dates.append([i, i])
+        else:
+            for i in range(from_x, to_y, -1):
+                dates.append([i, i])
+        return dates
+
+    def make_select_field(select_object):
+        dates_field = forms.ChoiceField(
+            widget=forms.Select,
+            choices=select_object,
+            required=False
+        )
+        return dates_field
+
+    years = [["",""]]
+    current_year = datetime.now().year
+    years = make_select_object(current_year, current_year-80, years, increment=False)
+    birth_year = make_select_field(years)
+
+    months = [["",""]]
+    months = make_select_object(1, 13, months)
+    birth_month = make_select_field(months)
+
+    days = [["",""]]
+    days = make_select_object(1, 32, days)
+    birth_day = make_select_field(days)
+
+    class Meta:
+        model = CustomUser
+        fields = ( 'gender','birth_year', 'birth_month', 'birth_day')
+
 
 class LoginForm(AuthenticationForm):
     pass
