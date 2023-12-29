@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'pt_kokushi',#追加
     'widget_tweaks',#フォームデザインのカスタマイズ用ライブラリ
     'bootstrap4', 
+    'django_bootstrap5',
 ]
 
 MIDDLEWARE = [
