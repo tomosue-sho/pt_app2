@@ -8,7 +8,6 @@
     <div class="container my-3" style="max-width:700px">
     <form action="{% url 'pt_kokushi:login'%}" method="post">  
     {% csrf_token %}
-        {% bootstrap_form form %}
         <p><input type="hidden" name="next" value="{{next}}"></p>
         <p><input type="submit" value="ログイン"></p>
     </form>

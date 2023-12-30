@@ -25,19 +25,19 @@ SECRET_KEY = 'django-insecure-_cw96)(nn564gn#c&56w&6k_$54p9&_lq)fskma(m7xwlw4ovd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'pt_kokushi',#追加
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'pt_kokushi',#追加
     'widget_tweaks',#フォームデザインのカスタマイズ用ライブラリ
     'bootstrap4', 
     'django_bootstrap5',

@@ -19,9 +19,15 @@ from django.urls import path ,include
 from pt_kokushi import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
+
+top_view = TemplateView.as_view(template_name = "top.html")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.TopView.as_view(), name="top"),
-    path('login_app/', include('pt_kokushi.urls'))
+    path('login_app/', include('pt_kokushi.urls')),
+    path("", login_required(top_view), name = "index"),
+    path('', include("django.contrib.auth.urls")),
 ]
