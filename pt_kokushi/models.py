@@ -9,13 +9,18 @@ from datetime import date
 import math
 from django.utils import timezone
 from django.core.validators import MinLengthValidator, RegexValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+#Usermmanagerはコピペで不用意な部分を削除や追加して使う
 class UserManager(BaseUserManager):
+    
+    #今回設定するクラスを設定するための設定
     use_in_migrations = True
     
         #**extra_fieldsによりemail,passwordフィールド以外のフィールドが辞書で格納される
+        #**extra_fieldはemail,password以外のフィールドとも捉えられる
     def _create_user(self, username, email, password, **extra_fields):
         
         #raiseは意図的に例外を発生させる機能（例外処理）
@@ -88,17 +93,65 @@ class UserManager(BaseUserManager):
                 obj=obj,
             )
         return self.none()
+    
 
+ 
+#ここに追加したいフィールドやメソッドを追加する
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     
+    #名前が重複しないか確認するusernameで使ってる
+    username_validator = UnicodeUsernameValidator()
+    
     #モデルフィールドの設定（テーブル定義を行うところ）
-    username = models.CharField(verbose_name='username', max_length=20, unique=True, validators=[MinLengthValidator(5,), RegexValidator(r'^[a-zA-Z0-9]*$',)])
-    email = models.EmailField(_("email address"), blank=True)
-    date_of_birth = models.DateField(verbose_name="誕生日", blank=True, null=True)
-    school_year = models.IntegerField(blank = False)
-    prefecture = models.CharField(_('都道府県'), max_length=5, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
+    username = models.CharField(
+        verbose_name='username', #verbose_nameで管理画面での表示が変わる
+        max_length=20, 
+        unique=True, #ユニーク制約（重複しないようにすること）を解除
+        validators = [username_validator],
+        error_messages={
+            "unique": _("その名前はすでに使われています"),
+        },)
+        
+    email = models.EmailField(
+        _("email address"),#_("")は多言語対応のためのマーク付け
+        unique=True,
+        blank=False
+        )
+    
+    date_of_birth = models.DateField(
+        verbose_name="誕生日", #verbose_nameで管理画面での表示が変わる
+        blank=True, 
+        null=True
+        )
+    
+    school_year = models.IntegerField(
+        blank = True
+        )
+    
+    prefecture = models.CharField(
+        _('都道府県'), #_("")は多言語対応のためのマーク付け
+        max_length=5, 
+        blank=True, 
+        null=True
+        )
+    
+    #アクティブユーザー（一回以上利用があったユーザーのこと
+    is_active = models.BooleanField(
+        default=True
+        )
+    #登録日のこと
+    date_joined = models.DateTimeField(
+        auto_now_add=True, #DBにインサート（追加挿入）するたびに更新
+        null=True,
+        blank=True
+        )
+    #誕生日から年齢を計算
+    def get_age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+        return None
+    
     #Boolean=真偽値
     is_staff = models.BooleanField(
         _("staff status"),
@@ -106,6 +159,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         default=False,
         help_text=_("Designates whether the user can log into this admin site."),
     )
+    
+    
     #ユーザーモデルの情報を参照する
     #プログラムが扱うデータは全てobjectsと言える
     objects = UserManager()
@@ -113,13 +168,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = "email"
     
     #usernameを使って認証するということ
+    #ログインをemailとpasswordのみに変更すると"email"でも設定できるようになる
     USERNAME_FIELD = "username"
     
-    #登録画面の入力の項目（ユーザー名とパスワードは自動で存在する）
-    REQUIRED_FIELDS = ['email','birth_date','school_year','prefecture']
+    #登録画面の入力の項目（ユーザー名とパスワードは自動で存在する.入れたらエラーになる）
+    REQUIRED_FIELDS = ['email','date_of_birth','school_year','prefecture','is_active','date_joined']
 
+    #ModelFormやUserCreationFormを実装するときに使用する
+    #このクラスを使うことでモデルのフィールフィールドを自動で共有することができる
     class Meta:
+        #verbose_nameは、Metaクラス内で定義する
         verbose_name = _("user")
+        #_pluralだと複数形にした時の名前を指定する
         verbose_name_plural = _("users")
         #abstract = True
 
@@ -129,6 +189,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
 
 #ユーザーの新規登録と同期して、登録されたユーザーにひもづくProfileレコードが挿入される
 class Profile(models.Model):

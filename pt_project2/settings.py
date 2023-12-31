@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'pt_kokushi',#追加
+    'pt_kokushi',#追加（カスタマイズしたページを優先したい場合は一番上にアプリ名を書く）
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,6 +123,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+#メールを送らなくてもメールをテストできる機能
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
