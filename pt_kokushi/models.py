@@ -46,10 +46,15 @@ class UserManager(BaseUserManager):
         # user.save(using=self._db)
         return user
     
-
+    #views.pyのsignup_viewで使ってる
     def create_user(self, email=None, password=None, **extra_fields):
+        
+        #setdefault()メソッドでは「第一引数：key（キー）,第二引数：value（値）」を指定する
+        #新規ユーザーが登録された場合のみ登録されるメソッドでスタッフとスーパーユーザーにはならないようにしている
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
+        
+        #setdefaultでの返り値として
         return self._create_user(email, password, **extra_fields)
     
     #create_superuserの記述がないとスーパーユーザーで管理画面にログインできない
@@ -104,7 +109,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     #モデルフィールドの設定（テーブル定義を行うところ）
     username = models.CharField(
-        verbose_name='username', #verbose_nameで管理画面での表示が変わる
+        verbose_name='名前', #verbose_nameで管理画面での表示が変わる
         max_length=20, 
         unique=True, #ユニーク制約（重複しないようにすること）を解除
         validators = [username_validator],
@@ -125,6 +130,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         )
     
     school_year = models.IntegerField(
+        verbose_name="学年",
         blank = True
         )
     
@@ -135,12 +141,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True
         )
     
-    #アクティブユーザー（一回以上利用があったユーザーのこと
+    #アクティブユーザー（一回以上利用があったユーザーのこと)
     is_active = models.BooleanField(
         default=True
         )
     #登録日のこと
     date_joined = models.DateTimeField(
+        verbose_name="登録日",
         auto_now_add=True, #DBにインサート（追加挿入）するたびに更新
         null=True,
         blank=True
@@ -149,7 +156,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def get_age(self):
         if self.date_of_birth:
             today = date.today()
-            return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
     
     #Boolean=真偽値

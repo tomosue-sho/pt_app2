@@ -14,16 +14,28 @@ class SignUpForm(UserCreationForm):
     password2 = password1
 
     class Meta:
+        
+        #指定したモデルで定義されている全フィールドを自動で定義する（自動生成）
         model = CustomUser
+        
+        # fieldsにユーザー作成時に必要な情報を指定する
+        #{{form}}でテンプレートに表示できる
         fields = ('username', 'email', 'password')
 
 class ProfileForm(forms.ModelForm):
+    
+    #ChoiceFieldで複数の選択肢から１つを選ぶフィールド
+    #テンプレートには以下のように記述する
+    #<select name="フィールド名"><option value="choice.key">choice.value</option>...</select>
     CHOICES = (
         ('female', '女性',),
         ('male', '男性',),
         ('not_applicable', '秘密',)
     )
-    gender = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES, required=False)
+    gender = forms.ChoiceField(
+        widget=forms.RadioSelect, #ラジオボタンに設定する
+        choices=CHOICES, 
+        required=False) #Falseなので入力必須ではない
 
     def make_select_object(from_x, to_y, dates, increment=True):
         if increment:

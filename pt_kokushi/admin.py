@@ -10,8 +10,9 @@ CustomUser = get_user_model()
 class CustomUserAdmin(admin.ModelAdmin):
     #管理画面に表示したい項目
     list_display = (
-        "email",
+        'email',
         'date_of_birth',
+        'get_age',
         'school_year',
         'prefecture',
         'is_active',

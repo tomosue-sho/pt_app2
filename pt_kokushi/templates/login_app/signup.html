@@ -1,55 +1,11 @@
-
-{% load widget_tweaks %}
-{% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block content %}
 <body>
-<h3>30秒でアカウント登録</h3>
-<form action="{%url 'pt_kokushi:signup' %}" method="post">
-  {%csrf_token %}
-
-<!--username-->
-  <div class="form-group row">
-    <label for="{{ form.username.id_for_label }}" class="col-sm-3 col-form-label">ユーザー名</label>
-    <div class="col-sm-9">
-      {{ form.username|add_class:'form-control' }}
-      {%for error in form.username.errors %}
-        <span class="help-block">{{ error }}</span>
-      {% endfor %}
-    </div>
-  </div>
-
-<!--email-->  
-  <div class="form-group row">
-    <label for="{{ form.email.id_for_label }}" class="col-sm-3 col-form-label">メールアドレス</label>
-    <div class="col-sm-9">
-      {{ form.email|add_class:'form-control' }}
-      {% for error in form.email.errors %}
-        <span class="help-block">{{ error }}</span>
-      {% endfor %}
-    </div>
-  </div>
-
-<!--password1-->  
-  <div class="form-group row">
-    <label for="{{ form.password1.id_for_label }}" class="col-sm-3 col-form-label">パスワード</label>
-    <div class="col-sm-9">
-      {{ form.password1|add_class:'form-control' }}
-      {% for error in form.password.errors %}
-        <span class="help-block">{{ error }}</span>
-      {% endfor %}
-    </div>
-  </div>
-  <hr>
-  <div class="form-group row">
-    <div class="col-sm">
-      <button type="submit" class="btn btn-info btn-block">登録</button>
-    </div>
-  </div>
-</form>
+    <h1>ユーザー登録</h1>
+    <form action="{% url 'pt_kokushi:signup' %}" method="post">
+    {% csrf_token %}
+        {{ form.as_p }}
+        <p><input type="submit" value="登録"></p>
+    </form>
 </body>
-
-{% endblock %}
