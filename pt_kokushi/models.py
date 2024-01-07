@@ -33,8 +33,11 @@ class UserManager(BaseUserManager):
             raise ValueError("メールアドレスが必要です")
         
         #self.normalizeによりemailの@以下が正規化される（小文字にする）
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(
+            username = username,
+            email = self.normalize_email(email),
+        #user = self.model(email=email, **extra_fields)
+        )
         
         #make_password()関数によりpassword引数に渡された値はハッシュ化（暗号化）される
         user.password = make_password(password)
@@ -107,7 +110,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     #名前が重複しないか確認するusernameで使ってる
     username_validator = UnicodeUsernameValidator()
     
-    #モデルフィールドの設定（テーブル定義を行うところ）
+    #モデルフィールドの設定（テーブル定義を行うところ）(使いたいフィールドを追加)
     username = models.CharField(
         verbose_name='名前', #verbose_nameで管理画面での表示が変わる
         max_length=20, 
@@ -167,14 +170,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text=_("Designates whether the user can log into this admin site."),
     )
     
-    
     #ユーザーモデルの情報を参照する
-    #プログラムが扱うデータは全てobjectsと言える
+    #プログラムが扱うデータは全てobjectsと言える（UserManagerとUserを紐付けしている)
     objects = UserManager()
 
     EMAIL_FIELD = "email"
     
-    #usernameを使って認証するということ
+    #usernameを使って認証するということ。ユニークである必要がある
     #ログインをemailとpasswordのみに変更すると"email"でも設定できるようになる
     USERNAME_FIELD = "username"
     
@@ -206,7 +208,9 @@ class Profile(models.Model):
     location = models.CharField(max_length=30, blank=True)
     favorite_words = models.CharField(max_length=50, blank=True)
 
-#recieverというモジュールとpost_saveというモジュールを使う    
+#recieverというモジュールとpost_saveというモジュールを使う
+#CustomUserモデルのpost_saveシグナルをreceiverで受け取り
+#create_user_profile と save_user_profile メソッドが起動します。
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

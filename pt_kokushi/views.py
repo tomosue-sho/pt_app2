@@ -10,6 +10,7 @@ from .forms import SignUpForm, ProfileForm #forms.pyで定義したユーザー�
 from .models import Profile
 from datetime import date
 
+#これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
 
 
@@ -21,16 +22,24 @@ def signup_view(request):
     
     #POSTは他人に見られたくない情報を送るときに使用する
     if request.method == 'POST':
+        
+        #request.POSTのデータを受け取ったformのオブジェクトを生成する
         signup_form = SignUpForm(request.POST)
         profile_form = ProfileForm(request.POST)
         
         #form.is_valid()でバリデーション（入力値の正しさのチェック）を行う
+        #要はフォームに記載された内容が問題なければ処理を実行するということ
         if signup_form.is_valid() and profile_form.is_valid():
             
             #cleaned_dataにバリデーション後に正しかったデータが入る
+            #POSTの値をcleaned_dataして辞書型のデータに整形し、get()にキーを入力して取り出す
+            #signup_form
             username = signup_form.cleaned_data.get('username')
             email = signup_form.cleaned_data.get('email')
             password = signup_form.cleaned_data.get('password')
+            password2 = signup_form.cleaned_data.get('password2')
+            
+            #profile_form
             gender = profile_form.cleaned_data.get('gender')
             birth_year = profile_form.cleaned_data.get('birth_year')
             birth_month = profile_form.cleaned_data.get('birth_month')
@@ -39,15 +48,20 @@ def signup_view(request):
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
             user = CustomUser.objects.create_user(username, email, birth_date,password)
+            
             if birth_day and birth_month and birth_year:
                 birth_date = date(int(birth_year), int(birth_month), int(birth_day)).isoformat()
                 user.profile.birth_date = birth_date
             user.save()
             
             #POSTされた値はハッシュ化されているためそのままでは使えない
-            #なのでauthenticate()関数を使う。引数で私たIDとPWが一致していた場合インスタンスを返す関数
+            #なのでauthenticate()関数を使う。引数で渡したIDとPWが一致していた場合インスタンスを返す関数
             user = authenticate(request, username=username, password=password)
+            
+            #settings.pyで複数の認証方法を追加している場合はbackendに＝’’の内容が必要になる
             auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            
+            #message.SUCCESSで処理が成功したら''内のメッセージが通知される。Django公式のフレームワーク
             messages.add_message(request, messages.SUCCESS, 'ユーザー登録が完了しました！')
             
             #登録が完了したらログイン画面に飛ぶ
@@ -59,11 +73,17 @@ def signup_view(request):
     login_form = LoginForm()
     
     #contextにサインアップフォームとプロフィールフォームを入れる（後でテンプレートに渡すため）
+    #contextにforms.pyの内容を入れてrender関数で出力する
     context = {
         'signup_form': signup_form,
-        'profile_form': profile_form,
+        'profile_form': profile_form
     }
-    return render(request, 'login_app/signup.html', context)
+    
+    #login_app/signup.htmlにcontextの内容は渡す
+    #signupの{{form}}を入力したところに入力フォームが表示される
+    return render(request, 
+                  'login_app/signup.html',
+                  context)
 
 
 #ログイン画面

@@ -9,10 +9,19 @@ from datetime import datetime
 CustomUser = get_user_model()
 
 class SignUpForm(UserCreationForm):
+    
+    #ここの記述がinputタグと同じ役割があると考える()内でplaceholder指定的な記述をする
+    username = forms.CharField()
+    email = forms.CharField()
+    
     password = forms.CharField(widget=forms.PasswordInput)
     password1 = forms.CharField(required=False)
-    password2 = password1
-
+    password2 = forms.CharField(
+              label="確認用パスワード",
+              widget=forms.PasswordInput
+                )
+    
+    
     class Meta:
         
         #指定したモデルで定義されている全フィールドを自動で定義する（自動生成）
@@ -20,7 +29,7 @@ class SignUpForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password','password2')
 
 class ProfileForm(forms.ModelForm):
     
@@ -31,7 +40,8 @@ class ProfileForm(forms.ModelForm):
         ('female', '女性',),
         ('male', '男性',),
         ('not_applicable', '秘密',)
-    )
+        )
+    
     gender = forms.ChoiceField(
         widget=forms.RadioSelect, #ラジオボタンに設定する
         choices=CHOICES, 
