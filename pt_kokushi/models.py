@@ -26,7 +26,7 @@ class UserManager(BaseUserManager):
         #raiseは意図的に例外を発生させる機能（例外処理）
         #usernameがない場合はエラー
         if not username:
-            raise ValueError ('名前が必要ようです')
+            raise ValueError ('名前が必要です')
         
         #emailがない場合はエラー
         elif not email:
@@ -143,18 +143,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank=True, 
         null=True
         )
-    
     #アクティブユーザー（一回以上利用があったユーザーのこと)
     is_active = models.BooleanField(
         default=True
         )
+    
     #登録日のこと
-    date_joined = models.DateTimeField(
+    date_joined = models.DateTimeField( 
         verbose_name="登録日",
         auto_now_add=True, #DBにインサート（追加挿入）するたびに更新
         null=True,
         blank=True
         )
+    
     #誕生日から年齢を計算
     def get_age(self):
         if self.date_of_birth:
@@ -167,8 +168,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         _("staff status"),
         #default(初期値)の設定。この場合初期値は「False」
         default=False,
-        help_text=_("Designates whether the user can log into this admin site."),
+        help_text=_("管理サイトへのログインの権利を判断します"),
     )
+    
+    gender = models.CharField(max_length=20, blank=True)
+    
+    birth_date = models.DateField(null=True, blank=True)
     
     #ユーザーモデルの情報を参照する
     #プログラムが扱うデータは全てobjectsと言える（UserManagerとUserを紐付けしている)
@@ -181,7 +186,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "username"
     
     #登録画面の入力の項目（ユーザー名とパスワードは自動で存在する.入れたらエラーになる）
-    REQUIRED_FIELDS = ['email','date_of_birth','school_year','prefecture','is_active','date_joined']
+    REQUIRED_FIELDS = ['email','date_of_birth','school_year','prefecture','is_active','date_joined','gender','birth_date']
 
     #ModelFormやUserCreationFormを実装するときに使用する
     #このクラスを使うことでモデルのフィールフィールドを自動で共有することができる
@@ -198,24 +203,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
-
-
-#ユーザーの新規登録と同期して、登録されたユーザーにひもづくProfileレコードが挿入される
-class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=20, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
-    location = models.CharField(max_length=30, blank=True)
-    favorite_words = models.CharField(max_length=50, blank=True)
-
-#recieverというモジュールとpost_saveというモジュールを使う
-#CustomUserモデルのpost_saveシグナルをreceiverで受け取り
-#create_user_profile と save_user_profile メソッドが起動します。
-@receiver(post_save, sender=CustomUser)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=CustomUser)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
