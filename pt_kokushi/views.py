@@ -44,11 +44,8 @@ def signup_view(request):
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
-            user = CustomUser.objects.create_user(username, email, birth_date,password,password2,gender,birth_year,birth_month,birth_day,prefecture)
+            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year,birth_month,birth_day,prefecture)
             
-            if birth_day and birth_month and birth_year:
-                birth_date = date(int(birth_year), int(birth_month), int(birth_day)).isoformat()
-                user.profile.birth_date = birth_date
             user.save()
             
             #POSTされた値はハッシュ化されているためそのままでは使えない

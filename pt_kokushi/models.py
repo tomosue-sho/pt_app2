@@ -171,9 +171,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text=_("管理サイトへのログインの権利を判断します"),
     )
     
-    gender = models.CharField(max_length=20, blank=True)
+    gender = models.CharField(
+        max_length=20, 
+        blank=True
+        )
     
-    birth_date = models.DateField(null=True, blank=True)
+    birth_date = models.DateField(
+        null=True,
+        blank=True
+        )
     
     #ユーザーモデルの情報を参照する
     #プログラムが扱うデータは全てobjectsと言える（UserManagerとUserを紐付けしている)

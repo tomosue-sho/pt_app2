@@ -10,14 +10,25 @@ CustomUser = get_user_model()
 class CustomUserForm(UserCreationForm):
     
     #ここの記述がinputタグと同じ役割があると考える()内でplaceholder指定的な記述をする
-    username = forms.CharField()
-    email = forms.CharField(widget=forms.EmailInput)
+    username = forms.CharField(
+        label = '名前',
+        max_length = 20,
+        )
     
-    password = forms.CharField(widget=forms.PasswordInput)
+    email = forms.CharField(
+        label = 'メールアドレス',
+        widget = forms.EmailInput
+        )
+    
+    password = forms.CharField(
+        label = 'パスワード',
+        widget = forms.PasswordInput
+        )
+    
     password2 = forms.CharField(
-              label="確認用パスワード",
-              widget=forms.PasswordInput
-                )
+        label = "確認用パスワード",
+        widget = forms.PasswordInput
+        )
     
     #ChoiceFieldで複数の選択肢から１つを選ぶフィールド
     #テンプレートには以下のように記述する
@@ -29,71 +40,76 @@ class CustomUserForm(UserCreationForm):
         )
     
     gender = forms.ChoiceField(
-        widget=forms.RadioSelect, #ラジオボタンに設定する
-        choices=CHOICES, 
-        required=False) #Falseなので入力必須ではない
+        label = '性別',
+        widget = forms.RadioSelect, #ラジオボタンに設定する
+        choices = CHOICES, 
+        required = False
+        ) #Falseなので入力必須ではない
     
-    school_year = forms.ChoiceField(label='学年',
-                                     choices = [
-                                     ('1','1年生'),
-                                     ('2','2年生'),
-                                     ('3','3年生'),
-                                     ('4','4年生'),
-                                     ('5','卒業生'),
-                                     ('6','その他')
-                                     ])
-    prefecture = forms.ChoiceField(label='都道府県',
-                                 choices = [
-                                    ("北海道"  ,"北海道"  ),  
-                                    ("青森県"  ,"青森県"  ),  
-                                    ("岩手県"  ,"岩手県"  ),  
-                                    ("宮城県"  ,"宮城県"  ),  
-                                    ("秋田県"  ,"秋田県"  ),  
-                                    ("山形県"  ,"山形県"  ),  
-                                    ("福島県"  ,"福島県"  ),  
-                                    ("茨城県"  ,"茨城県"  ),  
-                                    ("栃木県"  ,"栃木県"  ),  
-                                    ("群馬県"  ,"群馬県"  ),  
-                                    ("埼玉県"  ,"埼玉県"  ),  
-                                    ("千葉県"  ,"千葉県"  ),  
-                                    ("東京都"  ,"東京都"  ),  
-                                    ("神奈川県","神奈川県" ),
-                                    ("新潟県"  ,"新潟県"  ),  
-                                    ("富山県"  ,"富山県"  ),  
-                                    ("石川県"  ,"石川県"  ),  
-                                    ("福井県"  ,"福井県"  ),  
-                                    ("山梨県"  ,"山梨県"  ),  
-                                    ("長野県"  ,"長野県"  ),  
-                                    ("岐阜県"  ,"岐阜県"  ),  
-                                    ("静岡県"  ,"静岡県"  ),  
-                                    ("愛知県"  ,"愛知県"  ),  
-                                    ("三重県"  ,"三重県"  ),  
-                                    ("滋賀県"  ,"滋賀県"  ),  
-                                    ("京都府"  ,"京都府"  ),  
-                                    ("大阪府"  ,"大阪府"  ),  
-                                    ("兵庫県"  ,"兵庫県"  ),  
-                                    ("奈良県"  ,"奈良県"  ),  
-                                    ("和歌山県","和歌山県"),
-                                    ("鳥取県"  ,"鳥取県"  ),  
-                                    ("島根県"  ,"島根県"  ),  
-                                    ("岡山県"  ,"岡山県"  ),  
-                                    ("広島県"  ,"広島県"  ),  
-                                    ("山口県"  ,"山口県"  ),  
-                                    ("徳島県"  ,"徳島県"  ),  
-                                    ("香川県"  ,"香川県"  ),  
-                                    ("愛媛県"  ,"愛媛県"  ),  
-                                    ("高知県"  ,"高知県"  ),  
-                                    ("福岡県"  ,"福岡県"  ),  
-                                    ("佐賀県"  ,"佐賀県"  ),  
-                                    ("長崎県"  ,"長崎県"  ),  
-                                    ("熊本県"  ,"熊本県"  ),  
-                                    ("大分県"  ,"大分県"  ),  
-                                    ("宮崎県"  ,"宮崎県"  ),  
-                                    ("鹿児島県","鹿児島県"),
-                                    ("沖縄県"  ,"沖縄県"  ),    
-                                 ],
-                                 initial ="東京都"
-                                 )
+    school_year = forms.ChoiceField(
+        label = '学年',
+        choices = [
+            ('1','1年生'),
+            ('2','2年生'),
+            ('3','3年生'),
+            ('4','4年生'),
+            ('5','卒業生'),
+            ('6','その他')
+            ])
+    
+    prefecture = forms.ChoiceField(
+        label = '都道府県',
+        choices = [
+            ("北海道"  ,"北海道"  ),  
+            ("青森県"  ,"青森県"  ),  
+            ("岩手県"  ,"岩手県"  ),  
+            ("宮城県"  ,"宮城県"  ),  
+            ("秋田県"  ,"秋田県"  ),  
+            ("山形県"  ,"山形県"  ),  
+            ("福島県"  ,"福島県"  ),  
+            ("茨城県"  ,"茨城県"  ),  
+            ("栃木県"  ,"栃木県"  ),  
+            ("群馬県"  ,"群馬県"  ),  
+            ("埼玉県"  ,"埼玉県"  ),  
+            ("千葉県"  ,"千葉県"  ),  
+            ("東京都"  ,"東京都"  ),  
+            ("神奈川県","神奈川県" ),
+            ("新潟県"  ,"新潟県"  ),  
+            ("富山県"  ,"富山県"  ),  
+            ("石川県"  ,"石川県"  ),  
+            ("福井県"  ,"福井県"  ),  
+            ("山梨県"  ,"山梨県"  ),  
+            ("長野県"  ,"長野県"  ),  
+            ("岐阜県"  ,"岐阜県"  ),  
+            ("静岡県"  ,"静岡県"  ),  
+            ("愛知県"  ,"愛知県"  ),  
+            ("三重県"  ,"三重県"  ),  
+            ("滋賀県"  ,"滋賀県"  ),  
+            ("京都府"  ,"京都府"  ),  
+            ("大阪府"  ,"大阪府"  ),  
+            ("兵庫県"  ,"兵庫県"  ),  
+            ("奈良県"  ,"奈良県"  ),  
+            ("和歌山県","和歌山県"),
+            ("鳥取県"  ,"鳥取県"  ),  
+            ("島根県"  ,"島根県"  ),  
+            ("岡山県"  ,"岡山県"  ),  
+            ("広島県"  ,"広島県"  ),  
+            ("山口県"  ,"山口県"  ),  
+            ("徳島県"  ,"徳島県"  ),  
+            ("香川県"  ,"香川県"  ),  
+            ("愛媛県"  ,"愛媛県"  ),  
+            ("高知県"  ,"高知県"  ),  
+            ("福岡県"  ,"福岡県"  ),  
+            ("佐賀県"  ,"佐賀県"  ),  
+            ("長崎県"  ,"長崎県"  ),  
+            ("熊本県"  ,"熊本県"  ),  
+            ("大分県"  ,"大分県"  ),  
+            ("宮崎県"  ,"宮崎県"  ),  
+            ("鹿児島県","鹿児島県"),
+            ("沖縄県"  ,"沖縄県"  ),    
+            ],
+            initial = "東京都"
+            )
 
     
     #from_xは日付範囲の開始地点
@@ -147,7 +163,7 @@ class CustomUserForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('username', 'email', 'password','password2', 'school_year','prefecture','gender','birth_year', 'birth_month', 'birth_day')
+        fields = ('username', 'email', 'password','password2','birth_year', 'birth_month', 'birth_day','prefecture', 'school_year','gender')
 
 class LoginForm(AuthenticationForm):
     pass
