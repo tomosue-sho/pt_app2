@@ -40,10 +40,11 @@ def signup_view(request):
             birth_year = signup_form.cleaned_data.get('birth_year')
             birth_month = signup_form.cleaned_data.get('birth_month')
             birth_day = signup_form.cleaned_data.get('birth_day')
+            prefecture = signup_form.cleaned_data.get('prefecture')
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
-            user = CustomUser.objects.create_user(username, email, birth_date,password,password2,gender,birth_year,birth_month,birth_day)
+            user = CustomUser.objects.create_user(username, email, birth_date,password,password2,gender,birth_year,birth_month,birth_day,prefecture)
             
             if birth_day and birth_month and birth_year:
                 birth_date = date(int(birth_year), int(birth_month), int(birth_day)).isoformat()
@@ -64,8 +65,8 @@ def signup_view(request):
             return redirect('login')
     else:
         signup_form = CustomUserForm()
+        
 
-    login_form = LoginForm()
     
     #contextにサインアップフォームとプロフィールフォームを入れる（後でテンプレートに渡すため）
     #contextにforms.pyの内容を入れてrender関数で出力する
