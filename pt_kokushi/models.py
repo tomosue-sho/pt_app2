@@ -18,7 +18,8 @@ class UserManager(BaseUserManager):
     
     #今回設定するクラスを設定するための設定
     use_in_migrations = True
-    
+        
+        #--------ここから通常ユーザーを作成--------
         #**extra_fieldsによりemail,passwordフィールド以外のフィールドが辞書で格納される
         #**extra_fieldはemail,password以外のフィールドとも捉えられる
     def _create_user(self, username, email, password, **extra_fields):
@@ -112,36 +113,36 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     #モデルフィールドの設定（テーブル定義を行うところ）(使いたいフィールドを追加)
     username = models.CharField(
-        verbose_name='名前', #verbose_nameで管理画面での表示が変わる
-        max_length=20, 
-        unique=True, #ユニーク制約（重複しないようにすること）を解除
+        verbose_name = '名前', #verbose_nameで管理画面での表示が変わる
+        max_length = 20, 
+        unique = True, #重複しないようにする
         validators = [username_validator],
-        error_messages={
+        error_messages = {
             "unique": _("その名前はすでに使われています"),
         },)
         
     email = models.EmailField(
         _("email address"),#_("")は多言語対応のためのマーク付け
-        unique=True,
-        blank=False
+        unique = True,
+        blank = False
         )
     
     date_of_birth = models.DateField(
-        verbose_name="誕生日", #verbose_nameで管理画面での表示が変わる
-        blank=True, 
-        null=True
+        verbose_name = "誕生日", #verbose_nameで管理画面での表示が変わる
+        blank = True, 
+        null = True
         )
     
     school_year = models.IntegerField(
-        verbose_name="学年",
+        verbose_name = "学年",
         blank = True
         )
     
     prefecture = models.CharField(
         _('都道府県'), #_("")は多言語対応のためのマーク付け
-        max_length=5, 
-        blank=True, 
-        null=True
+        max_length = 5, 
+        blank = True, 
+        null = True
         )
     #アクティブユーザー（一回以上利用があったユーザーのこと)
     is_active = models.BooleanField(
@@ -150,10 +151,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     #登録日のこと
     date_joined = models.DateTimeField( 
-        verbose_name="登録日",
-        auto_now_add=True, #DBにインサート（追加挿入）するたびに更新
-        null=True,
-        blank=True
+        verbose_name = "登録日",
+        auto_now_add = True, #DBにインサート（追加挿入）するたびに更新
+        null = True,
+        blank = True
         )
     
     #誕生日から年齢を計算
@@ -167,18 +168,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(
         _("staff status"),
         #default(初期値)の設定。この場合初期値は「False」
-        default=False,
-        help_text=_("管理サイトへのログインの権利を判断します"),
+        default = False,
+        help_text = _("管理サイトへのログインの権利を判断します"),
     )
     
     gender = models.CharField(
-        max_length=20, 
-        blank=True
+        max_length = 20, 
+        blank = True
         )
     
     birth_date = models.DateField(
-        null=True,
-        blank=True
+        null = True,
+        blank = True
         )
     
     #ユーザーモデルの情報を参照する

@@ -41,10 +41,11 @@ def signup_view(request):
             birth_month = signup_form.cleaned_data.get('birth_month')
             birth_day = signup_form.cleaned_data.get('birth_day')
             prefecture = signup_form.cleaned_data.get('prefecture')
+            birth_date = signup_form.cleaned_data.get('birth_date')
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
-            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year,birth_month,birth_day,prefecture)
+            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year,birth_month,birth_day,prefecture,birth_date)
             
             user.save()
             

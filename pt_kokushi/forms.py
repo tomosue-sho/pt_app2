@@ -3,7 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
-from datetime import datetime
+from datetime import datetime , timedelta
+from datetime import date
 
 CustomUser = get_user_model()
 
@@ -13,21 +14,14 @@ class CustomUserForm(UserCreationForm):
     username = forms.CharField(
         label = '名前',
         max_length = 20,
+        error_messages = {
+            "required": "",
+        }
         )
     
     email = forms.CharField(
         label = 'メールアドレス',
         widget = forms.EmailInput
-        )
-    
-    password = forms.CharField(
-        label = 'パスワード',
-        widget = forms.PasswordInput
-        )
-    
-    password2 = forms.CharField(
-        label = "確認用パスワード",
-        widget = forms.PasswordInput
         )
     
     #ChoiceFieldで複数の選択肢から１つを選ぶフィールド
@@ -45,6 +39,13 @@ class CustomUserForm(UserCreationForm):
         choices = CHOICES, 
         required = False
         ) #Falseなので入力必須ではない
+    
+    birth_date = forms.DateField(
+        input_formats = ['%Y-%m-%d', '%d/%m/%Y'],
+        label = "Birth Date",
+        initial = datetime.now() - timedelta(days=365 * 20),
+        widget = forms.SelectDateWidget
+    )
     
     school_year = forms.ChoiceField(
         label = '学年',
@@ -110,8 +111,7 @@ class CustomUserForm(UserCreationForm):
             ],
             initial = "東京都"
             )
-
-    
+       
     #from_xは日付範囲の開始地点
     #to_yは日付範囲の終了地点
     #datesは日付範囲が格納されるリスト
@@ -155,6 +155,9 @@ class CustomUserForm(UserCreationForm):
     days = make_select_object(1, 32, days)
     birth_day = make_select_field(days)
     
+    
+    
+    
 
     class Meta:
         
@@ -163,7 +166,8 @@ class CustomUserForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('username', 'email', 'password','password2','birth_year', 'birth_month', 'birth_day','prefecture', 'school_year','gender')
-
+        fields = ('birth_date','username','password1', 'password2','email','birth_year', 'birth_month', 'birth_day','prefecture', 'school_year','gender')
+        
+                
 class LoginForm(AuthenticationForm):
     pass

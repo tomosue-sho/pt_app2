@@ -3,8 +3,9 @@
 {% load django_bootstrap5 %}
 
 <h2>会員登録フォーム</h2>
-<form class="" action="" method="post" enctype="multipart/form-data">
-    
+<form class="" action="" method="post" enctype="multipart/form-data" >
+  {% csrf_token %}
+
   {{ signup_form.as_p }}
     <button type="submit" name="submit">登録する</button>
 </form>
