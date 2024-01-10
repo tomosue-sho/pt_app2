@@ -45,7 +45,7 @@ def signup_view(request):
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
-            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year,birth_month,birth_day,prefecture,birth_date)
+            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year, birth_month, birth_day,prefecture,birth_date)
             
             user.save()
             

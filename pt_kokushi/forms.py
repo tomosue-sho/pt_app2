@@ -40,7 +40,7 @@ class CustomUserForm(UserCreationForm):
         required = False
         ) #Falseなので入力必須ではない
     
-    birth_date = forms.DateField(
+    birth_of_date = forms.DateField(
         input_formats = ['%Y-%m-%d', '%d/%m/%Y'],
         label = "Birth Date",
         initial = datetime.now() - timedelta(days=365 * 20),
@@ -111,7 +111,7 @@ class CustomUserForm(UserCreationForm):
             ],
             initial = "東京都"
             )
-       
+    
     #from_xは日付範囲の開始地点
     #to_yは日付範囲の終了地点
     #datesは日付範囲が格納されるリスト
@@ -156,9 +156,6 @@ class CustomUserForm(UserCreationForm):
     birth_day = make_select_field(days)
     
     
-    
-    
-
     class Meta:
         
         #どのモデルを選択するか
@@ -166,8 +163,12 @@ class CustomUserForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('birth_date','username','password1', 'password2','email','birth_year', 'birth_month', 'birth_day','prefecture', 'school_year','gender')
+        fields = ('birth_of_date','username','password1', 'password2','email','prefecture', 'school_year','gender')
         
                 
 class LoginForm(AuthenticationForm):
-    pass
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            for field in self.fields.values():
+                field.widget.attrs['class'] = 'form-control'
+                field.widget.attrs['placeholder'] = field.label

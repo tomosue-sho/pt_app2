@@ -51,7 +51,7 @@ class UserManager(BaseUserManager):
         return user
     
     #views.pyのsignup_viewで使ってる
-    def create_user(self, email=None, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         
         #setdefault()メソッドでは「第一引数：key（キー）,第二引数：value（値）」を指定する
         #新規ユーザーが登録された場合のみ登録されるメソッドでスタッフとスーパーユーザーにはならないようにしている
@@ -190,10 +190,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     #usernameを使って認証するということ。ユニークである必要がある
     #ログインをemailとpasswordのみに変更すると"email"でも設定できるようになる
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "email"
     
     #登録画面の入力の項目（ユーザー名とパスワードは自動で存在する.入れたらエラーになる）
-    REQUIRED_FIELDS = ['email','date_of_birth','school_year','prefecture','is_active','date_joined','gender','birth_date']
+    REQUIRED_FIELDS = ['date_of_birth','school_year','prefecture','is_active','date_joined','gender','birth_date']
 
     #ModelFormやUserCreationFormを実装するときに使用する
     #このクラスを使うことでモデルのフィールフィールドを自動で共有することができる
