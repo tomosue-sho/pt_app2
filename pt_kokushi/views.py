@@ -45,7 +45,17 @@ def signup_view(request):
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
-            user = CustomUser.objects.create_user(username, email, password,password2,gender,birth_year, birth_month, birth_day,prefecture,birth_date)
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                password2=password2,
+                gender=gender,
+                birth_year=birth_year,
+                birth_month=birth_month,
+                birth_day=birth_day,
+                prefecture=prefecture
+                )
             
             user.save()
             
@@ -60,7 +70,7 @@ def signup_view(request):
             messages.add_message(request, messages.SUCCESS, 'ユーザー登録が完了しました！')
             
             #登録が完了したらログイン画面に飛ぶ
-            return redirect('login')
+            return redirect('login_app/login.html')
     else:
         signup_form = CustomUserForm()
         

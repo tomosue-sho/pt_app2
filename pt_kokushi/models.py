@@ -51,7 +51,7 @@ class UserManager(BaseUserManager):
         return user
     
     #views.pyのsignup_viewで使ってる
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self,username, email, password=None, **extra_fields):
         
         #setdefault()メソッドでは「第一引数：key（キー）,第二引数：value（値）」を指定する
         #新規ユーザーが登録された場合のみ登録されるメソッドでスタッフとスーパーユーザーにはならないようにしている
@@ -59,7 +59,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", False)
         
         #setdefaultでの返り値として
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(username,email, password, **extra_fields)
     
     #create_superuserの記述がないとスーパーユーザーで管理画面にログインできない
     def create_superuser(self, email=None, password=None, **extra_fields):
@@ -135,7 +135,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     school_year = models.IntegerField(
         verbose_name = "学年",
-        blank = True
+        blank = True,
+        null = True,
         )
     
     prefecture = models.CharField(

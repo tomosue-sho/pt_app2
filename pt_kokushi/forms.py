@@ -155,6 +155,17 @@ class CustomUserForm(UserCreationForm):
     days = make_select_object(1, 32, days)
     birth_day = make_select_field(days)
     
+    def clean(self):
+        cleaned_data = super().clean()
+        birth_year = cleaned_data.get('birth_year')
+        birth_month = cleaned_data.get('birth_month')
+        birth_day = cleaned_data.get('birth_day')
+        
+        if not birth_year or not birth_month or not birth_day:
+            raise forms.ValidationError('誕生日を正しく選択してください。')
+
+        return cleaned_data
+    
     
     class Meta:
         
@@ -163,7 +174,7 @@ class CustomUserForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('birth_of_date','username','password1', 'password2','email','prefecture', 'school_year','gender')
+        fields = ('username','password1', 'password2','email','prefecture', 'school_year','gender')
         
                 
 class LoginForm(AuthenticationForm):
