@@ -9,8 +9,9 @@ CustomUser = get_user_model()
 class CustomUserAdmin(admin.ModelAdmin):
     #管理画面に表示したい項目
     list_display = (
+        'nickname',
         'email',
-        'date_of_birth',
+        'birth_of_date',
         'get_age',
         'school_year',
         'prefecture',
@@ -26,7 +27,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     )
 
     # 一覧画面: 検索ボックス
-    search_fields = ("email",)
+    search_fields = ("email","nickname")
 
     # 一覧画面: ソート（降順ならフィールド名の先頭に-）
     ordering = ("email",)
@@ -35,9 +36,9 @@ class CustomUserAdmin(admin.ModelAdmin):
     
     #「[('好きな名前', {'fields': ('フィールド名',)})]」でフィールドのレイアウトを変更する
     fieldsets = (
-        ("重要項目", {"fields": ('username', "email", "password")}),
-        ("Personal", {"fields": ( "date_joined",)}),
-        ("Auth", {"fields": ("is_staff", "is_active"),}),
+        ("重要項目", {"fields": ( "email", "password")}),
+        ("Personal", {"fields": ( "nickname","birth_of_date","school_year","prefecture")}),
+        ("Auth", {"fields": ("is_staff", "is_active","date_joined"),}),
     )
     
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある

@@ -32,36 +32,31 @@ def signup_view(request):
             #cleaned_dataにバリデーション後に正しかったデータが入る
             #POSTの値をcleaned_dataして辞書型のデータに整形し、get()にキーを入力して取り出す
             #signup_form
-            username = signup_form.cleaned_data.get('username')
+            nickname = signup_form.cleaned_data.get('nickname')
             email = signup_form.cleaned_data.get('email')
             password = signup_form.cleaned_data.get('password')
-            password2 = signup_form.cleaned_data.get('password2')
             gender = signup_form.cleaned_data.get('gender')
-            birth_year = signup_form.cleaned_data.get('birth_year')
-            birth_month = signup_form.cleaned_data.get('birth_month')
-            birth_day = signup_form.cleaned_data.get('birth_day')
             prefecture = signup_form.cleaned_data.get('prefecture')
-            birth_date = signup_form.cleaned_data.get('birth_date')
+            birth_of_date = signup_form.cleaned_data.get('birth_of_date')
+            school_year = signup_form.cleaned_data.get('school_year')
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
             user = CustomUser.objects.create_user(
-                username=username,
+                nickname=nickname,
                 email=email,
                 password=password,
-                password2=password2,
                 gender=gender,
-                birth_year=birth_year,
-                birth_month=birth_month,
-                birth_day=birth_day,
-                prefecture=prefecture
+                birth_of_date=birth_of_date,
+                prefecture=prefecture,
+                school_year=school_year
                 )
             
             user.save()
             
             #POSTされた値はハッシュ化されているためそのままでは使えない
             #なのでauthenticate()関数を使う。引数で渡したIDとPWが一致していた場合インスタンスを返す関数
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(request, email=email, password=password)
             
             #settings.pyで複数の認証方法を追加している場合はbackendに＝’’の内容が必要になる
             auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -70,7 +65,7 @@ def signup_view(request):
             messages.add_message(request, messages.SUCCESS, 'ユーザー登録が完了しました！')
             
             #登録が完了したらログイン画面に飛ぶ
-            return redirect('login_app/login.html')
+            return redirect('pt_kokushi:login')
     else:
         signup_form = CustomUserForm()
         

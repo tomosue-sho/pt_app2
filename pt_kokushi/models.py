@@ -22,22 +22,16 @@ class UserManager(BaseUserManager):
         #--------ここから通常ユーザーを作成--------
         #**extra_fieldsによりemail,passwordフィールド以外のフィールドが辞書で格納される
         #**extra_fieldはemail,password以外のフィールドとも捉えられる
-    def _create_user(self, username, email, password, **extra_fields):
+    def _create_user(self, email, password, **extra_fields):
         
         #raiseは意図的に例外を発生させる機能（例外処理）
-        #usernameがない場合はエラー
-        if not username:
-            raise ValueError ('名前が必要です')
-        
         #emailがない場合はエラー
-        elif not email:
+        if not email:
             raise ValueError("メールアドレスが必要です")
         
         #self.normalizeによりemailの@以下が正規化される（小文字にする）
         user = self.model(
-            username = username,
-            email = self.normalize_email(email),
-        #user = self.model(email=email, **extra_fields)
+            email = self.normalize_email(email), **extra_fields
         )
         
         #make_password()関数によりpassword引数に渡された値はハッシュ化（暗号化）される
@@ -51,7 +45,7 @@ class UserManager(BaseUserManager):
         return user
     
     #views.pyのsignup_viewで使ってる
-    def create_user(self,username, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         
         #setdefault()メソッドでは「第一引数：key（キー）,第二引数：value（値）」を指定する
         #新規ユーザーが登録された場合のみ登録されるメソッドでスタッフとスーパーユーザーにはならないようにしている
@@ -59,7 +53,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", False)
         
         #setdefaultでの返り値として
-        return self._create_user(username,email, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
     
     #create_superuserの記述がないとスーパーユーザーで管理画面にログインできない
     def create_superuser(self, email=None, password=None, **extra_fields):
@@ -107,19 +101,12 @@ class UserManager(BaseUserManager):
  
 #ここに追加したいフィールドやメソッドを追加する
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    
-    #名前が重複しないか確認するusernameで使ってる
-    username_validator = UnicodeUsernameValidator()
-    
+      
     #モデルフィールドの設定（テーブル定義を行うところ）(使いたいフィールドを追加)
-    username = models.CharField(
-        verbose_name = '名前', #verbose_nameで管理画面での表示が変わる
-        max_length = 20, 
-        unique = True, #重複しないようにする
-        validators = [username_validator],
-        error_messages = {
-            "unique": _("その名前はすでに使われています"),
-        },)
+    nickname = models.CharField(
+        verbose_name = 'ニックネーム', #verbose_nameで管理画面での表示が変わる
+        max_length = 20,
+        )
         
     email = models.EmailField(
         _("email address"),#_("")は多言語対応のためのマーク付け
@@ -127,7 +114,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank = False
         )
     
-    date_of_birth = models.DateField(
+    birth_of_date = models.DateField(
         verbose_name = "誕生日", #verbose_nameで管理画面での表示が変わる
         blank = True, 
         null = True
@@ -153,16 +140,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     #登録日のこと
     date_joined = models.DateTimeField( 
         verbose_name = "登録日",
-        auto_now_add = True, #DBにインサート（追加挿入）するたびに更新
-        null = True,
-        blank = True
+        default=timezone.now
         )
     
     #誕生日から年齢を計算
     def get_age(self):
-        if self.date_of_birth:
+        if self.birth_of_date:
             today = date.today()
-            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+            return today.year - self.birth_of_date.year - ((today.month, today.day) < (self.birth_of_date.month, self.birth_of_date.day))
         return None
     
     #Boolean=真偽値
@@ -178,11 +163,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank = True
         )
     
-    birth_date = models.DateField(
-        null = True,
-        blank = True
-        )
-    
     #ユーザーモデルの情報を参照する
     #プログラムが扱うデータは全てobjectsと言える（UserManagerとUserを紐付けしている)
     objects = UserManager()
@@ -194,7 +174,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     
     #登録画面の入力の項目（ユーザー名とパスワードは自動で存在する.入れたらエラーになる）
-    REQUIRED_FIELDS = ['date_of_birth','school_year','prefecture','is_active','date_joined','gender','birth_date']
+    REQUIRED_FIELDS = ['birth_of_date','school_year','prefecture','is_active','date_joined','gender',]
 
     #ModelFormやUserCreationFormを実装するときに使用する
     #このクラスを使うことでモデルのフィールフィールドを自動で共有することができる

@@ -5,14 +5,16 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
 from datetime import datetime , timedelta
 from datetime import date
+from django.utils import timezone
+
 
 CustomUser = get_user_model()
 
-class CustomUserForm(UserCreationForm):
+class CustomUserForm(forms.ModelForm):
     
     #ここの記述がinputタグと同じ役割があると考える()内でplaceholder指定的な記述をする
-    username = forms.CharField(
-        label = '名前',
+    nickname = forms.CharField(
+        label = 'ニックネーム',
         max_length = 20,
         error_messages = {
             "required": "",
@@ -21,8 +23,11 @@ class CustomUserForm(UserCreationForm):
     
     email = forms.CharField(
         label = 'メールアドレス',
-        widget = forms.EmailInput
+        widget = forms.EmailInput,
         )
+    
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Password 確認用', widget=forms.PasswordInput)
     
     #ChoiceFieldで複数の選択肢から１つを選ぶフィールド
     #テンプレートには以下のように記述する
@@ -42,9 +47,11 @@ class CustomUserForm(UserCreationForm):
     
     birth_of_date = forms.DateField(
         input_formats = ['%Y-%m-%d', '%d/%m/%Y'],
-        label = "Birth Date",
+        label = "生年月日",
         initial = datetime.now() - timedelta(days=365 * 20),
-        widget = forms.SelectDateWidget
+        widget = forms.SelectDateWidget(
+            years=range(timezone.now().year, 1949, -1)
+        )
     )
     
     school_year = forms.ChoiceField(
@@ -111,61 +118,7 @@ class CustomUserForm(UserCreationForm):
             ],
             initial = "東京都"
             )
-    
-    #from_xは日付範囲の開始地点
-    #to_yは日付範囲の終了地点
-    #datesは日付範囲が格納されるリスト
-    #incrementは日付範囲を増加させる可動かを決めるTrueなのでfrom_xからto_yまでのリストをdatesに追加する
-    def make_select_object(from_x, to_y, dates, increment=True):
-        if increment:
-            for i in range(from_x, to_y):
-                dates.append([i, i])
-        else:
-            for i in range(from_x, to_y, -1):
-                dates.append([i, i])
-        return dates
-    
-    #Djangoのフォームで使用されるChoiceFieldオブジェクトを生成するためのもの
-    #引数select_objectによってmake_select_object関数で生成された日付範囲のリストが渡される
-    def make_select_field(select_object):
-        
-        #forms.ChoiceFieldクラスで新しい日付選択フィールドを作成する（’date_fields’）
-        dates_field = forms.ChoiceField(
-            widget=forms.Select,
-            choices=select_object,
-            required=False
-        )
-        return dates_field
-    #まずmake_select_object 関数を使用して日付範囲のリストを生成し
-    #その後 make_select_field 関数にそのリストを渡して、Djangoのフォームで使用できる日付選択フィールドを作成する。
 
-    #年の選択フィールド
-    years = [["",""]]
-    current_year = datetime.now().year #現在の年
-    years = make_select_object(current_year, current_year-80, years, increment=False)
-    birth_year = make_select_field(years)
-
-    #月の選択フィールド
-    months = [["",""]]
-    months = make_select_object(1, 13, months)
-    birth_month = make_select_field(months)
-    
-    #日の選択フィールド
-    days = [["",""]]
-    days = make_select_object(1, 32, days)
-    birth_day = make_select_field(days)
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        birth_year = cleaned_data.get('birth_year')
-        birth_month = cleaned_data.get('birth_month')
-        birth_day = cleaned_data.get('birth_day')
-        
-        if not birth_year or not birth_month or not birth_day:
-            raise forms.ValidationError('誕生日を正しく選択してください。')
-
-        return cleaned_data
-    
     
     class Meta:
         
@@ -174,7 +127,21 @@ class CustomUserForm(UserCreationForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('username','password1', 'password2','email','prefecture', 'school_year','gender')
+        fields = ('email','password1', 'password2','nickname','birth_of_date','prefecture', 'school_year','gender')
+        
+        def clean_password2(self):
+            password1 = self.cleaned_data.get("password1")
+            password2 = self.cleaned_data.get("password2")
+            if password1 and password2 and password1 != password2:
+                raise forms.ValidationError("Passwords don't match")
+            return password2
+
+        def save(self, commit=True):
+            user = super().save(commit=False)
+            user.set_password(self.cleaned_data["password1"])
+            if commit:
+                user.save()
+            return user
         
                 
 class LoginForm(AuthenticationForm):
