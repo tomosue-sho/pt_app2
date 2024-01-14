@@ -1,11 +1,36 @@
 {% extends "base.html" %}
 {% block title %}理学療法国試対策{% endblock%}
 {% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom: 1rem;">
+    <div class="container-fluid">
+        <a class="navbar-brand" >Django CRUDアプリ</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if request.user.is_authenticated %}
+                <span class="navbar-text">
+                    ようこそ {{ user.get_username }} さん
+                </span>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログアウト</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pt_kokushi:my_page' %}">マイページ</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
 <div id = "all-display">
 <div id = "top-nav">
     <div class = "title" backgroud = "img/reha.top.jpg">
         <h1 id = "title_top">理学療法国試対策アプリ</h1>
     </div>
+</div>
     <div id = "timelimit" name = "year_number">
         <select id = "select_year">
             <option value = "59_year">第59回</option>
@@ -13,8 +38,7 @@
             <option value = "61_year">第61回</option>
             <option value = "62_year">第62回</option>
         </select>            
-    <p class = "atdays">
-       国試まであと</p>
+    <p class = "atdays">国試まであと</p>
     <p id = "countTimer"></p>   
     </div> 
 </div>

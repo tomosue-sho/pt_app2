@@ -1,0 +1,19 @@
+<!-- my_page.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>パスワード変更</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ password_form.as_p }}
+    <button type="submit">変更</button>
+  </form>
+  
+  <h2>ニックネーム変更</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ nickname_form.as_p }}
+    <button type="submit">変更</button>
+  </form>
+{% endblock %}
+

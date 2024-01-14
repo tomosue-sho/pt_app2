@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
 from .forms import  LoginForm
+from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.views import generic
+from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import views as auth_views
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import CustomUserForm #forms.pyで定義したユーザー認証画面用フォームをインポート
 from datetime import date
@@ -94,7 +96,10 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
-            user = form.get_user()
+            email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+
+            user = authenticate(request, email=email, password=password)
 
             if user:
                 login(request, user)
@@ -142,3 +147,30 @@ class PasswordChange(LoginRequiredMixin, PasswordChangeView):
 class PasswordChangeDone(LoginRequiredMixin,PasswordChangeDoneView):
     """パスワード変更完了"""
     template_name = 'login_app/password_change_done.html'
+    
+@login_required
+def my_page_view(request):
+    # パスワード変更フォーム
+    password_form = CustomPasswordChangeForm(request.user)
+    
+    # ニックネーム変更フォーム
+    nickname_form = CustomNicknameChangeForm(request.user)
+
+    return render(request, 'login_app/my_page.html', {'password_form': password_form, 'nickname_form': nickname_form})
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    form_class = CustomPasswordChangeForm
+    template_name = 'login_app/password_change.html'
+    success_url = reverse_lazy('password_change_done')  # パスワード変更完了後のリダイレクト先
+
+class CustomNicknameChangeView(FormView):
+    template_name = 'login_app/nickname_change.html'
+    form_class = CustomNicknameChangeForm
+    success_url = reverse_lazy('my_page')  # ニックネーム変更完了後のリダイレクト先
+
+    def form_valid(self, form):
+        # ニックネームを変更して保存する処理
+        self.request.user.nickname = form.cleaned_data['nickname']
+        self.request.user.save()
+        return super().form_valid(form)

@@ -1,10 +1,12 @@
 from django import forms
+from datetime import datetime , timedelta
+from datetime import date
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
-from datetime import datetime , timedelta
-from datetime import date
+from django.contrib.auth.forms import PasswordChangeForm
+from .models import CustomUser
 from django.utils import timezone
 
 
@@ -150,3 +152,17 @@ class LoginForm(AuthenticationForm):
             for field in self.fields.values():
                 field.widget.attrs['class'] = 'form-control'
                 field.widget.attrs['placeholder'] = field.label
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+class CustomNicknameChangeForm(forms.Form):
+    nickname = forms.CharField(max_length=20, required=True, label='新しいニックネーム')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
