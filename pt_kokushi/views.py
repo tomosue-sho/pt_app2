@@ -1,13 +1,18 @@
 from django.shortcuts import render, redirect
 from .forms import  LoginForm
+from django.views import generic
+from django.views.generic import TemplateView
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.views.generic import TemplateView
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import views as auth_views
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import CustomUserForm #forms.pyで定義したユーザー認証画面用フォームをインポート
 from datetime import date
+from django.urls import reverse_lazy
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
@@ -114,3 +119,26 @@ def user_view(request):
     }
 
     return render(request, 'login_app/user.html', params)
+
+class index(LoginRequiredMixin, generic.TemplateView):
+    """メニュービュー"""
+    template_name = 'pt_kokushi/password_change.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # 継承元のメソッドCALL
+        context["form_name"] = "password_change"
+        return context
+
+class PasswordChange(LoginRequiredMixin, PasswordChangeView):
+    """パスワード変更ビュー"""
+    success_url = reverse_lazy('pt_kokushi:password_change_done')
+    template_name = 'login_app/password_change.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # 継承元のメソッドCALL
+        context["form_name"] = "password_change"
+        return context
+
+class PasswordChangeDone(LoginRequiredMixin,PasswordChangeDoneView):
+    """パスワード変更完了"""
+    template_name = 'login_app/password_change_done.html'

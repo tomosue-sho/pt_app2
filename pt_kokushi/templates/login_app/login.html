@@ -2,10 +2,16 @@
 {% load static %}
 {% block content %}
 {% load django_bootstrap5 %}
-
+<h1> 理学療法国試対策アプリ</h1>
+<form class="" action="" method="post" enctype="multipart/form-data" >
+{% csrf_token %}
+  
 {{ form.as_p }}
-<button type="submit" name="submit">登録する</button>
-    
-<p><a href="{% url 'pt_kokushi:signup'%}">ユーザー登録</a></p>
+
+<button><a href="{% url 'top'%}"</a>ログイン</button>
+<p><a href="{% url 'pt_kokushi:signup' %}">新規会員登録</a></p>
+
+<a href="{% url 'pt_kokushi:password_change_done' %}">パスワード変更完了ページへ</a>
+</form>
 
 {% endblock %}
