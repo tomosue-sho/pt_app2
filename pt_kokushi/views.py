@@ -4,8 +4,8 @@ from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
-from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
-from django.contrib.auth import login
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth import login ,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -21,7 +21,9 @@ CustomUser = get_user_model()
 
 
 class TopView(TemplateView):
+    
     template_name = "top.html"
+     
 
 #ユーザーアカウント登録
 def signup_view(request):
@@ -61,18 +63,13 @@ def signup_view(request):
             
             user.save()
             
-            #POSTされた値はハッシュ化されているためそのままでは使えない
-            #なのでauthenticate()関数を使う。引数で渡したIDとPWが一致していた場合インスタンスを返す関数
-            user = authenticate(request, email=email, password=password)
-            
-            #settings.pyで複数の認証方法を追加している場合はbackendに＝’’の内容が必要になる
-            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            
-            #message.SUCCESSで処理が成功したら''内のメッセージが通知される。Django公式のフレームワーク
-            messages.add_message(request, messages.SUCCESS, 'ユーザー登録が完了しました！')
-            
-            #登録が完了したらログイン画面に飛ぶ
-            return redirect('pt_kokushi:login')
+       # ユーザーが正しく作成されたか確認
+            if user is not None:
+                auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.add_message(request, messages.SUCCESS, 'ユーザー登録が完了しました！')
+                return redirect('pt_kokushi:login')
+            else:
+                messages.add_message(request, messages.ERROR, 'ユーザーの作成に失敗しました。')
     else:
         signup_form = CustomUserForm()
         
@@ -89,7 +86,7 @@ def signup_view(request):
     return render(request, 'login_app/signup.html', context)
 
 
-#ログイン画面
+# ログイン画面
 def login_view(request):
     if request.method == 'POST':
         next = request.POST.get('next')
@@ -101,10 +98,14 @@ def login_view(request):
 
             user = authenticate(request, email=email, password=password)
 
-            if user:
+            if user is not None:
                 login(request, user)
+                # 既存のセッションデータをクリア
+                request.session.flush()
                 return redirect(to='top')
-
+            else:
+                # 認証に失敗した場合の処理
+                messages.error(request, 'ユーザー認証に失敗しました。')
     else:
         form = LoginForm()
 
@@ -113,6 +114,7 @@ def login_view(request):
     }
 
     return render(request, 'login_app/login.html', param)
+
 
 #ユーザーの登録内容
 @login_required
@@ -147,6 +149,33 @@ class PasswordChange(LoginRequiredMixin, PasswordChangeView):
 class PasswordChangeDone(LoginRequiredMixin,PasswordChangeDoneView):
     """パスワード変更完了"""
     template_name = 'login_app/password_change_done.html'
+    
+ # --- ここから追加
+class PasswordReset(PasswordResetView):
+    """パスワード変更用URLの送付ページ"""
+    subject_template_name = 'login_app/mail_template/reset/subject.txt'
+    email_template_name = 'login_app/mail_template/reset/message.txt'
+    template_name = 'login_app/mail_template/password_reset_form.html'
+    success_url = reverse_lazy('pt_kokushi:password_reset_done')
+
+
+class PasswordResetDone(PasswordResetDoneView):
+    """パスワード変更用URLを送りましたページ"""
+    template_name = 'login_app/mail_template/password_reset_done.html'
+
+
+class PasswordResetConfirm(PasswordResetConfirmView):
+    """新パスワード入力ページ"""
+    success_url = reverse_lazy('pt_kokushi:password_reset_complete')
+    template_name = 'pt_kokushi/password_reset_confirm.html'
+
+
+class PasswordResetComplete(PasswordResetCompleteView):
+    """新パスワード設定しましたページ"""
+    template_name = 'pt_kokushi/password_reset_complete.html'
+
+# --- ここまで
+
     
 @login_required
 def my_page_view(request):

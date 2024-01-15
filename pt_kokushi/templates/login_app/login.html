@@ -9,6 +9,9 @@
 {{ form.as_p }}
 
 <button><a href="{% url 'top'%}"</a>ログイン</button>
+
+<p><font size = "1"><a href="{% url 'pt_kokushi:password_reset' %}">パスワードを忘れた場合はこちら</a></font></p>
+
 <p><a href="{% url 'pt_kokushi:signup' %}">新規会員登録</a></p>
 </form>
 
