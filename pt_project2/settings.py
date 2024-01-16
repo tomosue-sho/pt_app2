@@ -136,4 +136,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #AbstractBaseUserで作成
 AUTH_USER_MODEL = 'pt_kokushi.CustomUser'
 
-

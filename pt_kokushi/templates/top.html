@@ -8,7 +8,7 @@
             <ul class="navbar-nav ms-auto">
                 {% if request.user.is_authenticated %}
                 <span class="navbar-text">
-                    ようこそ {{ user.get_username }} さん
+                    ようこそ {{ user.nickname }} さん
                 </span>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログアウト</a>

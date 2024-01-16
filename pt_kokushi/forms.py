@@ -1,11 +1,9 @@
 from django import forms
 from datetime import datetime , timedelta
 from datetime import date
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm
 from .models import CustomUser
 from django.utils import timezone
 

@@ -13,8 +13,6 @@ from datetime import date
 from django.utils import timezone
 import math
 
-
-
 #Usermmanagerはコピペで不用意な部分を削除や追加して使う
 class UserManager(BaseUserManager):
     
