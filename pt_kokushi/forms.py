@@ -144,9 +144,11 @@ class CustomUserForm(forms.ModelForm):
             return user
         
                 
-class LoginForm(AuthenticationForm):
+class CustomLoginForm(AuthenticationForm):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+            self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
+            
             for field in self.fields.values():
                 field.widget.attrs['class'] = 'form-control'
                 field.widget.attrs['placeholder'] = field.label

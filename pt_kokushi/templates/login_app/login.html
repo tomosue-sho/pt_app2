@@ -1,18 +1,72 @@
-
-{% load static %}
 {% block content %}
+{% bootstrap_css %}
 {% load django_bootstrap5 %}
-<h1> 理学療法国試対策アプリ</h1>
-<form class="" action="" method="post" enctype="multipart/form-data" >
-{% csrf_token %}
-  
-{{ form.as_p }}
+<style>
+  body {
+    background-color: black;
+    color: white;
+  }
 
-<button><a href="{% url 'top'%}">ログイン</a></button>
+  .login-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    padding: 20px;
+    border: 1px solid white;
+    text-align: center;
+  }
 
-<p><font size = "1"><a href="{% url 'pt_kokushi:password_reset' %}">パスワードを忘れた場合はこちら</a></font></p>
+  .login-form .form-group {
+    margin-bottom: 15px;
+  }
 
-<p><a href="{% url 'pt_kokushi:signup' %}">新規会員登録</a></p>
-</form>
+  .login-form .btn {
+    background-color:#0000EE;
+    color: white;
+    margin-top: 15px;
+  }
 
+  .signup-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #6495ED;
+    border-width: 3px;
+    border-style: solid;
+    border-color: white;
+    border-radius: 10px;
+  }
+
+  .forgot-password {
+    font-size: 12px;
+    margin-top: 10px;
+    display: block;
+    color: white;
+  }
+</style>
+<div class="login-form">
+  <h1>理学療法国試対策アプリ</h1>
+  <form class="" action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group d-flex flex-column align-items-center">
+      {{ form.username.label_tag }}
+      {{ form.username }}
+    </div>
+
+    <div class="form-group d-flex flex-column align-items-center">
+      {{ form.password.label_tag }}
+      {{ form.password }}
+    </div>
+
+    <button type="submit" class="btn btn-success">ログイン</button>
+
+    <a class="forgot-password" href="{% url 'pt_kokushi:password_reset' %}">パスワードを忘れた場合はこちら</a>
+
+    <a class="signup-btn" href="{% url 'pt_kokushi:signup' %}">新規会員登録</a>
+  </form>
+</div>
 {% endblock %}

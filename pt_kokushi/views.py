@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
+from .forms import CustomLoginForm
 from .forms import CustomUserForm
-from .forms import LoginForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.urls import reverse_lazy
 from django.views import generic
@@ -91,7 +91,7 @@ def signup_view(request):
 def login_view(request):
     if request.method == 'POST':
         next = request.POST.get('next')
-        form = LoginForm(request, data=request.POST)
+        form = CustomLoginForm(request, data=request.POST)
 
         if form.is_valid():
             email = form.cleaned_data.get('username')
@@ -108,7 +108,7 @@ def login_view(request):
                 # 認証に失敗した場合の処理
                 messages.error(request, 'ユーザー認証に失敗しました。')
     else:
-        form = LoginForm()
+        form = CustomLoginForm()
 
     param = {
         'form': form,
