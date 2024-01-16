@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
+from .forms import CustomUserForm
 from .forms import  LoginForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
+from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
@@ -12,9 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from .forms import CustomUserForm #forms.pyで定義したユーザー認証画面用フォームをインポート
 from datetime import date
-from django.urls import reverse_lazy
+
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
@@ -101,7 +102,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 # 既存のセッションデータをクリア
-                request.session.flush()
+                logout(request)
                 return redirect(to='top')
             else:
                 # 認証に失敗した場合の処理
@@ -116,7 +117,7 @@ def login_view(request):
     return render(request, 'login_app/login.html', param)
 
 
-#ユーザーの登録内容
+#ユーザーの登録内容(user.htmlだが今は使っていないエラーが出たら嫌なので消してない)
 @login_required
 def user_view(request):
     user = request.user
@@ -127,6 +128,8 @@ def user_view(request):
 
     return render(request, 'login_app/user.html', params)
 
+
+#ここからパスワード変更のためのコード
 class index(LoginRequiredMixin, generic.TemplateView):
     """メニュービュー"""
     template_name = 'pt_kokushi/password_change.html'
@@ -167,12 +170,12 @@ class PasswordResetDone(PasswordResetDoneView):
 class PasswordResetConfirm(PasswordResetConfirmView):
     """新パスワード入力ページ"""
     success_url = reverse_lazy('pt_kokushi:password_reset_complete')
-    template_name = 'pt_kokushi/password_reset_confirm.html'
+    template_name = 'login_app/mail_template/password_reset_confirm.html'
 
 
 class PasswordResetComplete(PasswordResetCompleteView):
     """新パスワード設定しましたページ"""
-    template_name = 'pt_kokushi/password_reset_complete.html'
+    template_name = 'login_app/mail_template/password_reset_complete.html'
 
 # --- ここまで
 
@@ -189,14 +192,33 @@ def my_page_view(request):
 
 
 class CustomPasswordChangeView(PasswordChangeView):
-    form_class = CustomPasswordChangeForm
-    template_name = 'login_app/password_change.html'
-    success_url = reverse_lazy('password_change_done')  # パスワード変更完了後のリダイレクト先
+    template_name = 'login_app/password_change.html'  # カスタムテンプレートを指定
+    success_url = reverse_lazy('pt_kokushi:password_change_done')  # パスワード変更完了後のリダイレクト先
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'パスワードを変更しました。')  # 成功メッセージの表示
+        return response
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        messages.error(self.request, 'パスワードの変更に失敗しました。')  # エラーメッセージの表示
+        return response
+
+    def get(self, request, *args, **kwargs):
+        # ここでGETリクエストが来た場合の処理を追加できます
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # ここでPOSTリクエストが来た場合の処理を追加できます
+        return super().post(request, *args, **kwargs)
+
+    # その他、必要なメソッドを追加できる
 
 class CustomNicknameChangeView(FormView):
     template_name = 'login_app/nickname_change.html'
     form_class = CustomNicknameChangeForm
-    success_url = reverse_lazy('my_page')  # ニックネーム変更完了後のリダイレクト先
+    success_url = reverse_lazy('top')  # ニックネーム変更完了後のリダイレクト先
 
     def form_valid(self, form):
         # ニックネームを変更して保存する処理

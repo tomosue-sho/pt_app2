@@ -1,17 +1,19 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib import auth
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import PermissionsMixin
-from datetime import date
-import math
-from django.utils import timezone
-from django.core.validators import MinLengthValidator, RegexValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db.models.signals import post_save
+from django.contrib.auth.models import PermissionsMixin
+from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.mail import send_mail
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
+from datetime import date
+from django.utils import timezone
+import math
+
+
 
 #Usermmanagerはコピペで不用意な部分を削除や追加して使う
 class UserManager(BaseUserManager):
