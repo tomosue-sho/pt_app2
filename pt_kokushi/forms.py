@@ -128,7 +128,7 @@ class CustomUserForm(forms.ModelForm):
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
         fields = ('email','password1', 'password2','nickname','birth_of_date','prefecture', 'school_year','gender')
-        
+           
         def clean_password2(self):
             password1 = self.cleaned_data.get("password1")
             password2 = self.cleaned_data.get("password2")
@@ -142,6 +142,11 @@ class CustomUserForm(forms.ModelForm):
             if commit:
                 user.save()
             return user
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
+
         
                 
 class CustomLoginForm(AuthenticationForm):

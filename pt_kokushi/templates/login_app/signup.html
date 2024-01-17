@@ -2,13 +2,62 @@
 {% block content %}
 {% load django_bootstrap5 %}
 
-<h2>会員登録フォーム</h2>
-<form class="" action="" method="post" enctype="multipart/form-data" >
-  {% csrf_token %}
+<style>
+  body {
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
 
-  {{ signup_form.as_p }}
-  
+  .signup-form {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    border: 1px solid white;
+    text-align: center;
+  }
+
+  .signup-form h2 {
+    color: #6495ED;
+  }
+
+  .signup-form label {
+    display: block;
+    margin: 10px 0;
+    text-align: left;
+  }
+
+  .signup-form input[type="text"],
+  .signup-form input[type="email"],
+  .signup-form input[type="password"],
+  .signup-form select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
+  }
+
+  .signup-form button {
+    background-color: #0000EE;
+    color: white;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+  }
+</style>
+
+<div class="signup-form">
+  <h2>会員登録フォーム</h2>
+  <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ signup_form.as_p }}
     <button type="submit" name="submit">登録する</button>
-</form>
+  </form>
+</div>
 
 {% endblock %}
