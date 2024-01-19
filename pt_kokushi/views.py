@@ -91,7 +91,7 @@ def signup_view(request):
 def login_view(request):
     if request.method == 'POST':
         next = request.POST.get('next')
-        form = CustomLoginForm(request, data=request.POST)
+        form = CustomLoginForm(request, data=request.POST or None)
 
         if form.is_valid():
             email = form.cleaned_data.get('username')

@@ -15,6 +15,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'get_age',
         'school_year',
         'prefecture',
+        'gender',
         'is_active',
         'date_joined',
         "is_staff",
@@ -37,7 +38,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     #「[('好きな名前', {'fields': ('フィールド名',)})]」でフィールドのレイアウトを変更する
     fieldsets = (
         ("重要項目", {"fields": ( "email", "password")}),
-        ("Personal", {"fields": ( "nickname","birth_of_date","school_year","prefecture")}),
+        ("Personal", {"fields": ( "nickname","birth_of_date","school_year","prefecture","gender")}),
         ("Auth", {"fields": ("is_staff", "is_active","date_joined"),}),
     )
     

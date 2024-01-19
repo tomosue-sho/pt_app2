@@ -38,7 +38,7 @@ class CustomUserForm(forms.ModelForm):
         ('not_applicable', '秘密',)
         )
     
-    gender = forms.ChoiceField(
+    gender =  forms.ChoiceField(
         label = '性別',
         widget = forms.RadioSelect, #ラジオボタンに設定する
         choices = CHOICES, 
@@ -46,13 +46,15 @@ class CustomUserForm(forms.ModelForm):
         ) #Falseなので入力必須ではない
     
     birth_of_date = forms.DateField(
-        input_formats = ['%Y-%m-%d', '%d/%m/%Y'],
-        label = "生年月日",
-        initial = datetime.now() - timedelta(days=365 * 20),
-        widget = forms.SelectDateWidget(
-            years=range(timezone.now().year, 1949, -1)
+        input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+        label="生年月日",
+        initial=datetime.now() - timedelta(days=365 * 20),
+        widget=forms.SelectDateWidget(
+            years=range(timezone.now().year, 1949, -1),
+            empty_label=("Year", "Month", "Day"), 
         )
     )
+
     
     school_year = forms.ChoiceField(
         label = '学年',
@@ -150,13 +152,19 @@ class CustomUserForm(forms.ModelForm):
         
                 
 class CustomLoginForm(AuthenticationForm):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
-            
-            for field in self.fields.values():
-                field.widget.attrs['class'] = 'form-control'
-                field.widget.attrs['placeholder'] = field.label
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
+
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.label
+
+    # ユーザー名の代わりにメールアドレスを使う
+    username = forms.EmailField(
+        label='メールアドレス',
+        widget=forms.EmailInput,
+    )
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
