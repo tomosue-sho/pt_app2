@@ -1,11 +1,10 @@
 from django import forms
-from datetime import datetime , timedelta
-from datetime import date
+from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.forms import AuthenticationForm
 from .models import CustomUser
 from django.utils import timezone
+from datetime import datetime, timedelta
 
 
 CustomUser = get_user_model()
@@ -151,20 +150,26 @@ class CustomUserForm(forms.ModelForm):
 
         
                 
-class CustomLoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
+class CustomLoginForm(forms.Form):
+    
+    email = forms.EmailField(label='メールアドレス')
+    password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
 
-    # ユーザー名の代わりにメールアドレスを使う
-    username = forms.EmailField(
-        label='メールアドレス',
-        widget=forms.EmailInput,
-    )
+        if email and password:
+            print(f"Attempting login with email: {email}, password: {password}")
+            # ユーザー認証を行う
+            user = authenticate(email=email, password=password)
+            print(f"Authenticated user: {user}")
+
+            if user is None:
+                raise forms.ValidationError('メールアドレスまたはパスワードが正しくありません')
+
+        return cleaned_data
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):

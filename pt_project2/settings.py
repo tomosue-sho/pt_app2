@@ -134,3 +134,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #AbstractBaseUserで作成
 AUTH_USER_MODEL = 'pt_kokushi.CustomUser'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    # 他のバックエンドがあれば追加
+]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'pt_kokushi:top'
+LOGOUT_REDIRECT_URL = 'login'

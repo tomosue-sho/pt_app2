@@ -90,31 +90,20 @@ def signup_view(request):
 # ログイン画面
 def login_view(request):
     if request.method == 'POST':
-        next = request.POST.get('next')
-        form = CustomLoginForm(request, data=request.POST or None)
+        form = CustomLoginForm(request.POST)
 
         if form.is_valid():
-            email = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            # authenticateを使用してユーザーを取得
+            user = authenticate(request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
 
-            user = authenticate(request, email=email, password=password)
-
-            if user is not None:
+            if user:
                 login(request, user)
-                # 既存のセッションデータをクリア
-                logout(request)
-                return redirect(to='top')
-            else:
-                # 認証に失敗した場合の処理
-                messages.error(request, 'ユーザー認証に失敗しました。')
+                return redirect('pt_kokushi:top')  # ログイン後のリダイレクト先を指定
+
     else:
         form = CustomLoginForm()
 
-    param = {
-        'form': form,
-    }
-
-    return render(request, 'login_app/login.html', param)
+    return render(request, 'login_app/login.html', {'form': form})
 
 
 #ユーザーの登録内容(user.htmlだが今は使っていないエラーが出たら嫌なので消してない)
