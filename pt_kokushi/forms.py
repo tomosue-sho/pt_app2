@@ -155,22 +155,6 @@ class CustomLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス')
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        email = cleaned_data.get('email')
-        password = cleaned_data.get('password')
-
-        if email and password:
-            print(f"Attempting login with email: {email}, password: {password}")
-            # ユーザー認証を行う
-            user = authenticate(email=email, password=password)
-            print(f"Authenticated user: {user}")
-
-            if user is None:
-                raise forms.ValidationError('メールアドレスまたはパスワードが正しくありません')
-
-        return cleaned_data
-
 class CustomPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

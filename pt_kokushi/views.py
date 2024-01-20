@@ -44,7 +44,7 @@ def signup_view(request):
             #signup_form
             nickname = signup_form.cleaned_data.get('nickname')
             email = signup_form.cleaned_data.get('email')
-            password = signup_form.cleaned_data.get('password')
+            password = signup_form.cleaned_data.get('password1')
             gender = signup_form.cleaned_data.get('gender')
             prefecture = signup_form.cleaned_data.get('prefecture')
             birth_of_date = signup_form.cleaned_data.get('birth_of_date')
@@ -88,22 +88,35 @@ def signup_view(request):
 
 
 # ログイン画面
+
+
 def login_view(request):
     if request.method == 'POST':
         form = CustomLoginForm(request.POST)
 
         if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+
             # authenticateを使用してユーザーを取得
             user = authenticate(request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
 
             if user:
                 login(request, user)
+                messages.success(request, 'ログイン成功しました')
                 return redirect('pt_kokushi:top')  # ログイン後のリダイレクト先を指定
-
+            else:
+                messages.error(request, 'メールアドレスかパスワードが間違っています。')
+        else:
+            messages.error(request, 'フォームが有効ではありません')
+            # フォームが無効な場合にエラーメッセージをフォームに紐づける
+            return render(request, 'login_app/login.html', {'form': form})
     else:
         form = CustomLoginForm()
 
     return render(request, 'login_app/login.html', {'form': form})
+
+
 
 
 #ユーザーの登録内容(user.htmlだが今は使っていないエラーが出たら嫌なので消してない)

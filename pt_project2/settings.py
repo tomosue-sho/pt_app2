@@ -135,6 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'pt_kokushi.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
+    'pt_kokushi.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
     # 他のバックエンドがあれば追加
 ]

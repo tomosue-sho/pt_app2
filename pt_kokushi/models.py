@@ -128,7 +128,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     prefecture = models.CharField(
         _('都道府県'), #_("")は多言語対応のためのマーク付け
-        max_length = 5, 
+        max_length = 10, 
         blank = True, 
         null = True
         )
