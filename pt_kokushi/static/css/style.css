@@ -18,6 +18,21 @@
     border-radius: 20px 20px 0px 0px;
 }
 
+/*ナビゲーションのリンクの文字の部分*/
+.nav-link {
+    font-weight: bold;
+    color:white;
+    text-shadow: 2px 2px 2px black;
+}
+
+.navbar-text {
+    margin-right: auto; /* 右側の余白を自動に設定して、左に寄せる */
+    padding-top: .5rem; /* 既存のスタイル */
+    padding-bottom: .5rem; /* 既存のスタイル */
+}
+
+
+
 /*理学療法国試アプリのCSS*/
 #title_top{
         color: #fff;
@@ -174,3 +189,4 @@ p#countTimer span {
 .form-control {
     background-color: #008000;
 }
+

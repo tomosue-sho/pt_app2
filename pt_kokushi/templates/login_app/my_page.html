@@ -10,6 +10,10 @@
   </form>
   
   <h2>ニックネーム変更</h2>
+  <span class="navbar-text">
+    現在のニックネームは「{{ user.nickname }} さん」です
+</span>
+
   <form method="post">
     {% csrf_token %}
     {{ nickname_form.as_p }}
@@ -20,3 +24,8 @@
    
 {% endblock %}
 
+{% if messages %}
+{% for message in messages %}
+    {{ message }}
+{% endfor %}
+{% endif %}

@@ -181,14 +181,23 @@ class PasswordResetComplete(PasswordResetCompleteView):
 
 # --- ここまで
 
-    
+#マイページでのパスワード変更用のviews  
 @login_required
 def my_page_view(request):
-    # パスワード変更フォーム
-    password_form = CustomPasswordChangeForm(request.user)
-    
-    # ニックネーム変更フォーム
-    nickname_form = CustomNicknameChangeForm(request.user)
+    if request.method == 'POST':
+        password_form = CustomPasswordChangeForm(request.user, request.POST)
+        if password_form.is_valid():
+            password_form.save()
+            messages.success(request, 'パスワードが変更されました。')
+            return redirect('pt_kokushi:my_page')  # 名前空間を使用
+        else:
+            messages.error(request, 'パスワード変更に失敗しました。')
+            # POSTリクエストが無効な場合は、再度フォームを表示
+            return render(request, 'pt_kokushi/my_page', {'password_form': password_form, 'nickname_form': CustomNicknameChangeForm(request.user)})
+
+    else:
+        password_form = CustomPasswordChangeForm(request.user)
+        nickname_form = CustomNicknameChangeForm(request.user)
 
     return render(request, 'login_app/my_page.html', {'password_form': password_form, 'nickname_form': nickname_form})
 
