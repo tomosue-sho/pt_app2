@@ -143,3 +143,5 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'pt_kokushi:top'
 LOGOUT_REDIRECT_URL = 'login'
+
+

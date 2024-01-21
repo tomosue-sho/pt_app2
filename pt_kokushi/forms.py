@@ -5,6 +5,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from .models import CustomUser
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.utils.text import capfirst
+from django.utils.translation import gettext_lazy as _
 
 
 CustomUser = get_user_model()
@@ -134,7 +136,7 @@ class CustomUserForm(forms.ModelForm):
             password1 = self.cleaned_data.get("password1")
             password2 = self.cleaned_data.get("password2")
             if password1 and password2 and password1 != password2:
-                raise forms.ValidationError("Passwords don't match")
+                raise forms.ValidationError("パスワードが違います")
             return password2
 
         def save(self, commit=True):

@@ -88,8 +88,6 @@ def signup_view(request):
 
 
 # ログイン画面
-
-
 def login_view(request):
     if request.method == 'POST':
         form = CustomLoginForm(request.POST)
@@ -115,6 +113,8 @@ def login_view(request):
         form = CustomLoginForm()
 
     return render(request, 'login_app/login.html', {'form': form})
+
+
 
 
 
