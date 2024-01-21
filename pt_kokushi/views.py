@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import CustomLoginForm
+from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.urls import reverse_lazy
@@ -98,7 +98,7 @@ def login_view(request):
 
             # authenticateを使用してユーザーを取得
             user = authenticate(request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
-
+      
             if user:
                 login(request, user)
                 messages.success(request, 'ログイン成功しました')
@@ -111,7 +111,6 @@ def login_view(request):
             return render(request, 'login_app/login.html', {'form': form})
     else:
         form = CustomLoginForm()
-
     return render(request, 'login_app/login.html', {'form': form})
 
 
@@ -228,6 +227,8 @@ class CustomPasswordChangeView(PasswordChangeView):
         messages.error(self.request, 'パスワードの変更に失敗しました。')  # エラーメッセージの表示
         return response
 
+
+
     def get(self, request, *args, **kwargs):
         # ここでGETリクエストが来た場合の処理を追加できます
         return super().get(request, *args, **kwargs)
@@ -238,10 +239,11 @@ class CustomPasswordChangeView(PasswordChangeView):
 
     # その他、必要なメソッドを追加できる
 
-class CustomNicknameChangeView(FormView):
-    template_name = 'login_app/nickname_change.html'
-    form_class = CustomNicknameChangeForm
-    success_url = reverse_lazy('top')  # ニックネーム変更完了後のリダイレクト先
+class CustomNicknameChangeForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['nickname']  # ニックネームを変更するフィールド
+
 
     def form_valid(self, form):
         # ニックネームを変更して保存する処理

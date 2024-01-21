@@ -72,14 +72,12 @@
 
     <a class="signup-btn" href="{% url 'pt_kokushi:signup' %}">新規会員登録</a>
   </form>
-
   <h2>
     {% if messages %}
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
     {% endif %}
   </h2>
-
 </div>
 {% endblock %}
