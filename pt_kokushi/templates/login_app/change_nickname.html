@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>アカウント設定</h2>
+  <p><a href="{% url 'pt_kokushi:change_password' %}">パスワード変更</a></p>
+  <p><a href="{% url 'pt_kokushi:change_nickname' %}">ニックネーム変更</a></p>
+  <br>
+  <p><a href="{% url 'pt_kokushi:top' %}">戻

@@ -184,23 +184,35 @@ class PasswordResetComplete(PasswordResetCompleteView):
 #マイページでのパスワード変更用のviews  
 @login_required
 def my_page_view(request):
+    return render(request, 'login_app/my_page.html', {
+    })
+
+def change_password_view(request):
     if request.method == 'POST':
-        password_form = CustomPasswordChangeForm(request.user, request.POST)
-        if password_form.is_valid():
-            password_form.save()
+        form = CustomPasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
             messages.success(request, 'パスワードが変更されました。')
-            return redirect('pt_kokushi:my_page')  # 名前空間を使用
+            return redirect('pt_kokushi:my_page')
         else:
             messages.error(request, 'パスワード変更に失敗しました。')
-            # POSTリクエストが無効な場合は、再度フォームを表示
-            return render(request, 'pt_kokushi/my_page', {'password_form': password_form, 'nickname_form': CustomNicknameChangeForm(request.user)})
-
     else:
-        password_form = CustomPasswordChangeForm(request.user)
-        nickname_form = CustomNicknameChangeForm(request.user)
+        form = CustomPasswordChangeForm(request.user)
+    return render(request, 'login_app/change_password.html', {'form': form})
 
-    return render(request, 'login_app/my_page.html', {'password_form': password_form, 'nickname_form': nickname_form})
-
+@login_required
+def change_nickname_view(request):
+    if request.method == 'POST':
+        form = CustomNicknameChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'ニックネームが変更されました。')
+            return redirect('pt_kokushi:my_page')
+        else:
+            messages.error(request, 'ニックネームの変更に失敗しました。')
+    else:
+        form = CustomNicknameChangeForm(instance=request.user)
+    return render(request, 'login_app/change_nickname.html', {'form': form})
 
 class CustomPasswordChangeView(PasswordChangeView):
     template_name = 'login_app/password_change.html'  # カスタムテンプレートを指定

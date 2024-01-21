@@ -140,7 +140,7 @@ AUTHENTICATION_BACKENDS = [
     # 他のバックエンドがあれば追加
 ]
 
-LOGIN_URL = 'login'
+LOGIN_URL = 'pt_kokushi:login'
 LOGIN_REDIRECT_URL = 'pt_kokushi:top'
 LOGOUT_REDIRECT_URL = 'login'
 
