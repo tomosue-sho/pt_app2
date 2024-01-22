@@ -2,24 +2,65 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>マイページ</h2>
-  
-  <!-- ユーザー情報の表示 -->
-  <div>
-    <p>ニックネーム: {{ request.user.nickname }}</p>
-    <p>メールアドレス: {{ request.user.email }}</p>
-    <p>生年月日: {{ request.user.birth_of_date }}</p>
-    <p>登録日: {{ request.user.date_joined }}</p>
-    <p>都道府県: {{ request.user.prefecture }}</p>
-    <p>性別: {{ request.user.gender }}</p>
+<h2>マイページ</h2>
+{% if remaining_days is not None %}
+  <div class="remaining-days">
+    <span class="small-text">国試まであと</span>{{ remaining_days }}日
   </div>
-
+{% else %}
+  <div class="no-information">情報がありません</div>
+{% endif %}
+  <!-- ユーザー情報の表示 -->
+  <table class="table">
+    <tbody>
+      <tr>
+        <th scope="row">ニックネーム</th>
+        <td>{{ request.user.nickname }}</td>
+      </tr>
+      <tr>
+        <th scope="row">メールアドレス</th>
+        <td>{{ request.user.email }}</td>
+      </tr>
+      <tr>
+        <th scope="row">受験年度</th>
+        <td>{{ request.user.test_year }}年度</td>
+      </tr>
+      <tr>
+        <th scope="row">生年月日</th>
+        <td>{{ request.user.birth_of_date }}</td>
+      </tr>
+      <tr>
+        <th scope="row">年齢</th>
+        <td>{{ request.user.get_age }}</td>
+      </tr>
+      <tr>
+        <th scope="row">登録日</th>
+        <td>{{ request.user.date_joined }}</td>
+      </tr>
+      <tr>
+        <th scope="row">都道府県</th>
+        <td>{{ request.user.prefecture }}</td>
+      </tr>
+      <tr>
+        <th scope="row">性別</th>
+        <td>{{ request.user.gender }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <br>
   <!-- パスワード変更へのリンク -->
-  <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワード変更</a></p>
+  <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワードを変更する</a></p>
 
   <!-- ニックネーム変更へのリンク -->
-  <p><a href="{% url 'pt_kokushi:change_nickname' %}" class="btn btn-primary">ニックネーム変更</a></p>
+  <p><a href="{% url 'pt_kokushi:change_nickname' %}" class="btn btn-primary">ニックネームを変更する</a></p>
 
   <br>
   <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">戻る</a></p>
+
+  <script>
+    document.getElementById('change-password-button').addEventListener('click', function(event) {
+      alert('パスワードを変更するページに移動します。');
+    });
+  </script>
 {% endblock %}

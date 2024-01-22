@@ -24,8 +24,7 @@ CustomUser = get_user_model()
 class TopView(TemplateView):
     
     template_name = "top.html"
-     
-
+    
 #ユーザーアカウント登録
 def signup_view(request):
     
@@ -49,6 +48,7 @@ def signup_view(request):
             prefecture = signup_form.cleaned_data.get('prefecture')
             birth_of_date = signup_form.cleaned_data.get('birth_of_date')
             school_year = signup_form.cleaned_data.get('school_year')
+            test_year = signup_form.cleaned_data.get('test_year')
             
             #CustomUser.objects.create_userはユーザーの作成に使われるヘルパー関数（すでにある関数的な感じ）
             #models.pyでCustomUser→AbstractBaseUserなどを継承したことで使えるようになる
@@ -59,7 +59,8 @@ def signup_view(request):
                 gender=gender,
                 birth_of_date=birth_of_date,
                 prefecture=prefecture,
-                school_year=school_year
+                school_year=school_year,
+                test_year=test_year,
                 )
             
             user.save()
@@ -183,8 +184,26 @@ class PasswordResetComplete(PasswordResetCompleteView):
 #マイページでのパスワード変更用のviews  
 @login_required
 def my_page_view(request):
-    return render(request, 'login_app/my_page.html', {
-    })
+    user = request.user
+    test_dates = {
+        "2024": "2024-02-18 09:50:00",
+        "2025": "2025-02-16 09:50:00",
+        "2026": "2026-02-15 09:50:00",
+        "2027": "2027-02-21 09:50:00",
+    }
+
+    remaining_days = None
+    if isinstance(user, CustomUser):
+        remaining_time = user.get_remaining_time(test_dates)
+        if remaining_time and remaining_time.days >= 0:
+            remaining_days = remaining_time.days
+
+    context = {
+        'remaining_days': remaining_days
+    }
+
+    return render(request, 'login_app/my_page.html', context)
+    
 
 def change_password_view(request):
     if request.method == 'POST':
@@ -245,3 +264,4 @@ class CustomNicknameChangeForm(forms.ModelForm):
         self.request.user.nickname = form.cleaned_data['nickname']
         self.request.user.save()
         return super().form_valid(form)
+    

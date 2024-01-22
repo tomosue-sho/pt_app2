@@ -93,6 +93,30 @@ p#countTimer span {
     background-color: beige;
 }
 
+/*タイマーの文字設定*/
+.remaining-days {
+    color: red; /* 文字の色 */
+    font-weight: bold; /* 太字にする */
+    font-size: 50px; /* フォントサイズ */
+    text-align: center;
+    text-shadow: 2px 2px 4px #aaa; /* テキストの影 */
+    padding: 10px; /* 内側の余白 */
+    margin: auto;
+}
+
+.no-information {
+    color: red; /* 文字の色 */
+    font-style: italic; /* 斜体にする */
+    /* その他のスタイル */
+}
+
+/*マイページの「国試まであと」に部分*/
+.small-text {
+    font-size: 30px; /* フォントサイズを小さくする */
+    color: black; /* 文字色を黒にする */
+}
+
+
 /*サイドバーと問題の位置*/
 #side-quest{
     display: flex !important;
@@ -198,4 +222,29 @@ p#countTimer span {
 }
 .form-control:focus {
     background-color: #99FFFF;
+}
+
+/* マウスオーバー時のスタイル */
+.btn:hover {
+    transform: scale(0.98); /* 少し縮小させる */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* 影を追加 */
+}
+
+/* アクティブ（クリックされた時）のスタイル */
+.btn:active {
+    transform: scale(0.96); /* もっと縮小させる */
+}
+
+.navbar-brand:hover{
+    transform: scale(0.98); /* 少し縮小させる */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* 影を追加 */
+}
+
+.navbar-text{
+    color: #00FF00;
+    font-weight: bold;
+}
+
+.username-nav{
+    color: wheat;
 }

@@ -19,6 +19,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'is_active',
         'date_joined',
         "is_staff",
+        'test_year'
     )
     
     # 一覧画面: サイドバーフィルター
@@ -38,7 +39,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     #「[('好きな名前', {'fields': ('フィールド名',)})]」でフィールドのレイアウトを変更する
     fieldsets = (
         ("重要項目", {"fields": ( "email", "password")}),
-        ("Personal", {"fields": ( "nickname","birth_of_date","school_year","prefecture","gender")}),
+        ("Personal", {"fields": ( "nickname","birth_of_date","school_year","prefecture","gender","test_year")}),
         ("Auth", {"fields": ("is_staff", "is_active","date_joined"),}),
     )
     

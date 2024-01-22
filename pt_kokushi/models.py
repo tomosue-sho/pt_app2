@@ -9,7 +9,7 @@ from django.core.validators import MinLengthValidator, RegexValidator
 from django.core.mail import send_mail
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from datetime import date
+from datetime import date ,datetime
 from django.utils import timezone
 import math
 
@@ -97,6 +97,9 @@ class UserManager(BaseUserManager):
             )
         return self.none()
     
+def generate_test_year_choices():
+    current_year = datetime.now().year
+    return [(str(current_year + i), f"{current_year + i}年度") for i in range(5)]
 
  
 #ここに追加したいフィールドやメソッドを追加する
@@ -162,6 +165,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         max_length = 20, 
         blank = True
         )
+    
+    TEST_YEAR_CHOICES = generate_test_year_choices()
+
+    test_year = models.CharField(
+        verbose_name='国試受験年度',
+        max_length=10,
+        choices=TEST_YEAR_CHOICES,
+        blank=False,
+        null=False
+    )
+    def get_remaining_time(self, test_dates):
+        if self.test_year and self.test_year in test_dates:
+            test_date = datetime.strptime(test_dates[self.test_year], "%Y-%m-%d %H:%M:%S")
+            now = datetime.now()
+            remaining_time = test_date - now
+            return remaining_time
+        return None
     
     #ユーザーモデルの情報を参照する
     #プログラムが扱うデータは全てobjectsと言える（UserManagerとUserを紐付けしている)

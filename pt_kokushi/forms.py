@@ -31,21 +31,28 @@ class CustomUserForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Password 確認用', widget=forms.PasswordInput)
     
+    test_year = forms.ChoiceField(
+        label='国試受験年度',
+        choices=CustomUser.TEST_YEAR_CHOICES,
+        required=False
+    )
+
+    
     #ChoiceFieldで複数の選択肢から１つを選ぶフィールド
     #テンプレートには以下のように記述する
     #<select name="フィールド名"><option value="choice.key">choice.value</option>...</select>
     CHOICES = (
-        ('female', '女性',),
-        ('male', '男性',),
-        ('not_applicable', '秘密',)
+        ('女性', '女性',),
+        ('男性', '男性',),
+        ('秘密', '秘密',)
         )
     
     gender =  forms.ChoiceField(
         label = '性別',
-        widget = forms.RadioSelect, #ラジオボタンに設定する
+        widget = forms.RadioSelect,
         choices = CHOICES, 
         required = False
-        ) #Falseなので入力必須ではない
+        )
     
     birth_of_date = forms.DateField(
         input_formats=['%Y-%m-%d', '%d/%m/%Y'],
@@ -131,7 +138,7 @@ class CustomUserForm(forms.ModelForm):
         
         # fieldsにユーザー作成時に必要な情報を指定する
         #{{form}}でテンプレートに表示できる
-        fields = ('email','password1', 'password2','nickname','birth_of_date','prefecture', 'school_year','gender')
+        fields = ('email','password1', 'password2','nickname','test_year','birth_of_date','prefecture', 'school_year','gender')
            
         def clean_password2(self):
             password1 = self.cleaned_data.get("password1")

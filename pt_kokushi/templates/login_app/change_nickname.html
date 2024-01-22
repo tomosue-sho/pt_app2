@@ -5,8 +5,9 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">変更</button>
+<button type="submit" class="btn btn-primary">変更</button>
   </form>
   <br>
-  <p><a href="{% url 'pt_kokushi:top' %}">戻る</p>
+  <p><a href="{% url 'pt_kokushi:my_page' %}" class="btn btn-secondary">マイページに戻る</a></p> 
+  <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップページに戻る</a></p> 
 {% endblock %}

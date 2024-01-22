@@ -1,29 +1,55 @@
-year59 = newDate(2024,(2-1),18)
-year60 = newDate(2025,(2-1),16)
-year61 = newDate(2026,(2-1),15)
-year62 = newDate(2027,(2-1),21)
+// 受験日の設定
+const testDates = {
+    "2024": new Date("2024-02-18T09:50:00"),
+    "2025": new Date("2025-02-16T09:50:00"),
+    "2026": new Date("2026-02-15T09:50:00"),
+    "2027": new Date("2027-02-21T09:50:00"),
+};
 
-function countdowntimer(){
-    var countdown = setTimeout(function(){
-        var today = new Date(); //今の日時
-        
-       //ターゲットの設定
+// 残り時間をフォーマットする関数
+function formatRemainingTime(milliseconds) {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
 
-        
-        var targetDay = select_year; //設定国試
-        var daysBetween = Math.ceil((targetDay - today) / (24*60*60*1000));//経過日時を1日のミリ秒で割る
-        var remainDay = (targetDay - today); //残り日時
+    const formattedTime = `${days}日 ${hours % 24}時間 ${minutes % 60}分 ${seconds % 60}秒`;
+    return formattedTime;
+}
 
-        if (remainDay >= 0){//もし残りの日時が0より多かったら、
-            var h = Math.floor(remainDay / 3600000);//残りの日時を1hで割った時間を取得(1h＝3600000ms)
-            var h1 = h % 24;//hを24で割った余り。ここでは使っていないが、残り○時間を取得したい時に。
-            var m = Math.floor((remainDay - h * 3600000) / 60000);//分を取得(1分＝60000 ms)
-            var s = Math.round((remainDay - h * 3600000 - m * 60000) / 1000);//秒を取得(1秒＝1000ms)
-            $("#countdown").html("国試まであと" + daysBetween + "日です!");//文中にhtmlタグを使いたい場合はhtmlメソッド使う
-            if ((h == 0) && (m == 0) && (s == 0)) {//指定の日時が来たら、
-             clearTimeout(countdown);//カウントダウンを止める
-             }
+// カウントダウンの更新を行う関数
+function updateCountdown(selectedYear) {
+    if (selectedYear in testDates) {
+        const testDate = testDates[selectedYear];
+        const countdownElement = document.getElementById("countdownElement"); // countdownElementはカウントダウンを表示する要素のID
+
+        const countdownInterval = setInterval(() => {
+            const now = new Date();
+            const remainingTime = testDate - now;
+
+            if (remainingTime <= 0) {
+                clearInterval(countdownInterval);
+                countdownElement.textContent = "国試終了";
+            } else {
+                // 残り時間を適切なフォーマットで表示
+                countdownElement.textContent = formatRemainingTime(remainingTime);
             }
-           }, 1000);//処理を1秒後に予約
-         }
-         countdowntimer();//関数を呼び出す
+        }, 1000);
+
+        return countdownInterval;
+    }
+    return null;
+}
+
+// ドキュメントがロードされたときの処理
+document.addEventListener("DOMContentLoaded", function() {
+    const yearSelectElement = document.getElementById("testYearElement");
+
+    let currentInterval = updateCountdown(yearSelectElement.value);
+
+    // 年度が変更されたときのイベントリスナー
+    yearSelectElement.addEventListener("change", function() {
+        clearInterval(currentInterval);
+        currentInterval = updateCountdown(this.value);
+    });
+});
