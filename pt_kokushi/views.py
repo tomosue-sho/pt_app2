@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
+from .forms import CommentForm
 from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from .models import Post, Comment
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
@@ -16,6 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date, datetime
+from django.shortcuts import render, get_object_or_404, redirect
 
 
 #これを使わないとDjangoのUserを使ってしまう
@@ -286,3 +289,46 @@ def get_remaining_time(request):
             })
     
     return JsonResponse({'remaining_seconds': None})
+
+
+
+#掲示板用
+class PostListView(generic.ListView):
+    model = Post
+    template_name = 'posts/post_list.html'
+    context_object_name = 'posts'
+
+class PostDetailView(generic.DetailView):
+    model = Post
+    template_name = 'posts/post_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm()
+        return context
+
+class PostCreateView(generic.CreateView):
+    model = Post
+    fields = ['title', 'content']
+    template_name = 'posts/post_create.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    
+    success_url = reverse_lazy('pt_kokushi:post_list')
+
+
+def add_comment_to_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('pt_kokushi:post_detail', pk=post.pk)
+    else:
+        form = CommentForm()
+    return render(request, 'posts/add_comment_to_post.html', {'form': form})

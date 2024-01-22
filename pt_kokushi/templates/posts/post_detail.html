@@ -1,0 +1,25 @@
+<!-- post_detail.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ post.title }}</h2>
+<p>投稿者：{{ post.author }}</p>
+<p>投稿日時：{{ post.created_at }}</p>
+<p>{{ post.content }}</p>
+
+<hr>
+<h3>コメント</h3>
+{% for comment in post.comments.all %}
+    <p>{{ comment.author }}: {{ comment.content }}</p>
+{% endfor %}
+
+<hr>
+<h3>コメントを追加</h3>
+<form method="post" action="{% url 'pt_kokushi:add_comment_to_post' post.pk %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">コメントする</button>
+</form>
+<br>
+<p><a href="{% url 'pt_kokushi:post_list' %}" class="btn btn-primary">戻る</a></p> 
+{% endblock %}

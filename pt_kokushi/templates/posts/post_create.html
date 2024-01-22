@@ -1,0 +1,13 @@
+<!-- post_create.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>新規投稿</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">投稿する</button>
+</form>
+<br>
+<p><a href="{% url 'pt_kokushi:post_list' %}" class="btn btn-primary">戻る</a></p> 
+{% endblock %}

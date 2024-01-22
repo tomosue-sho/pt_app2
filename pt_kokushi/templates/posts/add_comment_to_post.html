@@ -1,0 +1,11 @@
+<!-- add_comment_to_post.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>コメントを追加</h2>
+<form method="post" action="{% url 'pt_kokushi:add_comment_to_post' post.pk %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">コメントする</button>
+</form>
+{% endblock %}

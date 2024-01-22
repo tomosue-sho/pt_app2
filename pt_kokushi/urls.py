@@ -21,6 +21,9 @@ urlpatterns = [
     path('change_password/', views.change_password_view, name='change_password'),
     path('change_nickname/', views.change_nickname_view, name='change_nickname'),
     path('get-remaining-time/', views.get_remaining_time, name='get-remaining-time'),
-
+    path('posts/', views.PostListView.as_view(), name='post_list'),  # 投稿一覧
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),  # 投稿詳細
+    path('post/new/', views.PostCreateView.as_view(), name='post_new'),  # 新規投稿
+    path('post/<int:pk>/comment/', views.add_comment_to_post, name='add_comment_to_post'),  # コメント追加
   ]
 

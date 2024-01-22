@@ -214,3 +214,22 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     def get(self, some_argument):
         pass
+    
+#掲示板機能用のmodels.py    
+class Post(models.Model):
+    title = models.CharField(max_length=100, verbose_name="タイトル")
+    content = models.TextField(verbose_name="内容")
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="投稿者")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="投稿日時")
+
+    def __str__(self):
+        return self.title
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', verbose_name="対応する投稿")
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="コメント者")
+    content = models.TextField(verbose_name="コメント内容")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="コメント日時")
+
+    def __str__(self):
+        return f"{self.author} - {self.post}"

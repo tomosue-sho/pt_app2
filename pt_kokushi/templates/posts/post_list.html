@@ -1,0 +1,16 @@
+<!-- post_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>投稿一覧</h2>
+<ul>
+    {% for post in posts %}
+    <li>
+        <a href="{% url 'pt_kokushi:post_detail' post.pk %}">{{ post.title }}</a> - {{ post.author }} ({{ post.created_at }})
+    </li>
+    {% endfor %}
+</ul>
+<p><a href="{% url 'pt_kokushi:post_new' %}" class="btn btn-dark" >新規投稿</a></p>
+<br>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-primary">戻る</a></p> 
+{% endblock %}
