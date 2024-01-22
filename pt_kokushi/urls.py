@@ -20,5 +20,7 @@ urlpatterns = [
     path('reset/done/', views.PasswordResetComplete.as_view(), name='password_reset_complete'), #追加
     path('change_password/', views.change_password_view, name='change_password'),
     path('change_nickname/', views.change_nickname_view, name='change_nickname'),
-]
+    path('get-remaining-time/', views.get_remaining_time, name='get-remaining-time'),
+
+  ]
 

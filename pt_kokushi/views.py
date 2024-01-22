@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import FormView
@@ -14,7 +15,7 @@ from django.contrib.auth import authenticate, login as auth_login, get_user_mode
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import date
+from datetime import date, datetime
 
 
 #これを使わないとDjangoのUserを使ってしまう
@@ -265,3 +266,23 @@ class CustomNicknameChangeForm(forms.ModelForm):
         self.request.user.save()
         return super().form_valid(form)
     
+
+def get_remaining_time(request):
+    user = request.user
+    test_dates = {
+        "2024": "2024-02-18 09:50:00",
+        "2025": "2025-02-16 09:50:00",
+        "2026": "2026-02-15 09:50:00",
+        "2027": "2027-02-21 09:50:00",
+    }
+
+    if hasattr(user, 'test_year') and user.test_year in test_dates:
+        test_date = datetime.strptime(test_dates[user.test_year], "%Y-%m-%d %H:%M:%S")
+        now = datetime.now()
+        remaining_time = test_date - now
+        if remaining_time.total_seconds() > 0:
+            return JsonResponse({
+                'remaining_seconds': remaining_time.total_seconds()
+            })
+    
+    return JsonResponse({'remaining_seconds': None})

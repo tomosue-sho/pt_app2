@@ -85,7 +85,7 @@ p#countTimer span {
     margin-right: 10px;
 }
 /*国試までのタイマーの全体のCSS*/
-#timelimit{
+#timelimit-view{
     display: inline-block;
     margin: 30px;
     border: solid 3px black;
@@ -139,6 +139,7 @@ p#countTimer span {
     width: 100%;
     height: auto;
     border-radius: 30px;
+    background-color: whitesmoke;
 }
 
 .national-year{
@@ -171,6 +172,9 @@ p#countTimer span {
 /*国試の問題の奇数と偶数での区分け*/
 .odd{
     background-color: #CCCCFF;
+    color: #313131;
+}
+.even{
     color: #313131;
 }
 
