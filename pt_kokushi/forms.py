@@ -210,16 +210,30 @@ class CustomNicknameChangeForm(forms.Form):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['nickname','title', 'content',]
         widgets = {
+            'nickname': forms.TextInput(attrs={'class': 'form-control'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control'}),
         }
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+        if not nickname:
+            # nicknameが未入力の場合、デフォルト値を設定します
+            nickname = "Anonymous"  # ここでデフォルトの値を設定
+        return nickname
 
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = ['content','nickname']
         widgets = {
             'content': forms.Textarea(attrs={'class': 'form-control'}),
+            'nickname': forms.TextInput(attrs={'class': 'form-control'}),
         }
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+        if not nickname:
+            # nicknameが未入力の場合、デフォルト値を設定します
+            nickname = "Anonymous"  # ここでデフォルトの値を設定
+        return nickname

@@ -25,5 +25,7 @@ urlpatterns = [
     path('post/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),  # 投稿詳細
     path('post/new/', views.PostCreateView.as_view(), name='post_new'),  # 新規投稿
     path('post/<int:pk>/comment/', views.add_comment_to_post, name='add_comment_to_post'),  # コメント追加
+    path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
+    path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
   ]
 

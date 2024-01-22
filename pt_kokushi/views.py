@@ -7,10 +7,12 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from django.views import generic
+from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login ,logout
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
@@ -309,15 +311,13 @@ class PostDetailView(generic.DetailView):
 
 class PostCreateView(generic.CreateView):
     model = Post
-    fields = ['title', 'content']
+    fields = ['title', 'content', 'nickname']
     template_name = 'posts/post_create.html'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
         return super().form_valid(form)
     
     success_url = reverse_lazy('pt_kokushi:post_list')
-
 
 def add_comment_to_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -326,9 +326,28 @@ def add_comment_to_post(request, pk):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
+            # フォームで入力された nickname が空白の場合、デフォルト値を代入
+            if not comment.nickname:
+                comment.nickname = "Anonymous"
             comment.author = request.user
             comment.save()
             return redirect('pt_kokushi:post_detail', pk=post.pk)
     else:
         form = CommentForm()
     return render(request, 'posts/add_comment_to_post.html', {'form': form})
+
+class PostDeleteView(UserPassesTestMixin, DeleteView):
+    model = Post
+    success_url = reverse_lazy('pt_kokushi:post_list')
+    
+    def test_func(self):
+        return self.request.user.is_staff
+
+class CommentDeleteView(UserPassesTestMixin, DeleteView):
+    model = Comment
+
+    def get_success_url(self):
+        return reverse_lazy('pt_kokushi:post_detail', kwargs={'pk': self.object.post.pk})
+    
+    def test_func(self):
+        return self.request.user.is_staff
