@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -157,11 +158,36 @@ class CustomLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス')
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
-class CustomPasswordChangeForm(PasswordChangeForm):
-    def __init__(self, *args, **kwargs):
+class CustomPasswordChangeForm(forms.Form):
+    old_password = forms.CharField(label='古いパスワード', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password = forms.CharField(label='新しいパスワード', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password2 = forms.CharField(label='新しいパスワード（確認用）', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data['old_password']
+        if not authenticate(username=self.user.email, password=old_password):
+            raise ValidationError('古いパスワードが間違っています。')
+        return old_password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get('new_password')
+        new_password2 = cleaned_data.get('new_password2')
+
+        if new_password and new_password2 and new_password != new_password2:
+            self.add_error('new_password2', '新しいパスワードが一致しません。')
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        self.user.set_password(self.cleaned_data['new_password'])
+        if commit:
+            self.user.save()
+        return self.user
 
 class CustomNicknameChangeForm(forms.Form):
     nickname = forms.CharField(max_length=20, required=True, label='新しいニックネーム')

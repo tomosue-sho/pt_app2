@@ -8,15 +8,18 @@
   <div>
     <p>ニックネーム: {{ request.user.nickname }}</p>
     <p>メールアドレス: {{ request.user.email }}</p>
+    <p>生年月日: {{ request.user.birth_of_date }}</p>
     <p>登録日: {{ request.user.date_joined }}</p>
+    <p>都道府県: {{ request.user.prefecture }}</p>
+    <p>性別: {{ request.user.gender }}</p>
   </div>
 
   <!-- パスワード変更へのリンク -->
-  <p><a href="{% url 'pt_kokushi:change_password' %}">パスワード変更</a></p>
+  <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワード変更</a></p>
 
   <!-- ニックネーム変更へのリンク -->
-  <p><a href="{% url 'pt_kokushi:change_nickname' %}">ニックネーム変更</a></p>
+  <p><a href="{% url 'pt_kokushi:change_nickname' %}" class="btn btn-primary">ニックネーム変更</a></p>
 
   <br>
-  <p><a href="{% url 'pt_kokushi:top' %}">戻る</a></p>
+  <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">戻る</a></p>
 {% endblock %}

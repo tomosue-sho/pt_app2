@@ -213,32 +213,27 @@ def change_nickname_view(request):
         form = CustomNicknameChangeForm(instance=request.user)
     return render(request, 'login_app/change_nickname.html', {'form': form})
 
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(FormView):
     template_name = 'login_app/password_change.html'  # カスタムテンプレートを指定
+    form_class = CustomPasswordChangeForm
     success_url = reverse_lazy('pt_kokushi:password_change_done')  # パスワード変更完了後のリダイレクト先
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, 'パスワードを変更しました。')  # 成功メッセージの表示
-        return response
+        # ユーザーのパスワードを変更
+        form.save()
+        messages.success(self.request, 'パスワードを変更しました。')
+        return super().form_valid(form)
 
     def form_invalid(self, form):
-        response = super().form_invalid(form)
-        messages.error(self.request, 'パスワードの変更に失敗しました。')  # エラーメッセージの表示
-        return response
+        messages.error(self.request, 'パスワードの変更に失敗しました。')
+        return super().form_invalid(form)
 
-
-
-    def get(self, request, *args, **kwargs):
-        # ここでGETリクエストが来た場合の処理を追加できます
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        # ここでPOSTリクエストが来た場合の処理を追加できます
-        return super().post(request, *args, **kwargs)
-
-    # その他、必要なメソッドを追加できる
-
+    def get_form_kwargs(self):
+        # 現在のユーザー情報をフォームに渡す
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
 class CustomNicknameChangeForm(forms.ModelForm):
     class Meta:
         model = CustomUser

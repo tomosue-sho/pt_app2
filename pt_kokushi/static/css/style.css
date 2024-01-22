@@ -190,3 +190,12 @@ p#countTimer span {
     background-color: #008000;
 }
 
+
+/*パスワード変更フォーム（マイページ）*/
+.form-control {
+    background-color: white;
+    width: 50%;
+}
+.form-control:focus {
+    background-color: #99FFFF;
+}
