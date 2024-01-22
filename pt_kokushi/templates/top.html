@@ -9,8 +9,11 @@
  </div>
  <div id = "timelimit-view" name="year_number">
      <p class="atdays">国試まであと</p>
-     <p id="timer"></p>
+     <br>
+     <br>
+     <h3 id="timer"></h3>
  </div>
+ <br>
  <script>
     function updateTimer() {
         fetch('{% url  'pt_kokushi:get-remaining-time' %}')
@@ -19,10 +22,10 @@
                 const remainingSeconds = data.remaining_seconds;
                 if (remainingSeconds !== null) {
                     const days = Math.floor(remainingSeconds / (24 * 3600));
-                    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600);
-                    const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                    const seconds = Math.floor(remainingSeconds % 60);
-                    document.getElementById("timer").textContent = `${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`;
+                    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600).toString().padStart(2, '0');
+                    const minutes = Math.floor((remainingSeconds % 3600) / 60).toString().padStart(2, '0');
+                    const seconds = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById("timer").innerHTML = `<span class="timer-number">${days}</span>日 <span class="timer-number">${hours}</span>時間 <span class="timer-number">${minutes}</span>分 <span class="timer-number">${seconds}</span>秒`;
                 } else {
                     document.getElementById("timer").textContent = "情報がありません";
                 }
@@ -30,7 +33,7 @@
     }
 
     updateTimer();
-    setInterval(updateTimer, 1000); // 毎秒更新
+    setInterval(updateTimer, 60000); // 毎秒更新の時は1000 とりあえず１分にしてる
 </script>
 
  <div = id = "side-quest">

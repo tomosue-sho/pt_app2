@@ -57,7 +57,7 @@ p.atdays {
     padding: 3px 20px;
     position: relative;
     border-radius: 2px;
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     font-weight: bold;
     letter-spacing: 0.05em;
 }
@@ -87,11 +87,23 @@ p#countTimer span {
 /*国試までのタイマーの全体のCSS*/
 #timelimit-view{
     display: inline-block;
-    margin: 30px;
-    border: solid 3px black;
-    width: 350px;
+    margin: 10px;
+    padding: 10px;
+    border: solid 5px black;
+    width: 30%;
+    height: auto;
     background-color: beige;
 }
+
+/*国試タイマーのtop.htmlの数字の部分*/
+.timer-number {
+    color: #FF0099;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+    font-weight: bold;
+    text-shadow: 2px 2px 1px #aaa; /* テキストの影 */
+}
+
 
 /*タイマーの文字設定*/
 .remaining-days {
@@ -252,3 +264,4 @@ p#countTimer span {
 .username-nav{
     color: wheat;
 }
+
