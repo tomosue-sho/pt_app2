@@ -27,5 +27,11 @@ urlpatterns = [
     path('post/<int:pk>/comment/', views.add_comment_to_post, name='add_comment_to_post'),  # コメント追加
     path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
-  ]
+    path('todo/create/', views.create_todo_item, name='create_todo_item'),  # ToDoアイテム作成ページ
+    path('todo/list/', views.todo_list, name='todo_list'),  # ToDoリストページ
+    path('todo/update/<int:pk>/', views.update_todo_item, name='update_todo_item'),#ToDo変更
+    path('todo/delete/<int:pk>/', views.delete_todo_item, name='delete_todo_item'),
+    
+]
+
 

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
+from .models import ToDoItem
 
 CustomUser = get_user_model()
 
@@ -43,7 +44,13 @@ class CustomUserAdmin(admin.ModelAdmin):
         ("Auth", {"fields": ("is_staff", "is_active","date_joined"),}),
     )
     
+class ToDoItemAdmin(admin.ModelAdmin):
+    list_display = ('title', 'content', 'purpose', 'priority', 'deadline', 'created_at', 'updated_at')
+    list_filter = ('priority', 'deadline', 'created_at')
+    search_fields = ('title', 'content')
+
+    
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
 admin.site.register(CustomUser, CustomUserAdmin)
-
+admin.site.register(ToDoItem, ToDoItemAdmin)

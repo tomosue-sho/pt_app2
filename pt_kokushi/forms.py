@@ -6,6 +6,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 from .models import Post, Comment
+from .models import ToDoItem
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.utils.text import capfirst
@@ -275,6 +276,17 @@ class CommentForm(forms.ModelForm):
         return content
     
 
-
+#ToDoリストのフォーム
+class ToDoItemForm(forms.ModelForm):
+    class Meta:
+        model = ToDoItem
+        fields = ['title', 'content', 'purpose', 'priority', 'deadline']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control'}),
+            'purpose': forms.Textarea(attrs={'class': 'form-control'}),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+            'deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
 
