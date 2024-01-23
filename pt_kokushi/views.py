@@ -338,6 +338,7 @@ def add_comment_to_post(request, pk):
 
 class PostDeleteView(UserPassesTestMixin, DeleteView):
     model = Post
+    template_name = 'posts/post_confirm_delete.html'
     success_url = reverse_lazy('pt_kokushi:post_list')
     
     def test_func(self):
@@ -345,6 +346,7 @@ class PostDeleteView(UserPassesTestMixin, DeleteView):
 
 class CommentDeleteView(UserPassesTestMixin, DeleteView):
     model = Comment
+    template_name = 'posts/comment_confirm_delete.html'
 
     def get_success_url(self):
         return reverse_lazy('pt_kokushi:post_detail', kwargs={'pk': self.object.post.pk})

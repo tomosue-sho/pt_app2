@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>コメントを削除</h2>
+<p>以下のコメントを削除してもよろしいですか？</p>
+
+<div>
+    <strong>{{ object.content }}</strong>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="submit" value="はい">
+    <a href="{% url 'pt_kokushi:post_detail' object.post.pk %}">いいえ</a>
+</form>
+{% endblock %}
