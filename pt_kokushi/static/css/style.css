@@ -296,3 +296,8 @@ p#countTimer span {
     background: #333; /* アクティブページの背景色 */
     color: #fff; /* アクティブページのテキスト色 */
 }
+
+/* チェックボックスを大きくする（ToDoリスト） */
+.form-check-input.todo-checkbox {
+    margin-right: auto;
+}

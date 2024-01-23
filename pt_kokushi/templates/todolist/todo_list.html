@@ -1,22 +1,108 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>ToDoリスト - {% now "Y年-m月-d日 l" %}</h2> 
+<div class="container">
+    <h2 class="mt-4">ToDoリスト - {% now "Y-m-d l" %}</h2>
+    
+    <!-- 検索ボックス -->
+    <div class="form-group mt-3">
+        <input type="text" id="searchBox" class="form-control" placeholder="ToDo検索...">
+    </div>
+    <br>
+    <p><a href="{% url 'pt_kokushi:create_todo_item' %}" class="btn btn-primary">新しいToDoを追加</a></p>
+</div>
+<div class="container">
+    <div class="row">
+        {% for todo_item in todo_items %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ todo_item.title }}</h5>
+                    <p class="card-text">{{ todo_item.description }}</p>
+                    <p class="card-text">期限: {{ todo_item.deadline }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <!-- チェックボタンをBootstrap 5で装飾 -->
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input todo-checkbox" data-id="{{ todo_item.id }}" id="todoCheckbox{{ todo_item.id }}">
+                                <label class="form-check-label {% if todo_item.completed %}completed{% endif %}" for="todoCheckbox{{ todo_item.id }}">
+                                     :完了
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{% url 'pt_kokushi:update_todo_item' todo_item.pk %}" class="btn btn-secondary">変更</a>
+                            <a href="{% url 'pt_kokushi:delete_todo_item' todo_item.pk %}" class="btn btn-danger">削除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>ToDoアイテムはありません。</p>
+        {% endfor %}
+    </div>
+</div>
 
-<p><a href="{% url 'pt_kokushi:create_todo_item' %}" class="btn btn-primary">新しいToDoを追加</a></p>
 
-<ul>
-    {% for todo_item in todo_items %}
-    <li>
-        <strong>{{ todo_item.title }}</strong> (期限：{{ todo_item.deadline }})
-        <p>{{ todo_item.description }}</p>
-        <!-- 変更リンク -->
-        <a href="{% url 'pt_kokushi:update_todo_item' todo_item.pk %}" class="btn btn-secondary">変更</a>
-        <!-- 削除リンク -->
-        <a href="{% url 'pt_kokushi:delete_todo_item' todo_item.pk %}" class="btn btn-danger">削除</a>
-    </li>
-    {% empty %}
-    <li>ToDoアイテムはありません。</li>
-    {% endfor %}
-</ul>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const checkboxes = document.querySelectorAll(".todo-checkbox");
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function() {
+            const itemId = this.getAttribute("data-id");
+            console.log("ToDoアイテム " + itemId + " の状態が変更されました。");
+            // ここでAjaxリクエストを使用してサーバー側の状態を更新できます。
+        });
+    });
+});
+</script>
+
+<!-- リアルタイムの検索やフィルタリング -->
+<script>
+    document.getElementById('searchBox').addEventListener('input', function() {
+        var searchQuery = this.value.toLowerCase();
+        var todoItems = document.querySelectorAll('#todoList li');
+    
+        todoItems.forEach(function(item) {
+            var itemText = item.textContent.toLowerCase();
+            if (itemText.includes(searchQuery)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+</script>
+    
+    <!-- タスクの状態の変更 -->
+<script>
+    document.querySelectorAll('.todo-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            // Ajaxリクエストでサーバーに完了/未完了の状態を送信
+        });
+    });
+</script>
+    
+    <!-- インライン編集 -->
+<script>
+    document.querySelectorAll('.edit-todo').forEach(function(editButton) {
+        editButton.addEventListener('click', function() {
+            var todoItem = this.parentNode;
+            var content = todoItem.querySelector('.content');
+            var editInput = document.createElement('input');
+            editInput.type = 'text';
+            editInput.value = content.textContent;
+            todoItem.replaceChild(editInput, content);
+    
+            editInput.addEventListener('blur', function() {
+                // Ajaxリクエストで編集内容をサーバーに送信
+                content.textContent = this.value;
+                todoItem.replaceChild(content, this);
+            });
+        });
+    });
+</script>
+
 {% endblock %}
