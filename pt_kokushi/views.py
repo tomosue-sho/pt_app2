@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from .forms import PostForm
 from .forms import CommentForm
 from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
@@ -323,7 +324,7 @@ class PostDetailView(generic.DetailView):
 
 class PostCreateView(generic.CreateView):
     model = Post
-    fields = ['title', 'content', 'nickname']
+    form_class = PostForm
     template_name = 'posts/post_create.html'
 
     def form_valid(self, form):

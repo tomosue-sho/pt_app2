@@ -231,6 +231,20 @@ class PostForm(forms.ModelForm):
             nickname = "Anonymous"  # ここでデフォルトの値を設定
         return nickname
     
+    def clean_nickname(self):
+        nickname = self.cleaned_data.get('nickname', '').lower()
+        for banned_word in BANNED_WORDS:
+            if banned_word.lower() in nickname:
+                raise ValidationError("ニックネームには不適切な内容が含まれています。")
+        return nickname
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').lower()
+        for banned_word in BANNED_WORDS:
+            if banned_word.lower() in title:
+                raise ValidationError("タイトルには不適切な内容が含まれています。")
+        return title
+    
     def clean_content(self):
         content = self.cleaned_data.get('content', '').lower()
         for banned_word in BANNED_WORDS:
