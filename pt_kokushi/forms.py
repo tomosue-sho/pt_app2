@@ -1,4 +1,5 @@
 from django import forms
+import os
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
@@ -207,6 +208,13 @@ class CustomNicknameChangeForm(forms.Form):
             
             
 #掲示板用
+def load_banned_words(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file if line.strip()]
+
+# ここでファイルパスを指定
+BANNED_WORDS = load_banned_words(os.path.join(os.path.dirname(__file__), 'banned_words.txt'))
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
@@ -222,6 +230,13 @@ class PostForm(forms.ModelForm):
             # nicknameが未入力の場合、デフォルト値を設定します
             nickname = "Anonymous"  # ここでデフォルトの値を設定
         return nickname
+    
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').lower()
+        for banned_word in BANNED_WORDS:
+            if banned_word.lower() in content:
+                raise ValidationError("投稿には不適切な内容が含まれています。")
+        return content
 
 class CommentForm(forms.ModelForm):
     class Meta:
@@ -237,3 +252,15 @@ class CommentForm(forms.ModelForm):
             # nicknameが未入力の場合、デフォルト値を設定します
             nickname = "Anonymous"  # ここでデフォルトの値を設定
         return nickname
+    
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').lower()
+        for banned_word in BANNED_WORDS:
+            if banned_word in content:
+                raise ValidationError("コメントには不適切な内容が含まれています。")
+        return content
+    
+
+
+
+

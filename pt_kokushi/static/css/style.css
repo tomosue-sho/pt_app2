@@ -265,3 +265,34 @@ p#countTimer span {
     color: wheat;
 }
 
+/*掲示板用ページネーション*/
+.wrapper ul {
+    display: flex; /* 横並びに配置 */
+    list-style: none; /* リストスタイルを無効にする */
+    padding: 0; /* パディングをリセット */
+}
+
+.wrapper ul li {
+    margin-right: 5px; /* リストアイテム間のマージン */
+}
+
+.wrapper ul li a {
+    display: block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px; /* テキストを中央に配置 */
+    text-align: center;
+    border-radius: 50%; /* 丸い形状 */
+    background: #ddd; /* 背景色 */
+    color: #333; /* テキスト色 */
+    text-decoration: none; /* テキストの下線を無効にする */
+}
+
+.wrapper ul li a:hover {
+    background: #bbb; /* ホバー時の背景色 */
+}
+
+.wrapper ul li.active a {
+    background: #333; /* アクティブページの背景色 */
+    color: #fff; /* アクティブページのテキスト色 */
+}

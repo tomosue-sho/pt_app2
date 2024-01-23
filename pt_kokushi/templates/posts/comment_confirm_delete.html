@@ -1,16 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>コメントを削除</h2>
-<p>以下のコメントを削除してもよろしいですか？</p>
-
-<div>
-    <strong>{{ object.content }}</strong>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">コメントを削除</h3>
+                </div>
+                <div class="card-body">
+                    <p>以下のコメントを削除してもよろしいですか？</p>
+                    <blockquote class="blockquote">
+                        <p class="mb-0">{{ object.content }}</p>
+                    </blockquote>
+                </div>
+                <div class="card-footer text-end">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="submit" value="はい" class="btn btn-danger">
+                    </form>
+                    <a href="{% url 'pt_kokushi:post_detail' object.post.pk %}" class="btn btn-secondary">いいえ</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<form method="post">
-    {% csrf_token %}
-    <input type="submit" value="はい">
-    <a href="{% url 'pt_kokushi:post_detail' object.post.pk %}">いいえ</a>
-</form>
 {% endblock %}

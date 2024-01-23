@@ -1,17 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>投稿を削除</h2>
-<p>以下の投稿を削除してもよろしいですか？</p>
-
-<div>
-    <strong>{{ object.title }}</strong>
-    <p>{{ object.content }}</p>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="card-title">投稿を削除</h3>
+                </div>
+                <div class="card-body">
+                    <p>以下の投稿を削除してもよろしいですか？</p>
+                    <h5 class="card-title">{{ object.title }}</h5>
+                    <p class="card-text">{{ object.content }}</p>
+                </div>
+                <div class="card-footer text-end">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="submit" value="削除" class="btn btn-warning">
+                    </form>
+                    <a href="{% url 'pt_kokushi:post_list' %}" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<form method="post">
-    {% csrf_token %}
-    <input type="submit" value="削除">
-    <a href="{% url 'pt_kokushi:post_list' %}">キャンセル</a>
-</form>
 {% endblock %}
+

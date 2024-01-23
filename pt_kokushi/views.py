@@ -20,6 +20,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date, datetime
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 
 
@@ -196,6 +197,7 @@ def my_page_view(request):
         "2025": "2025-02-16 09:50:00",
         "2026": "2026-02-15 09:50:00",
         "2027": "2027-02-21 09:50:00",
+        "2028": "2028-02-20 09:50:00",
     }
 
     remaining_days = None
@@ -279,6 +281,7 @@ def get_remaining_time(request):
         "2025": "2025-02-16 09:50:00",
         "2026": "2026-02-15 09:50:00",
         "2027": "2027-02-21 09:50:00",
+        "2028": "2028-02-20 09:50:00",
     }
 
     if hasattr(user, 'test_year') and user.test_year in test_dates:
@@ -298,11 +301,20 @@ def get_remaining_time(request):
 class PostListView(generic.ListView):
     model = Post
     template_name = 'posts/post_list.html'
+    paginate_by = 12  # 1ページあたりのアイテム数
+    page_kwarg = 'p'  # クエリパラメータ 'p' をページネーションのために使用
     context_object_name = 'posts'
+    ordering = ['-last_commented_at']
 
 class PostDetailView(generic.DetailView):
     model = Post
     template_name = 'posts/post_detail.html'
+    
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        obj.view_count += 1
+        obj.save(update_fields=['view_count'])
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -326,15 +338,19 @@ def add_comment_to_post(request, pk):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
-            # フォームで入力された nickname が空白の場合、デフォルト値を代入
             if not comment.nickname:
                 comment.nickname = "Anonymous"
             comment.author = request.user
             comment.save()
+            
+            # 最新のコメント日時を更新
+            post.last_commented_at = timezone.now()
+            post.save(update_fields=['last_commented_at'])
+
             return redirect('pt_kokushi:post_detail', pk=post.pk)
     else:
         form = CommentForm()
-    return render(request, 'posts/add_comment_to_post.html', {'form': form})
+    return render(request, 'posts/add_comment_to_post.html',  {'form': form, 'post': post})
 
 class PostDeleteView(UserPassesTestMixin, DeleteView):
     model = Post

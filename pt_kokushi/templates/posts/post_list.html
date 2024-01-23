@@ -1,18 +1,54 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>投稿一覧</h2>
-<ul>
+<h2 class="mb-4">投稿一覧</h2>
+
+<div class="row">
     {% for post in posts %}
-    <li>
-        <a href="{% url 'pt_kokushi:post_detail' post.pk %}">{{ post.title }}</a> - {{ post.author }} ({{ post.created_at }})
-        {% if request.user.is_staff %}
-            <a href="{% url 'pt_kokushi:post_delete' post.pk %}" class="btn btn-danger btn-sm">削除</a>
-        {% endif %}
-    </li>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.content|truncatechars:100 }}</p>
+                <a href="{% url 'pt_kokushi:post_detail' post.pk %}" class="btn btn-primary">詳細</a>
+                {% if request.user.is_staff %}
+                    <a href="{% url 'pt_kokushi:post_delete' post.pk %}" class="btn btn-danger">削除</a>
+                {% endif %}
+            </div>
+            <div class="card-footer text-muted">
+                投稿者: {{ post.author }} ({{ post.created_at }})
+                <br>
+               ビュー数: {{ post.view_count }} | コメント数: {{ post.comments.count }}
+            </div>
+        </div>
+    </div>
     {% endfor %}
-</ul>
-<p><a href="{% url 'pt_kokushi:post_new' %}" class="btn btn-dark" >新規投稿</a></p>
-<br>
-<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-primary">戻る</a></p> 
+</div>
+
+<p><a href="{% url 'pt_kokushi:post_new' %}" class="btn btn-dark mt-3" >新規投稿</a></p>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-primary mt-3">戻る</a></p>
+
+<!-- ページネーションコントロール -->
+<div class="wrapper">
+    <ul>
+        {% if page_obj.has_previous %}
+            <li><a href="?{{ page_kwarg }}=1">&laquo;</a></li>
+            <li><a href="?p={{ page_obj.previous_page_number }}">前へ</a></li>
+        {% endif %}
+
+        <!-- ページ番号をループで生成 -->
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="active"><a href="?p={{ num }}">{{ num }}</a></li>
+            {% else %}
+                <li><a href="?p={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li><a href="?p={{ page_obj.next_page_number }}">次へ</a></li>
+            <li><a href="?p={{ page_obj.paginator.num_pages }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
 {% endblock %}
