@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import json
 from .forms import PostForm
 from .forms import CommentForm
 from .forms import CustomLoginForm, forms
@@ -7,12 +8,14 @@ from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from .models import Post, Comment
+from .models import Event
 from .forms import ToDoItemForm
 from .models import ToDoItem
 from django.views import generic
 from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -414,4 +417,23 @@ def delete_todo_item(request, pk):
         todo_item.delete()
         return redirect('pt_kokushi:todo_list')
     return render(request, 'todolist/delete_todo_item.html', {'todo_item': todo_item})
+
+#カレンダー用のviews.py
+@csrf_exempt  # CSRFトークンの検証を無効化（本番環境では推奨されません）
+def add_event(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            event = Event(
+                title=data['title'],
+                start_date=data['start'],
+                end_date=data['end'],
+                user_email=request.user.email  # ログインしているユーザーのメールアドレスを使用
+            )
+            event.save()
+            return JsonResponse({'status': 'success', 'message': 'Event added successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 

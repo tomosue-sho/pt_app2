@@ -1,5 +1,6 @@
 <!-- my_page.html -->
 {% extends 'base.html' %}
+{% load static %} 
 
 {% block content %}
 <h2>マイページ</h2>
@@ -58,7 +59,40 @@
   <br>
   <div id='calendar'></div>
 <br>
-
+<!-- モーダルを開くボタン -->
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addEventModal">
+  カレンダーにイベントを追加
+</button>
+<br>
+<!-- イベント追加用モーダル -->
+<div class="modal" id="addEventModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新しいイベントを追加</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addEventForm">
+          <div class="mb-3">
+            <label for="eventTitle" class="form-label">イベントタイトル</label>
+            <input type="text" class="form-control" id="eventTitle" required>
+          </div>
+          <div class="mb-3">
+            <label for="eventStart" class="form-label">開始日時</label>
+            <input type="datetime-local" class="form-control" id="eventStart" required>
+          </div>
+          <div class="mb-3">
+            <label for="eventEnd" class="form-label">終了日時</label>
+            <input type="datetime-local" class="form-control" id="eventEnd" required>
+          </div>
+          <button type="submit" class="btn btn-danger">イベントを追加</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
   <!-- パスワード変更へのリンク -->
   <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワードを変更する</a></p>
 
@@ -73,5 +107,8 @@
       alert('パスワードを変更するページに移動します。');
     });
   </script>
-
+  <script type="text/javascript">
+    var csrfToken = '{{ csrf_token }}';
+  </script>
+  <script src="{% static 'javascript/event-handler.js' %}"></script>
 {% endblock %}
