@@ -61,20 +61,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <!-- リアルタイムの検索やフィルタリング -->
 <script>
+document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('searchBox').addEventListener('input', function() {
         var searchQuery = this.value.toLowerCase();
-        var todoItems = document.querySelectorAll('#todoList li');
-    
+        var todoItems = document.querySelectorAll('.card-body');
+
         todoItems.forEach(function(item) {
             var itemText = item.textContent.toLowerCase();
             if (itemText.includes(searchQuery)) {
-                item.style.display = '';
+                item.closest('.col-md-4').style.display = '';
             } else {
-                item.style.display = 'none';
+                item.closest('.col-md-4').style.display = 'none';
             }
         });
     });
+});
 </script>
+
     
     <!-- タスクの状態の変更 -->
 <script>
