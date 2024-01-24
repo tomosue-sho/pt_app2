@@ -121,7 +121,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    # 他の静的ファイルディレクトリがあればここに追加
+]
 
 #メールを送らなくてもメールをテストできる機能
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 import json
 from .forms import PostForm
+from .forms import EventForm
 from .forms import CommentForm
 from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
@@ -419,21 +420,25 @@ def delete_todo_item(request, pk):
     return render(request, 'todolist/delete_todo_item.html', {'todo_item': todo_item})
 
 #カレンダー用のviews.py
-@csrf_exempt  # CSRFトークンの検証を無効化（本番環境では推奨されません）
-def add_event(request):
+def create_event(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            event = Event(
-                title=data['title'],
-                start_date=data['start'],
-                end_date=data['end'],
-                user_email=request.user.email  # ログインしているユーザーのメールアドレスを使用
-            )
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.user_email = request.user.email  # ユーザーのメールアドレスを設定
             event.save()
-            return JsonResponse({'status': 'success', 'message': 'Event added successfully'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
+            return redirect('pt_kokushi:create_event')  # 適切なリダイレクト先に変更
     else:
-        return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+        form = EventForm()
+    return render(request, 'login_app/create_event.html', {'form': form})
+
+
+def calendar_events(request):
+    events = Event.objects.all()
+    event_data = [{
+        'title': event.title,
+        'start': event.start_date.isoformat(),
+        'end': event.end_date.isoformat(),
+    } for event in events]
+    return JsonResponse(event_data, safe=False)
 

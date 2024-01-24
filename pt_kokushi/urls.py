@@ -31,7 +31,7 @@ urlpatterns = [
     path('todo/list/', views.todo_list, name='todo_list'),  # ToDoリストページ
     path('todo/update/<int:pk>/', views.update_todo_item, name='update_todo_item'),#ToDo変更
     path('todo/delete/<int:pk>/', views.delete_todo_item, name='delete_todo_item'),
-    path('add-event/', views.add_event, name='add-event'),
+    path('create-event/', views.create_event, name='create_event'),
 ]
 
 

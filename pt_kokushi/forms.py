@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from .models import CustomUser
 from .models import Post, Comment
 from .models import ToDoItem
+from .models import Event
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.utils.text import capfirst
@@ -290,3 +291,12 @@ class ToDoItemForm(forms.ModelForm):
         }
 
 
+#カレンダーイベント追記用
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['title', 'start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
