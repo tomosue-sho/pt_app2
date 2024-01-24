@@ -3,6 +3,7 @@
 {% load django_bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% load widget_tweaks %}
 
 
 <html lang="ja">
@@ -20,10 +21,7 @@
             initialView: 'dayGridMonth',
             firstDay: 1 , // 月曜日を週の最初の日として設定
             locale: 'ja',  // 日本語表示に設定
-            events: [ 
-          { title: '第59回 理学療法士国家試験', start: '2024-02-18', end: '2024-02-20' },
-          { title: '第60回 理学療法士国家試験', start: '2025-02-16', end: '2025-02-18' }
-        ]
+            events: '/login_app/calendar-events/'
           });
           calendar.render();
         });

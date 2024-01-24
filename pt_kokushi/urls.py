@@ -1,6 +1,7 @@
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
+from .views import calendar_events
 from django.urls import path
 
 app_name = 'pt_kokushi'
@@ -32,6 +33,7 @@ urlpatterns = [
     path('todo/update/<int:pk>/', views.update_todo_item, name='update_todo_item'),#ToDo変更
     path('todo/delete/<int:pk>/', views.delete_todo_item, name='delete_todo_item'),
     path('create-event/', views.create_event, name='create_event'),
+    path('calendar-events/', calendar_events, name='calendar_events'),
 ]
 
 

@@ -427,7 +427,7 @@ def create_event(request):
             event = form.save(commit=False)
             event.user_email = request.user.email  # ユーザーのメールアドレスを設定
             event.save()
-            return redirect('pt_kokushi:create_event')  # 適切なリダイレクト先に変更
+            return redirect('pt_kokushi:my_page')  # 適切なリダイレクト先に変更
     else:
         form = EventForm()
     return render(request, 'login_app/create_event.html', {'form': form})

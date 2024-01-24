@@ -1,11 +1,25 @@
 <!-- create_event.html -->
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block content %}
-<h2>イベントを作成</h2>
-<form method="post">
+<h2 class="mt-4">イベントを作成</h2>
+<h2 class="mt-4">今は - {% now "Y年 m月d日 l" %}</h2>
+
+<form method="post" class="mt-4">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">保存</button>
+    <div class="mb-3">
+        <label for="id_title" class="form-label">イベントタイトル</label>
+        {{ form.title|add_class:'form-control' }}
+    </div>
+    <div class="mb-3">
+        <label for="id_start_date" class="form-label">開始日</label>
+        {{ form.start_date|add_class:'form-control' }}
+    </div>
+    <div class="mb-3">
+        <label for="id_end_date" class="form-label">終了日</label>
+        {{ form.end_date|add_class:'form-control' }}
+    </div>
+    <button type="submit" class="btn btn-primary">保存</button>
 </form>
 {% endblock %}
