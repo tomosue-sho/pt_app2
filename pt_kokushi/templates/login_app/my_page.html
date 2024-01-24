@@ -49,9 +49,16 @@
   </table>
   <br>
   <!-- ToDoリストへのリンク -->
-  <p><a href="{% url 'pt_kokushi:todo_list' %}" class="btn btn-info">ToDoリストを見る</a></p>
-
+  <p>
+    <a href="{% url 'pt_kokushi:todo_list' %}" class="btn btn-warning btn-lg">
+      <i class="fa fa-list-ul"></i> ToDoリストを見る
+    </a>
+  </p>
+  
   <br>
+  <div id='calendar'></div>
+<br>
+
   <!-- パスワード変更へのリンク -->
   <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワードを変更する</a></p>
 
@@ -66,4 +73,5 @@
       alert('パスワードを変更するページに移動します。');
     });
   </script>
+
 {% endblock %}
