@@ -18,7 +18,6 @@
 #timetable {
   max-width: 600px; /* 最大幅を600pxに設定 */
   width: 50%; /* テーブルの幅を50%に設定 */
-  margin: auto; /* テーブルを中央に配置 */
 }
 
 @media (min-width: 768px) {
@@ -33,12 +32,11 @@
 }
   </style>
 
-<div style="display: flex; flex-direction: column; align-items: center;">
 <h2>時間割表</h2>
 <br>
 <a href="{% url 'pt_kokushi:create_timetable' %}" class="btn btn-primary">新しい時間割を追加</a>
-<br>
-
+<br><br>
+<h6>変更・削除は授業名をクリック</h6>
 <table class="table table-bordered" id="timetable">
   <thead>
     <tr>
@@ -69,7 +67,10 @@
     {% endfor %}
   </tbody>
 </table>
-</div>
+<br>
+<p><a href="{% url 'pt_kokushi:my_page' %}" class="btn btn-secondary">マイページに戻る</a></p>
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const table = document.getElementById('timetable');

@@ -3,7 +3,7 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<h2 class="mt-4">時間割を更新</h2>
+<h2 class="mt-4">時間割を更新・削除</h2>
 <h2 class="mt-4">今は - {% now "Y年 m月d日 l" %}</h2>
 
 <form method="post" class="mt-4">
@@ -24,6 +24,8 @@
 
     <button type="button" onclick="confirmDelete({{ timetable.id }})" class="btn btn-danger">削除</button>
 </form>
+<br>
+<p><a href="{% url 'pt_kokushi:timetable_list' %}" class="btn btn-secondary">時間割に戻る</a></p>
 
 <script>
     function confirmDelete(timetableId) {
