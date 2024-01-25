@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %} 
+{% load widget_tweaks %}
+
+{% block content %}
+<h2 class="mt-4">時間割を更新</h2>
+<h2 class="mt-4">今は - {% now "Y年 m月d日 l" %}</h2>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_day" class="form-label">曜日</label>
+        {{ form.day|add_class:'form-control' }}
+    </div>
+    <div class="mb-3">
+        <label for="id_period" class="form-label">時限</label>
+        {{ form.period|add_class:'form-control' }}
+    </div>
+    <div class="mb-3">
+        <label for="id_subject" class="form-label">科目</label>
+        {{ form.subject|add_class:'form-control' }}
+    </div>
+    <button type="submit" class="btn btn-primary">更新</button>
+
+    <button type="button" onclick="confirmDelete({{ timetable.id }})" class="btn btn-danger">削除</button>
+</form>
+
+<script>
+    function confirmDelete(timetableId) {
+        if (confirm('本当にこの時間割を削除しますか？')) {
+            window.location.href = `{% url 'pt_kokushi:delete_timetable' 0 %}`.replace('0', timetableId);
+        }
+    }
+</script>
+
+{% endblock %}
