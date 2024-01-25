@@ -8,6 +8,7 @@ from .models import CustomUser
 from .models import Post, Comment
 from .models import ToDoItem
 from .models import Event
+from .models import TimeTable
 from django.forms import ModelForm
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -296,6 +297,7 @@ class ToDoItemForm(forms.ModelForm):
 class EventForm(ModelForm):
     start_date = forms.DateField(
         input_formats=['%Y-%m-%d'],
+        initial=timezone.now().date(),
         widget=forms.SelectDateWidget(
             years=range(timezone.now().year, timezone.now().year - 10, -1),
             empty_label=("Year", "Month", "Day"),
@@ -303,6 +305,7 @@ class EventForm(ModelForm):
     )
     end_date = forms.DateField(
         input_formats=['%Y-%m-%d'],
+        initial=timezone.now().date(),
         widget=forms.SelectDateWidget(
             years=range(timezone.now().year, timezone.now().year - 10, -1),
             empty_label=("Year", "Month", "Day"),
@@ -312,3 +315,15 @@ class EventForm(ModelForm):
     class Meta:
         model = Event
         fields = ['title', 'start_date', 'end_date']
+        
+        
+#時間割用forms.py
+class TimeTableForm(forms.ModelForm):
+    class Meta:
+        model = TimeTable
+        fields = ['day', 'period', 'subject']
+        labels = {
+            'day': '曜日',
+            'time_slot': '時間帯',
+            'subject': '科目名'
+        }

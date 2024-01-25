@@ -6,12 +6,14 @@ from .forms import CommentForm
 from .forms import CustomLoginForm, forms
 from .forms import CustomUserForm
 from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
+from .forms import TimeTableForm
+from .forms import ToDoItemForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from .models import Event
-from .forms import ToDoItemForm
 from .models import ToDoItem
+from .models import TimeTable
 from django.views import generic
 from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
@@ -453,7 +455,6 @@ def delete_event(request, event_id):
 
     
 #カレンダーイベント更新
-# views.py
 def update_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if request.method == 'POST':
@@ -471,3 +472,47 @@ def update_event(request, event_id):
     }
     return render(request, 'login_app/update_event.html', context)
 
+#時間割表用views.py
+def create_timetable(request):
+    if request.method == 'POST':
+        form = TimeTableForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('pt_kokushi:timetable_list')
+    else:
+        form = TimeTableForm()
+    return render(request, 'login_app/create_timetable.html', {'form': form})
+
+def timetable_list(request):
+    timetables = TimeTable.objects.all()
+    days = ['月', '火', '水', '木', '金', '土', '日']  # 曜日のリスト
+    time_slots = [1, 2, 3, 4, 5, 6]
+
+    # 時間割表を作成するためのデータ構造を作成
+    timetable_data = {day: {time_slot: None for time_slot in time_slots} for day in days}
+
+    for timetable in timetables:
+        timetable_data[timetable.day][timetable.period] = timetable.subject
+
+    return render(request, 'login_app/timetable_list.html', {
+        'timetable_data': timetable_data,
+        'days': days,
+        'time_slots': time_slots,
+    })
+
+#時間割削除と変更機能
+def delete_timetable(request, timetable_id):
+    timetable = get_object_or_404(TimeTable, id=timetable_id)
+    timetable.delete()
+    return redirect('pt_kokushi:timetable_list')
+
+def update_timetable(request, timetable_id):
+    timetable = get_object_or_404(TimeTable, id=timetable_id)
+    if request.method == 'POST':
+        form = TimeTableForm(request.POST, instance=timetable)
+        if form.is_valid():
+            form.save()
+            return redirect('pt_kokushi:timetable_list')
+    else:
+        form = TimeTableForm(instance=timetable)
+    return render(request, 'login_app/edit_timetable.html', {'form': form})

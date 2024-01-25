@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load dict_helpers %}
+{% block content %}
+<h2>時間割表</h2>
+
+<table class="table table-bordered" id="timetable">
+  <thead>
+    <tr>
+      <th>時間帯</th>
+      {% for day in days %}
+      <th>{{ day }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for time_slot in time_slots %}
+      <tr>
+        <td>{{ time_slot }}</td>
+        {% for day in days %}
+          <td>
+            {% with subject=timetable_data|get_item:day|get_item:time_slot %}
+              {% if subject %}
+                <span class="editable-subject" data-id="{{ subject.id }}">
+                  {{ subject.subject }}
+                </span>
+              {% else %}
+                -
+              {% endif %}
+            {% endwith %}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{% url 'pt_kokushi:create_timetable' %}" >新しい時間割を追加</a>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('timetable');
+    table.addEventListener('click', function(e) {
+      const target = e.target;
+      if (target.classList.contains('editable-subject')) {
+        const id = target.dataset.id;
+        window.location.href = `/login_app/timetable/update/${id}/`;
+      }
+    });
+  });
+</script>
+{% endblock %}

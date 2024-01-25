@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>時間割を作成</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">保存</button>
+</form>
+
+<a href="{% url 'pt_kokushi:timetable_list' %}">時間割一覧を表示</a>
+{% endblock %}

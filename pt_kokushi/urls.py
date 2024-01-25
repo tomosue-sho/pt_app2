@@ -36,6 +36,11 @@ urlpatterns = [
     path('calendar-events/', calendar_events, name='calendar_events'),
     path('event/delete/<int:event_id>/', views.delete_event, name='delete_event'),
     path('event/update/<int:event_id>/', views.update_event, name='update_event'),
+    path('create-timetable/', views.create_timetable, name='create_timetable'),
+    path('timetable/', views.timetable_list, name='timetable_list'),
+    path('timetable/delete/<int:timetable_id>/', views.delete_timetable, name='delete_timetable'),
+    path('timetable/update/<int:timetable_id>/', views.update_timetable, name='update_timetable'),
+
 ]
 
 

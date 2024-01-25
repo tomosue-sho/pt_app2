@@ -3,6 +3,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 from .models import ToDoItem
+from .models import Post, Comment
+from .models import Event
+from .models import TimeTable
+
 
 CustomUser = get_user_model()
 
@@ -49,7 +53,18 @@ class ToDoItemAdmin(admin.ModelAdmin):
     list_filter = ('priority', 'deadline', 'created_at')
     search_fields = ('title', 'content')
 
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('post', 'created_at', 'nickname')
     
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'start_date', 'end_date', 'user_email')
+    
+@admin.register(TimeTable)
+class TimeTableAdmin(admin.ModelAdmin):
+    list_display = ('day', 'get_period_display', 'subject')
+   
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
 admin.site.register(CustomUser, CustomUserAdmin)
