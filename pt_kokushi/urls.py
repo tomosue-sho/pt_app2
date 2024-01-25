@@ -34,6 +34,8 @@ urlpatterns = [
     path('todo/delete/<int:pk>/', views.delete_todo_item, name='delete_todo_item'),
     path('create-event/', views.create_event, name='create_event'),
     path('calendar-events/', calendar_events, name='calendar_events'),
+    path('event/delete/<int:event_id>/', views.delete_event, name='delete_event'),
+    path('event/update/<int:event_id>/', views.update_event, name='update_event'),
 ]
 
 

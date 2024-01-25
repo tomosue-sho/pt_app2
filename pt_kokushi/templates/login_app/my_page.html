@@ -57,11 +57,12 @@
   </p>
   
   <br>
+  <p>
+    <a href="{% url 'pt_kokushi:create_event' %}" class="btn btn-danger">新しいイベントを追加</a>
+  </p>
   <div id='calendar'></div>
 <br>
-<p>
-  <a href="{% url 'pt_kokushi:create_event' %}" class="btn btn-danger">新しいイベントを追加</a>
-</p>
+
   <!-- パスワード変更へのリンク -->
   <p><a href="{% url 'pt_kokushi:change_password' %}" class="btn btn-primary">パスワードを変更する</a></p>
 

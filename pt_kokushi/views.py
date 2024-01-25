@@ -212,9 +212,11 @@ def my_page_view(request):
         remaining_time = user.get_remaining_time(test_dates)
         if remaining_time and remaining_time.days >= 0:
             remaining_days = remaining_time.days
-
+    
+    events = Event.objects.all()  # すべてのイベントを取得
     context = {
-        'remaining_days': remaining_days
+        'events': events,
+        'remaining_days': remaining_days  
     }
 
     return render(request, 'login_app/my_page.html', context)
@@ -436,9 +438,36 @@ def create_event(request):
 def calendar_events(request):
     events = Event.objects.all()
     event_data = [{
+        'id': event.id, 
         'title': event.title,
         'start': event.start_date.isoformat(),
         'end': event.end_date.isoformat(),
     } for event in events]
     return JsonResponse(event_data, safe=False)
+
+#カレンダーイベント削除
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    event.delete()
+    return redirect('pt_kokushi:my_page')
+
+    
+#カレンダーイベント更新
+# views.py
+def update_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect('pt_kokushi:my_page')
+    else:
+        form = EventForm(instance=event)
+
+    # コンテキストに event オブジェクトを追加
+    context = {
+        'form': form,
+        'event': event  # この行を追加
+    }
+    return render(request, 'login_app/update_event.html', context)
 
