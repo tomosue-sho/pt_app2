@@ -486,17 +486,18 @@ def create_timetable(request):
 def timetable_list(request):
     timetables = TimeTable.objects.all()
     days = ['月', '火', '水', '木', '金', '土', '日']  # 曜日のリスト
-    time_slots = [1, 2, 3, 4, 5, 6]  # 時限のリスト
+    time_slots = ['1限', '2限', '3限', '4限', '5限', '6限']  # 時限のリスト
 
     # 時間割表を作成するためのデータ構造を作成
     timetable_data = {day: {time_slot: None for time_slot in time_slots} for day in days}
 
     for timetable in timetables:
-        # timetable.dayとtimetable.periodをそのままキーとして使用
-        timetable_data[timetable.day][timetable.period] = {
+        period_str = f'{timetable.period}限'  # 数値を文字列に変換
+        timetable_data[timetable.day][period_str] = {
             'id': timetable.id,
             'subject': timetable.subject
-        }
+    }
+
 
     return render(request, 'login_app/timetable_list.html', {
         'timetable_data': timetable_data,

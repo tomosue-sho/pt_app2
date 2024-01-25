@@ -325,5 +325,6 @@ class TimeTableForm(forms.ModelForm):
         labels = {
             'day': '曜日',
             'time_slot': '時間帯',
-            'subject': '科目名'
+            'subject': '科目名',
+            'period':'時限'
         }

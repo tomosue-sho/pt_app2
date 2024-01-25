@@ -1,8 +1,43 @@
 {% extends 'base.html' %}
 {% load dict_helpers %}
-
 {% block content %}
+
+<style>
+  .editable-subject {
+    width: 50%;
+}
+
+.editable-subject {
+    background-color: #CCFFCC;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0px 0px 5px #ccc; /* 影を追加 */
+}
+
+#timetable {
+  max-width: 600px; /* 最大幅を600pxに設定 */
+  width: 50%; /* テーブルの幅を50%に設定 */
+  margin: auto; /* テーブルを中央に配置 */
+}
+
+@media (min-width: 768px) {
+  #timetable {
+      width: 50%; /* 画面幅が768px以上の場合の幅 */
+  }
+}
+
+.custom-button {
+  font-size: 16px; /* フォントサイズの変更 */
+  margin-top: 10px; /* 上マージンの追加 */
+}
+  </style>
+
+<div style="display: flex; flex-direction: column; align-items: center;">
 <h2>時間割表</h2>
+<br>
+<a href="{% url 'pt_kokushi:create_timetable' %}" class="btn btn-primary">新しい時間割を追加</a>
+<br>
 
 <table class="table table-bordered" id="timetable">
   <thead>
@@ -34,8 +69,7 @@
     {% endfor %}
   </tbody>
 </table>
-<a href="{% url 'pt_kokushi:create_timetable' %}" >新しい時間割を追加</a>
-
+</div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const table = document.getElementById('timetable');
@@ -48,5 +82,23 @@
     });
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const subjects = document.querySelectorAll('.editable-subject');
+      subjects.forEach(subject => {
+          subject.addEventListener('mouseover', function() {
+              // ポップアップやツールチップを表示するコードをここに書く
+              subject.style.backgroundColor = '#0FF'; // 例：背景色を変更
+          });
+  
+          subject.addEventListener('mouseout', function() {
+              // ポップアップやツールチップを非表示にするコード
+              subject.style.backgroundColor = ''; // 背景色をリセット
+          });
+      });
+  });
+  </script>
+  
 
 {% endblock %}
