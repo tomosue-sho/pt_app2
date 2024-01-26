@@ -40,7 +40,10 @@ urlpatterns = [
     path('timetable/', views.timetable_list, name='timetable_list'),
     path('timetable/delete/<int:timetable_id>/', views.delete_timetable, name='delete_timetable'),
     path('timetable/update/<int:timetable_id>/', views.update_timetable, name='update_timetable'),
-
+    path('start_quiz/', views.start_quiz, name='start_quiz'),
+    path('quiz/<str:field>/', views.quiz, name='quiz'),
+    path('quiz/results/', views.quiz_results, name='quiz_results'),
+    path('select_field/', views.select_field, name='select_field'),
 ]
 
 

@@ -14,6 +14,8 @@ from .models import Post, Comment
 from .models import Event
 from .models import ToDoItem
 from .models import TimeTable
+from .models import Field
+from .models import Question, UserAnswer, UserScore
 from django.views import generic
 from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
@@ -523,3 +525,30 @@ def update_timetable(request, timetable_id):
         form = TimeTableForm(instance=timetable)
     return render(request, 'login_app/edit_timetable.html', {'form': form, 'timetable': timetable})
 
+#2択問題のためのviews.py
+def start_quiz(request):
+    # 分野を選択するページを表示
+    fields = ['分野1', '分野2']  # ここに利用可能な分野を追加
+    return render(request, 'quiz/start_quiz.html', {'fields': fields})
+
+def quiz(request, field):
+    # ランダムな問題を取得
+    question = Question.objects.filter(field=field).order_by('?').first()
+    
+    if request.method == 'POST':
+        selected_answer = request.POST['selected_answer']
+        # ユーザーの回答を保存
+        UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
+        # 成績を更新
+
+    return render(request, 'quiz/quiz.html', {'question': question})
+
+def quiz_results(request):
+    # 成績情報を取得
+    user_score = UserScore.objects.get(user=request.user)
+    return render(request, 'quiz/results.html', {'user_score': user_score})
+
+#分野選択のためのviews
+def select_field(request):
+    fields = Field.objects.all()
+    return render(request, 'quiz/select_field.html', {'fields': fields})

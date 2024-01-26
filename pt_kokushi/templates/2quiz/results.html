@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>成績情報</h1>
+    <p>回答済みの問題数: {{ user_score.total_questions_attempted }}</p>
+    <p>正解した問題数: {{ user_score.total_correct_answers }}</p>
+    <p>総合スコア: {{ user_score.total_score }}</p>
+{% endblock %}

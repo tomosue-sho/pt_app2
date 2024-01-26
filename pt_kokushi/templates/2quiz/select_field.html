@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>分野を選択してください</h1>
+    <ul>
+        {% for field in fields %}
+            <li>
+                <a href="{% url 'quiz' field.name %}">{{ field.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+   {% endblock %}

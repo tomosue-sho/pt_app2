@@ -3,6 +3,12 @@
 {% load static %} 
 
 {% block content %}
+<style>
+  .todo_lonk{
+    border: 3px solid #2589d0;
+}
+</style>
+
 <h2>マイページ</h2>
 {% if remaining_days is not None %}
   <div class="remaining-days">
@@ -49,7 +55,7 @@
     </tbody>
   </table>
   <br>
-  
+  <div class = "todo_link">
   <!-- ToDoリストへのリンク -->
   <a href="{% url 'pt_kokushi:todo_list' %}" class="btn btn-primary">
     <i class="fa fa-list-ul"></i> ToDoリストを見る
@@ -59,7 +65,7 @@
 <a href="{% url 'pt_kokushi:timetable_list' %}" class="btn btn-primary">
     時間割
 </a>
-  
+</div>
   <br><br>
   <p>
     <a href="{% url 'pt_kokushi:create_event' %}" class="btn btn-danger">カレンダーに新しいイベントを追加</a>

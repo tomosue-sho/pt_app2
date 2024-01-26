@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>クイズ</h1>
+    <form method="post" action="{% url 'submit_answer' %}">
+        {% csrf_token %}
+        <p>{{ question.question_text }}</p>
+        <label>
+            <input type="radio" name="selected_answer" value="A"> {{ question.choice_a }}
+        </label><br>
+        <label>
+            <input type="radio" name="selected_answer" value="B"> {{ question.choice_b }}
+        </label><br>
+        <input type="submit" value="回答する">
+    </form>
+{% endblock %}

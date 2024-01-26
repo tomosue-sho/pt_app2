@@ -6,6 +6,7 @@ from .models import ToDoItem
 from .models import Post, Comment
 from .models import Event
 from .models import TimeTable
+from .models import Field
 
 
 CustomUser = get_user_model()
@@ -64,8 +65,24 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(TimeTable)
 class TimeTableAdmin(admin.ModelAdmin):
     list_display = ('day', 'get_period_display', 'subject')
-   
+    
+class FieldAdmin(admin.ModelAdmin):
+    list_display = ('custom_name', 'custom_description', 'custom_icon') 
+
+    def custom_name(self, obj):
+        return obj.name
+    custom_name.short_description = "分野名"
+
+    def custom_description(self, obj):
+        return obj.description
+    custom_description.short_description = "説明"
+
+    def custom_icon(self, obj):
+        return obj.icon  # ここでは画像の表示方法を指定する必要があります
+    custom_icon.short_description = "アイコン"
+
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(ToDoItem, ToDoItemAdmin)
+admin.site.register(Field, FieldAdmin)

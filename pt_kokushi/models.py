@@ -1,10 +1,12 @@
 from django.db import models
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.contrib import auth
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, RegexValidator
 from django.core.mail import send_mail
 from django.dispatch import receiver
@@ -298,3 +300,55 @@ class TimeTable(models.Model):
 
     def __str__(self):
         return f"{self.get_day_display()} - {self.get_period_display()} - {self.subject}"
+    
+#2択問題用のmodels.py
+class Question(models.Model):
+    field_choices = [
+        ('Field 1', '分野1'),
+        ('Field 2', '分野2'),
+        # 他の分野を追加
+    ]
+    
+    question_text = models.TextField()
+    field = models.CharField(max_length=50, choices=field_choices)
+    correct_answer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')])
+
+    def __str__(self):
+        return self.question_text
+
+# ユーザーの回答を記録するモデル
+class UserAnswer(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')])
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Answer: {self.question.question_text}"
+
+# ユーザーのスコアを記録するモデル
+class UserScore(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    total_score = models.IntegerField(default=0)
+    total_questions_attempted = models.IntegerField(default=0)
+    total_correct_answers = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username}'s Score: {self.total_score}"
+
+    def update_score(self, question, selected_answer):
+        # ユーザーの回答と正解を比較してスコアを更新するメソッドを追加できます
+        if selected_answer == question.correct_answer:
+            self.total_correct_answers += 1
+            self.total_score += 1
+        self.total_questions_attempted += 1
+        self.save()
+        
+#基礎学習分野選択ページ
+class Field(models.Model):
+    name = models.CharField(max_length=100, verbose_name="分野名")
+    description = models.TextField(verbose_name="説明")
+    icon = models.ImageField(upload_to="field_icons/", verbose_name="アイコン")
+
+    def __str__(self):
+        return self.name
