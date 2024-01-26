@@ -3,6 +3,8 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from .views import calendar_events
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 app_name = 'pt_kokushi'
 
@@ -48,4 +50,5 @@ urlpatterns = [
     path('select_subfield/<int:field_id>/', views.select_subfield, name='select_subfield'),
 ]
 
-
+if settings.DEBUG:
+     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
