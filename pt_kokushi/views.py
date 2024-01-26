@@ -529,7 +529,7 @@ def update_timetable(request, timetable_id):
 def start_quiz(request):
     # 分野を選択するページを表示
     fields = ['分野1', '分野2']  # ここに利用可能な分野を追加
-    return render(request, 'quiz/start_quiz.html', {'fields': fields})
+    return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
 def quiz(request, field):
     # ランダムな問題を取得
@@ -541,14 +541,40 @@ def quiz(request, field):
         UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
         # 成績を更新
 
-    return render(request, 'quiz/quiz.html', {'question': question})
+    return render(request, '2quiz/quiz.html', {'question': question})
 
 def quiz_results(request):
     # 成績情報を取得
     user_score = UserScore.objects.get(user=request.user)
-    return render(request, 'quiz/results.html', {'user_score': user_score})
+    return render(request, '2quiz/results.html', {'user_score': user_score})
 
 #分野選択のためのviews
 def select_field(request):
     fields = Field.objects.all()
-    return render(request, 'quiz/select_field.html', {'fields': fields})
+    return render(request, '2quiz/select_field.html', {'fields': fields})
+
+def submit_answer(request):
+    if request.method == 'POST':
+        # POSTリクエストから選択された回答を取得
+        selected_answer = request.POST.get('selected_answer')
+        
+        # ログインしているユーザーを取得
+        user = request.user
+        
+        # 選択した回答に対応する問題を取得
+        question_id = request.POST.get('question_id')
+        question = Question.objects.get(pk=question_id)
+        
+        # ユーザーの回答を保存
+        user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
+        user_answer.save()
+        
+        # ユーザーのスコアを更新
+        user_score, created = UserScore.objects.get_or_create(user=user)
+        if selected_answer == question.correct_answer:
+            user_score.total_correct_answers += 1
+            user_score.total_score += 1
+        user_score.total_questions_attempted += 1
+        user_score.save()
+        
+    return redirect('quiz', field=question.field)

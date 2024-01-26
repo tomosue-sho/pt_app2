@@ -5,7 +5,9 @@
     <ul>
         {% for field in fields %}
             <li>
-                <a href="{% url 'quiz' field.name %}">{{ field.name }}</a>
+                <a href="{% url 'pt_kokushi:quiz' field.name %}">{{ field.name }}</a>
+                <p>説明:{{ field.description}}</p>
+                {{ field.icon}}
             </li>
         {% endfor %}
     </ul>

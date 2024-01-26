@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>クイズ</h1>
-    <form method="post" action="{% url 'submit_answer' %}">
+    <form method="post" action="{% url 'pt_kokushi:submit_answer' %}">
         {% csrf_token %}
         <p>{{ question.question_text }}</p>
         <label>
