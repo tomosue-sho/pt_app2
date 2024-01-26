@@ -348,7 +348,16 @@ class UserScore(models.Model):
 class Field(models.Model):
     name = models.CharField(max_length=100, verbose_name="分野名")
     description = models.TextField(verbose_name="説明")
-    icon = models.ImageField(upload_to="field_icons/", verbose_name="アイコン")
+    icon = models.ImageField(upload_to='field_icons/', blank=True, null=True, verbose_name="アイコン")
+
+    def __str__(self):
+        return self.name
+
+class Subfield(models.Model):
+    field = models.ForeignKey(Field, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, verbose_name="分野名")
+    description = models.TextField(verbose_name="説明")
+    icon = models.ImageField(upload_to='subfield_icons/', blank=True, null=True, verbose_name="アイコン")
 
     def __str__(self):
         return self.name

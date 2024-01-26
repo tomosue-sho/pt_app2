@@ -1,0 +1,16 @@
+<!-- select_subfield.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <h1>{{ field.name }}の詳細な分野を選択してください</h1>
+    <ul>
+        {% for subfield in subfields %}
+            <li>
+                <a href="{% url 'pt_kokushi:quiz' subfield.name %}">{{ subfield.name }}</a>
+                <p>説明: {{ subfield.description }}</p>
+                {{ subfield.icon }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

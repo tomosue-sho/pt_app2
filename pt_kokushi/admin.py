@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+from django.utils.html import format_html
 from .models import CustomUser
 from .models import ToDoItem
 from .models import Post, Comment
 from .models import Event
 from .models import TimeTable
-from .models import Field
+from .models import Field, Subfield
 
 
 CustomUser = get_user_model()
@@ -78,11 +79,35 @@ class FieldAdmin(admin.ModelAdmin):
     custom_description.short_description = "説明"
 
     def custom_icon(self, obj):
+        # 画像のフルパスを文字列として返す
+        if obj.icon:
+            return format_html('<img src="{}" width="50" height="50" />', obj.icon.url)
+        else:
+            return "No Icon"  # アイコンが設定されていない場合のテキスト
+
+    custom_icon.short_description = "アイコン"
+    
+    
+class SubfieldAdmin(admin.ModelAdmin):
+    list_display = ('custom_name', 'custom_description', 'custom_icon', 'field')
+
+    def custom_name(self, obj):
+        return obj.name
+    custom_name.short_description = "分野名"
+
+    def custom_description(self, obj):
+        return obj.description
+    custom_description.short_description = "説明"
+
+    def custom_icon(self, obj):
         return obj.icon  # ここでは画像の表示方法を指定する必要があります
     custom_icon.short_description = "アイコン"
+
+    
 
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(ToDoItem, ToDoItemAdmin)
 admin.site.register(Field, FieldAdmin)
+admin.site.register(Subfield, SubfieldAdmin)

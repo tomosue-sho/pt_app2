@@ -6,10 +6,15 @@
     <ul>
         {% for field in fields %}
             <li>
-                <a href="{% url 'pt_kokushi:quiz' field.name %}">{{ field.name }}</a>
-                <p>説明:{{ field.description}}</p>
-                {{ field.icon}}
+                <a href="{% url 'pt_kokushi:select_subfield' field.id %}">{{ field.name }}</a>
+                <p>説明: {{ field.description }}</p>
+                <!-- 画像を表示するためのコード -->
+                {% if field.icon %}
+                    <img src="{{ field.icon.url }}" width="50" height="50">
+                {% else %}
+                    <p>No Icon</p>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
-   {% endblock %}
+{% endblock %}

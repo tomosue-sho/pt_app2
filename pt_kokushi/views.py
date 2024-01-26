@@ -14,7 +14,7 @@ from .models import Post, Comment
 from .models import Event
 from .models import ToDoItem
 from .models import TimeTable
-from .models import Field
+from .models import Field,  Subfield
 from .models import Question, UserAnswer, UserScore
 from django.views import generic
 from django.views.generic import DeleteView
@@ -578,3 +578,11 @@ def submit_answer(request):
         user_score.save()
         
     return redirect('quiz', field=question.field)
+
+def select_subfield(request, field_id):
+    # 選択されたフィールドを取得
+    field = get_object_or_404(Field, id=field_id)
+    # 選択されたフィールドに関連する詳細な分野を取得
+    subfields = Subfield.objects.filter(field=field)
+
+    return render(request, '2quiz/select_subfield.html', {'field': field, 'subfields': subfields})
