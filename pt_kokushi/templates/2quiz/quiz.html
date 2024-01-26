@@ -1,17 +1,37 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<style>
+    .image-container {
+        display: flex; /* 画像を横並びに配置 */
+        align-items: center; /* 縦方向の中央揃え */
+        gap: 20px; /* 画像間の隙間 */
+    }
+
+    .image-container label {
+        cursor: pointer; /* ポインターの形状を手を差し伸べる指に変更 */
+    }
+
+    .image-container img {
+        width: 200px; /* 画像の幅を調整 */
+        height: auto; /* 高さを自動調整 */
+    }
+</style>
+
     <h1>クイズ</h1>
     <form method="post" action="{% url 'pt_kokushi:submit_answer' %}">
         {% csrf_token %}
         <p>{{ question.question_text }}</p>
-        <label>
-            <input type="radio" name="selected_answer" value="A" style="display: none;">
-            <img src="{% static 'pt_kokushi/image/easy_study/question_image/maru' %}" alt="丸の画像" onclick="document.querySelector('[name=selected_answer][value=A]').checked = true; this.closest('form').submit();">
-        </label><br>
-        <label>
-            <input type="radio" name="selected_answer" value="B" style="display: none;">
-            <img src="{% static 'pt_kokushi/image/easy_study/question_image/batu' %}" alt="バツの画像" onclick="document.querySelector('[name=selected_answer][value=B]').checked = true; this.closest('form').submit();">
-        </label><br>
+        <div class="image-container">
+            <label>
+                <input type="radio" name="selected_answer" value="A" style="display: none;">
+                <img src="{% static 'image/easy_study/question_image/maru.png' %}" alt="丸の画像" onclick="document.querySelector('[name=selected_answer][value=A]').checked = true; this.closest('form').submit();">
+            </label>
+            <label>
+                <input type="radio" name="selected_answer" value="B" style="display: none;">
+                <img src="{% static 'image/easy_study/question_image/batu.png' %}" alt="バツの画像" onclick="document.querySelector('[name=selected_answer][value=B]').checked = true; this.closest('form').submit();">
+            </label>
+        </div>
     </form>
 {% endblock %}
