@@ -6,11 +6,12 @@
         {% csrf_token %}
         <p>{{ question.question_text }}</p>
         <label>
-            <input type="radio" name="selected_answer" value="A"> {{ question.choice_a }}
+            <input type="radio" name="selected_answer" value="A" style="display: none;">
+            <img src="{% static 'pt_kokushi/image/easy_study/question_image/maru' %}" alt="丸の画像" onclick="document.querySelector('[name=selected_answer][value=A]').checked = true; this.closest('form').submit();">
         </label><br>
         <label>
-            <input type="radio" name="selected_answer" value="B"> {{ question.choice_b }}
+            <input type="radio" name="selected_answer" value="B" style="display: none;">
+            <img src="{% static 'pt_kokushi/image/easy_study/question_image/batu' %}" alt="バツの画像" onclick="document.querySelector('[name=selected_answer][value=B]').checked = true; this.closest('form').submit();">
         </label><br>
-        <input type="submit" value="回答する">
     </form>
 {% endblock %}
