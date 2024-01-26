@@ -2,20 +2,20 @@
 {% load static %}
 
 {% block content %}
-    <h1>分野を選択してください</h1>
-    <ul>
-        {% for field in fields %}
-            <li>
-                <a href="{% url 'pt_kokushi:select_subfield' field.id %}">{{ field.name }}</a>
-                <p>説明: {{ field.description }}</p>
-                <!-- 画像を表示するためのコード -->
-                {% if field.icon %}
-                    <img src="{{ field.icon.url }}" width="50" height="50">
-                {% else %}
-                    <p>No Icon</p>
-                {% endif %}
-            </li>
-            
-        {% endfor %}
-    </ul>
+    <div class="container mt-3">
+        <h1 class="mb-4">分野を選択してください</h1>
+        <ul class="list-group">
+            {% for field in fields %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>
+                            <!-- ここでリンクをボタンとして表示 -->
+                            <a href="{% url 'pt_kokushi:select_subfield' field.id %}" class="btn btn-primary">{{ field.name }}</a>
+                        </h5>
+                        <p>{{ field.description }}</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

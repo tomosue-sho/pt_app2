@@ -151,4 +151,4 @@ LOGIN_REDIRECT_URL = 'pt_kokushi:top'
 LOGOUT_REDIRECT_URL = 'pt_kokushi:login'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'image'
+MEDIA_ROOT = BASE_DIR / 'media'
