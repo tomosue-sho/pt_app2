@@ -599,6 +599,13 @@ def submit_answer(request):
     # JSONレスポンスを返す
     return JsonResponse({'status': 'success', 'is_correct': is_correct})
 
+def get_question(request, question_id):
+    question = Question.objects.get(pk=question_id)
+    return JsonResponse({
+        'question_text': question.question_text,
+        'correct_answer': question.correct_answer  # 実際のアプリケーションでは正解をクライアントに送信しない方が良い
+    })
+
 def select_subfield(request, field_id):
     # 選択されたフィールドを取得
     field = get_object_or_404(Field, id=field_id)
