@@ -3,65 +3,284 @@
 
 {% block content %}
 <style>
-    .image-container {
-        display: flex; /* 画像を横並びに配置 */
-        align-items: center; /* 縦方向の中央揃え */
-        gap: 20px; /* 画像間の隙間 */
-    }
+    .inner-block {
+        position: relative;
+        width: calc(100% - 60px);
+        margin: 0 auto;
+        max-width: 1000px;
+      }
+      
+    .quiz {
+        min-height: 50vh;
+        padding: 100px 0;
+        background: #fff5db;
+      }
+      
+    .quiz-content {
+        border: 1px solid #222;
+        background-color: rgba(#fff, 0.4);
+        box-shadow: 2px 2px 4px rgba($color: #000, $alpha: 0.1);
+        position: relative;
 
-    .image-container label {
-        cursor: pointer; /* ポインターの形状を手を差し伸べる指に変更 */
-    }
 
-    .image-container img {
-        width: 200px; /* 画像の幅を調整 */
-        height: auto; /* 高さを自動調整 */
+    .quiz-question-number {
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        border-bottom: 1px solid #222;
+        padding: 20px;
+      }
+  
+    .quiz-question {
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1.8;
+        margin-bottom: 40px;
+        position: relative;
+        text-align: center;
+        padding: 30px 200px 0px;
+      }
+    
+    
+    .quiz-answer {
+        display: grid;
+        position: relative;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 0 200px 100px;
+        li {
+          position: relative;
+          label {
+            color: #222;
+            display: block;
+            margin: 0 auto;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 4px 20px 4px 80px;
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1.16;
+            position: relative;
+            transition: 0.3s ease-in-out;
+            border: 1px solid #000;
+            white-space: pre-wrap;
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.1);
+            }
+          }
+        }
+      }
+
+.quiz-answer {
+    li {
+      label {
+        &::after {
+          position: absolute;
+          text-align: center;
+          font-size: 20px;
+          font-weight: bold;
+          content: "";
+          width: 60px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          margin: auto;
+          z-index: 1;
+          pointer-events: none;
+          border-right: 1px solid #000;
+        }
+      &:nth-child(1)::after {
+        content: "A";
+      }
+      &:nth-child(2)::after {
+        content: "B";
     }
+  }
+  
+  
 </style>
-
-    <h1>クイズ</h1>
-    <form method="post" action="{% url 'pt_kokushi:submit_answer' %}">
-        {% csrf_token %}
-        <p>{{ question.question_text }}</p>
-        <div class="image-container">
-            <label>
-                <img src="{% static 'image/easy_study/question_image/maru.png' %}" alt="丸の画像" data-answer="A">
-            </label>
-            <label>
-                <img src="{% static 'image/easy_study/question_image/batu.png' %}" alt="バツの画像" data-answer="B">
-            </label>            
-        </div>
-    </form>
+<main class="quiz outer-block">
+  <div class="inner-block">
+    <div class="quiz-content">
+      <div class="quiz-question-number"></div>
+      <h2 class="quiz-question"></h2>
+      <ul class="quiz-answer">
+        <li>
+          <label class="quiz-button button01">
+            <input name="radio" type="radio" value="">
+            <span class="quiz-text01"></span>
+          </label>
+        </li>
+        <li>
+          <label class="quiz-button button02">
+            <input name="radio" type="radio" value="">
+            <span class="quiz-text02"></span>
+          </label>
+      </ul>
+    </div>
+  </div>
+</main>
+ 
 {% endblock %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.image-container img').forEach(img => {
-            img.addEventListener('click', function() {
-                const selectedAnswer = this.dataset.answer; // data-answer 属性から選択された回答を取得
-                const questionId = '{{ question.id }}'; // Django テンプレート変数から問題のIDを取得
-    
-                // Ajaxリクエストを送信
-                fetch('{% url "pt_kokushi:submit_answer" %}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}', // CSRFトークン
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        question_id: questionId,
-                        selected_answer: selectedAnswer
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    // 必要に応じて、クイズの結果を表示するなどの処理を追加
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            });
+//質問をランダムにする
+function shuffleQuiz(array) {
+    for (let i = (array.length - 1); 0 < i; i--) {
+      let random = Math.floor(Math.random() * (i + 1));
+      let selected = array[i];
+      array[i] = array[random];
+      array[random] = selected;
+    }
+    return array;
+  }
+  let quizId = ["01", "02", "03", "04", "05"];
+  shuffleQuiz(quizId);
+
+  //現在の質問数
+  let $currentNum = 0;
+
+  //得点
+  let $pointPerCorrect = 10;
+
+  let questionObject = (function () {
+    let Obj = function ($target) {
+
+      //質問の番号
+      this.$questionNumber = $target.find('.quiz-question-number');
+
+      //質問文
+      this.$questionName = $target.find('.quiz-question');
+
+      //選択肢ボタン
+      this.$questionButton = $target.find('.quiz-button');
+      this.$button01 = $target.find('.button01');
+      this.$button02 = $target.find('.button02');
+      this.$button03 = $target.find('.button03');
+      this.$button04 = $target.find('.button04');
+
+      //選択肢のテキスト
+      this.$answer01 = $target.find('.quiz-text01');
+      this.$answer02 = $target.find('.quiz-text02');
+      this.$answer03 = $target.find('.quiz-text03');
+      this.$answer04 = $target.find('.quiz-text04');
+
+      //score
+      this.$score = $target.find('.score-wrap .score');
+
+      this.init();
+    };
+    Obj.prototype = {
+      //初回設定
+      init: function () {
+        //イベント登録
+        this.event();
+      },
+      event: function () {
+        let _this = this;
+        let score = 0;
+
+        //ウインドウ読み込み時
+        $(window).on('load', function () {
+          //value取得
+          let value = quizId[$currentNum]; //最初は0（1番目）
+          //次の質問を取得
+          let nextQuestion = _this.searchQuestion(value);
+          //次の質問に切り替える
+          _this.changeQuestion(nextQuestion);
+          //回答のシャッフル
+          _this.shuffleAnswer($('.quiz-answer'));
         });
-    });
-    </script>
-    
+
+        //button クリック
+        this.$questionButton.on("click", function () {
+
+          if ($(this).hasClass('button01')) {
+            $(this).parents('.quiz-answer').addClass('is-correct');
+            score = score + $pointPerCorrect;
+          } else {
+            $(this).parents('.quiz-answer').addClass('is-incorrect');
+          }
+
+          $(this).addClass('is-checked');
+
+          if ($currentNum + 1 == $questionTotalNum) {
+            setTimeout(function () {
+              $('.finish').addClass('is-show');
+              $('.score-wrap .score').text(score);
+            }, 1000);
+          } else {
+            setTimeout(function () {
+              //現在の数字の更新
+              $currentNum = $currentNum + 1;
+
+              //次の質問番号を取得
+              let value = quizId[$currentNum];
+
+              //次の質問を取得
+              let nextQuestion = _this.searchQuestion(value);
+
+              //次の質問に切り替える
+              _this.changeQuestion(nextQuestion);
+
+              //クラスを取る
+              _this.$questionButton.removeClass('is-checked');
+              $('.quiz-answer').removeClass('is-correct').removeClass('is-incorrect');
+
+              //回答のシャッフル
+              _this.shuffleAnswer($('.quiz-answer'));
+
+            }, 1000);
+          }
+          return false;
+        });
+      },
+      searchQuestion: function (questionId) {
+        let nextQuestion = null;
+        prefecturalCapital.forEach(function (item) {
+          if (item.id == questionId) {
+            nextQuestion = item;
+          }
+        });
+        return nextQuestion;
+      },
+      changeQuestion: function (nextQuestion) {
+        let _this = this;
+
+        //質問文の入れ替え
+        _this.$questionName.text(nextQuestion.question + 'の県庁所在地は？');
+
+        //質問番号を1つ増やす
+        let numPlusOne = $currentNum + 1;
+        _this.$questionNumber.text('質問' + numPlusOne);
+
+        //選択肢のテキストの入れ替え
+        _this.$answer01.text(nextQuestion.answer01);
+        _this.$answer02.text(nextQuestion.answer02);
+        _this.$answer03.text(nextQuestion.answer03);
+        _this.$answer04.text(nextQuestion.answer04);
+      },
+      shuffleAnswer: function (container) {
+        let content = container.find("> *");
+        let total = content.length;
+        content.each(function () {
+          content.eq(Math.floor(Math.random() * total)).prependTo(container);
+        });
+      },
+    };
+    return Obj;
+  })();
+
+  let quiz = $('.quiz');
+  if (quiz[0]) {
+    let queInstance = new questionObject(quiz);
+  }
+
+})(jQuery);
+</script>  
+  

@@ -554,6 +554,11 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
 
     return render(request, '2quiz/quiz.html', {'question': question})
 
+def quiz_page(request):
+    questions = Question.objects.all()[:5]  # 最初の5問を取得
+    questions_json = json.dumps(list(questions.values('id', 'question_text', 'correct_answer')))
+    return render(request, 'quiz_page.html', {'questions_json': questions_json})
+
 def quiz_results(request):
     # 成績情報を取得
     user_score = UserScore.objects.get(user=request.user)
@@ -584,14 +589,15 @@ def submit_answer(request):
 
     # ユーザーのスコアを更新
     user_score, created = UserScore.objects.get_or_create(user=user)
-    if selected_answer == question.correct_answer:
+    is_correct = selected_answer == question.correct_answer
+    if is_correct:
         user_score.total_correct_answers += 1
         user_score.total_score += 1
     user_score.total_questions_attempted += 1
     user_score.save()
 
     # JSONレスポンスを返す
-    return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'success', 'is_correct': is_correct})
 
 def select_subfield(request, field_id):
     # 選択されたフィールドを取得
