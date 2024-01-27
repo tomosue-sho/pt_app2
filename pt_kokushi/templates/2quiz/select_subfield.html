@@ -2,22 +2,36 @@
 {% load static %}
 
 {% block content %}
+<style>
+    .subfield-title {
+        padding: 0.5em;
+        color: #494949;
+        background: #fffaf4;
+        border-left: solid 5px #ffaf58;
+    }
+</style>    
     <div class="container mt-3">
         <h1 class="mb-4">{{ field.name }}の詳細な分野を選択してください</h1>
         <ul class="list-group">
             {% for subfield in subfields %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <p  class="btn btn-primary">{{ subfield.name }}</p>
-                        <p>{{ subfield.description }}</p>
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <!-- タイトルを大きな文字として表示 -->
+                            <h5 class="subfield-title">{{ subfield.name }}</h5>
+                            <!-- 説明文は小さな文字として表示 -->
+                            <p class="small text-muted">{{ subfield.description }}</p>
+                        </div>
+                        {% if subfield.has_detailed_selection %}
+                            <a href="{% url 'pt_kokushi:select_sub2field' subfield.id %}" class="btn btn-info">さらに詳細な分野へ</a>
+                        {% else %}
+                            <a href="{% url 'pt_kokushi:quiz' subfield.id %}" class="btn btn-primary">クイズを開始</a>
+                        {% endif %}
                     </div>
-                    {% if subfield.has_detailed_selection %}
-                        <a href="{% url 'pt_kokushi:select_sub2field' subfield.id %}" class="btn btn-info">詳細な分野へ</a>
-                    {% else %}
-                        <a href="{% url 'pt_kokushi:quiz' subfield.id %}" class="btn btn-primary">クイズを開始</a>
-                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
     </div>
+    <br>
+    <p><a href="{% url 'pt_kokushi:select_field' %}" class="btn btn-secondary">分野選択へ戻る</a></p>
 {% endblock %}
