@@ -361,3 +361,13 @@ class Subfield(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Sub2field(models.Model):
+    subfield = models.ForeignKey(Subfield, on_delete=models.CASCADE, related_name='sub2fields')
+    has_detailed_selection = models.BooleanField(default=False, verbose_name='さらに詳細な分野選択')
+    name = models.CharField(max_length=100, verbose_name="分野名")
+    description = models.TextField(verbose_name="説明")
+    icon = models.ImageField(upload_to='subfield_icons/', blank=True, null=True, verbose_name="アイコン")
+    
+    def __str__(self):
+        return self.name

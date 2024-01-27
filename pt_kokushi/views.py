@@ -14,7 +14,7 @@ from .models import Post, Comment
 from .models import Event
 from .models import ToDoItem
 from .models import TimeTable
-from .models import Field,  Subfield
+from .models import Field,  Subfield, Sub2field
 from .models import Question, UserAnswer, UserScore
 from django.views import generic
 from django.views.generic import DeleteView
@@ -586,3 +586,9 @@ def select_subfield(request, field_id):
     subfields = Subfield.objects.filter(field=field)
 
     return render(request, '2quiz/select_subfield.html', {'field': field, 'subfields': subfields})
+
+def select_sub2field(request, subfield_id):
+    subfield = get_object_or_404(Subfield, id=subfield_id)
+    sub2fields = Sub2field.objects.filter(subfield=subfield)
+
+    return render(request, '2quiz/select_sub2field.html', {'subfield': subfield, 'sub2fields': sub2fields})

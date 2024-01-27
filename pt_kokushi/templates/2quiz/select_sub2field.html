@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- コンテンツ -->
+    <ul>
+        {% for subfield in subfields %}
+            <li>
+                {{ sub2field.name }}
+                {% if sub2field.has_detailed_selection %}
+                    <!-- さらに詳細な分野選択へのリンクを表示 -->
+                    <a href="{% url 'pt_kokushi:quiz' sub2field.id %}">詳細な選択へ</a>
+                {% endif %}
+                <!-- その他のコンテンツ -->
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
