@@ -590,5 +590,7 @@ def select_subfield(request, field_id):
 def select_sub2field(request, subfield_id):
     subfield = get_object_or_404(Subfield, id=subfield_id)
     sub2fields = Sub2field.objects.filter(subfield=subfield)
+    field = subfield.field
+    
+    return render(request, '2quiz/select_sub2field.html', {'field': field, 'subfield': subfield, 'sub2fields': sub2fields})
 
-    return render(request, '2quiz/select_sub2field.html', {'subfield': subfield, 'sub2fields': sub2fields})

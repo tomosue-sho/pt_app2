@@ -7,7 +7,7 @@ from .models import ToDoItem
 from .models import Post, Comment
 from .models import Event
 from .models import TimeTable
-from .models import Field, Subfield
+from .models import Field, Subfield, Sub2field
 
 
 CustomUser = get_user_model()
@@ -89,7 +89,7 @@ class FieldAdmin(admin.ModelAdmin):
     
     
 class SubfieldAdmin(admin.ModelAdmin):
-    list_display = ('custom_name', 'custom_description', 'custom_icon', 'field')
+    list_display = ('custom_name', 'custom_description', 'custom_icon', 'field', 'has_detailed_selection')
 
     def custom_name(self, obj):
         return obj.name
@@ -103,7 +103,12 @@ class SubfieldAdmin(admin.ModelAdmin):
         return obj.icon  # ここでは画像の表示方法を指定する必要があります
     custom_icon.short_description = "アイコン"
 
-    
+class Sub2fieldAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'display_icon', 'subfield')
+
+    def display_icon(self, obj):
+        return obj.icon.url if obj.icon else 'No Icon'
+    display_icon.short_description = "アイコン"
 
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
@@ -111,3 +116,4 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(ToDoItem, ToDoItemAdmin)
 admin.site.register(Field, FieldAdmin)
 admin.site.register(Subfield, SubfieldAdmin)
+admin.site.register(Sub2field, Sub2fieldAdmin)

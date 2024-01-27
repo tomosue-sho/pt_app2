@@ -2,17 +2,19 @@
 {% load static %}
 
 {% block content %}
-    <!-- コンテンツ -->
-    <ul>
-        {% for subfield in subfields %}
-            <li>
-                {{ sub2field.name }}
-                {% if sub2field.has_detailed_selection %}
-                    <!-- さらに詳細な分野選択へのリンクを表示 -->
-                    <a href="{% url 'pt_kokushi:quiz' sub2field.id %}">詳細な選択へ</a>
-                {% endif %}
-                <!-- その他のコンテンツ -->
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container mt-3">
+        <h1 class="mb-4">{{ subfield.name }}の詳細な分野を選択してください</h1>
+        <ul class="list-group">
+            {% for sub2field in sub2fields %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="btn btn-primary">{{ sub2field.name }}</p>
+                        <p>{{ sub2field.description }}</p>
+                    </div>
+                    <!-- 通常のクイズページへのリンク -->
+                    <a href="{% url 'pt_kokushi:quiz' sub2field.id %}" class="btn btn-primary">クイズを開始</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

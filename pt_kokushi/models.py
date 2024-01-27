@@ -354,6 +354,7 @@ class Field(models.Model):
         return self.name
 
 class Subfield(models.Model):
+    has_detailed_selection = models.BooleanField(default=False, verbose_name='さらに詳細な分野選択を可能にする')
     field = models.ForeignKey(Field, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, verbose_name="分野名")
     description = models.TextField(verbose_name="説明")
