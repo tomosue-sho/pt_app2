@@ -25,13 +25,43 @@
         <p>{{ question.question_text }}</p>
         <div class="image-container">
             <label>
-                <input type="radio" name="selected_answer" value="A" style="display: none;">
-                <img src="{% static 'image/easy_study/question_image/maru.png' %}" alt="丸の画像" onclick="document.querySelector('[name=selected_answer][value=A]').checked = true; this.closest('form').submit();">
+                <img src="{% static 'image/easy_study/question_image/maru.png' %}" alt="丸の画像" data-answer="A">
             </label>
             <label>
-                <input type="radio" name="selected_answer" value="B" style="display: none;">
-                <img src="{% static 'image/easy_study/question_image/batu.png' %}" alt="バツの画像" onclick="document.querySelector('[name=selected_answer][value=B]').checked = true; this.closest('form').submit();">
-            </label>
+                <img src="{% static 'image/easy_study/question_image/batu.png' %}" alt="バツの画像" data-answer="B">
+            </label>            
         </div>
     </form>
 {% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.image-container img').forEach(img => {
+            img.addEventListener('click', function() {
+                const selectedAnswer = this.dataset.answer; // data-answer 属性から選択された回答を取得
+                const questionId = '{{ question.id }}'; // Django テンプレート変数から問題のIDを取得
+    
+                // Ajaxリクエストを送信
+                fetch('{% url "pt_kokushi:submit_answer" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // CSRFトークン
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question_id: questionId,
+                        selected_answer: selectedAnswer
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    // 必要に応じて、クイズの結果を表示するなどの処理を追加
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+    </script>
+    

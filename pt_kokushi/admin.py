@@ -8,6 +8,7 @@ from .models import Post, Comment
 from .models import Event
 from .models import TimeTable
 from .models import Field, Subfield, Sub2field
+from .models import Question, UserAnswer, UserScore
 
 
 CustomUser = get_user_model()
@@ -109,6 +110,12 @@ class Sub2fieldAdmin(admin.ModelAdmin):
     def display_icon(self, obj):
         return obj.icon.url if obj.icon else 'No Icon'
     display_icon.short_description = "アイコン"
+    
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('question_text', 'field', 'subfield', 'sub2field', 'correct_answer')
+    list_filter = ('field', 'subfield', 'sub2field')
+    search_fields = ('question_text',)
+
 
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
@@ -117,3 +124,4 @@ admin.site.register(ToDoItem, ToDoItemAdmin)
 admin.site.register(Field, FieldAdmin)
 admin.site.register(Subfield, SubfieldAdmin)
 admin.site.register(Sub2field, Sub2fieldAdmin)
+admin.site.register(Question, QuestionAdmin)

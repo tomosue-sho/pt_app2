@@ -43,13 +43,16 @@ urlpatterns = [
     path('timetable/delete/<int:timetable_id>/', views.delete_timetable, name='delete_timetable'),
     path('timetable/update/<int:timetable_id>/', views.update_timetable, name='update_timetable'),
     path('start_quiz/', views.start_quiz, name='start_quiz'),
-    path('quiz/<str:field>/', views.quiz, name='quiz'),
     path('quiz/results/', views.quiz_results, name='quiz_results'),
     path('select_field/', views.select_field, name='select_field'),
     path('submit_answer/', views.submit_answer, name='submit_answer'),
     path('select_subfield/<int:field_id>/', views.select_subfield, name='select_subfield'),
     path('select_sub2field/<int:subfield_id>/', views.select_sub2field, name='select_sub2field'),
+    path('quiz/<str:field>/', views.quiz, name='quiz_field'),  # 'field' に基づくパターン
+    path('quiz/subfield/<int:subfield_id>/', views.quiz, name='quiz_subfield'),  # 'subfield_id' に基づくパターン
+    path('quiz/sub2field/<int:sub2field_id>/', views.quiz, name='quiz_sub2field'),  # 'sub2field_id' に基づくパターン
 ]
 
 if settings.DEBUG:
      urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

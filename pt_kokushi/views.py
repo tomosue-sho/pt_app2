@@ -21,6 +21,7 @@ from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -531,15 +532,23 @@ def start_quiz(request):
     fields = ['分野1', '分野2']  # ここに利用可能な分野を追加
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
-def quiz(request, field):
-    # ランダムな問題を取得
-    question = Question.objects.filter(field=field).order_by('?').first()
-    
+def quiz(request, subfield_id=None, sub2field_id=None):
+    # クエリパラメータに応じて問題をフィルタリング
+    if sub2field_id:
+        sub2field = get_object_or_404(Sub2field, id=sub2field_id)
+        questions = Question.objects.filter(sub2field=sub2field)
+    elif subfield_id:
+        subfield = get_object_or_404(Subfield, id=subfield_id)
+        questions = Question.objects.filter(subfield=subfield)
+
+    # ランダムな問題を選択
+    question = questions.order_by('?').first()
+
     if request.method == 'POST':
-        selected_answer = request.POST['selected_answer']
+        selected_answer = request.POST.get('selected_answer')
         # ユーザーの回答を保存
         UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
-        # 成績を更新
+        # 成績を更新（省略）
 
     return render(request, '2quiz/quiz.html', {'question': question})
 
@@ -553,31 +562,34 @@ def select_field(request):
     fields = Field.objects.all()
     return render(request, '2quiz/select_field.html', {'fields': fields})
 
+@csrf_exempt
+@require_POST
 def submit_answer(request):
-    if request.method == 'POST':
-        # POSTリクエストから選択された回答を取得
-        selected_answer = request.POST.get('selected_answer')
-        
-        # ログインしているユーザーを取得
-        user = request.user
-        
-        # 選択した回答に対応する問題を取得
-        question_id = request.POST.get('question_id')
-        question = Question.objects.get(pk=question_id)
-        
-        # ユーザーの回答を保存
-        user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
-        user_answer.save()
-        
-        # ユーザーのスコアを更新
-        user_score, created = UserScore.objects.get_or_create(user=user)
-        if selected_answer == question.correct_answer:
-            user_score.total_correct_answers += 1
-            user_score.total_score += 1
-        user_score.total_questions_attempted += 1
-        user_score.save()
-        
-    return redirect('quiz', field=question.field)
+    # JSONデータを解析
+    data = json.loads(request.body)
+    selected_answer = data.get('selected_answer')
+    question_id = data.get('question_id')
+
+    # ログインしているユーザーを取得
+    user = request.user
+
+    # 選択した回答に対応する問題を取得
+    question = Question.objects.get(pk=question_id)
+
+    # ユーザーの回答を保存
+    user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
+    user_answer.save()
+
+    # ユーザーのスコアを更新
+    user_score, created = UserScore.objects.get_or_create(user=user)
+    if selected_answer == question.correct_answer:
+        user_score.total_correct_answers += 1
+        user_score.total_score += 1
+    user_score.total_questions_attempted += 1
+    user_score.save()
+
+    # JSONレスポンスを返す
+    return JsonResponse({'status': 'success'})
 
 def select_subfield(request, field_id):
     # 選択されたフィールドを取得
