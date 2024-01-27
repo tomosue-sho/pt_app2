@@ -20,7 +20,7 @@
                         <p>{{ sub2field.description }}</p>
                     </div>
                     <!-- 通常のクイズページへのリンク -->
-                    <a href="{% url 'pt_kokushi:quiz' sub2field.id %}" class="btn btn-primary">クイズを開始</a>
+                    <a href="{% url 'pt_kokushi:quiz_sub2field' sub2field.id %}" class="btn btn-primary">クイズを開始</a>
                 </li>
             {% endfor %}
         </ul>

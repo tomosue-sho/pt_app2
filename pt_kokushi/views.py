@@ -529,10 +529,10 @@ def update_timetable(request, timetable_id):
 #2択問題のためのviews.py
 def start_quiz(request):
     # 分野を選択するページを表示
-    fields = ['分野1', '分野2']  # ここに利用可能な分野を追加
+    fields = ['解剖学', 'ROM','MMT']
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
-def quiz(request, subfield_id=None, sub2field_id=None):
+def quiz(request, field=None, subfield_id=None, sub2field_id=None):
     # クエリパラメータに応じて問題をフィルタリング
     if sub2field_id:
         sub2field = get_object_or_404(Sub2field, id=sub2field_id)
@@ -540,6 +540,8 @@ def quiz(request, subfield_id=None, sub2field_id=None):
     elif subfield_id:
         subfield = get_object_or_404(Subfield, id=subfield_id)
         questions = Question.objects.filter(subfield=subfield)
+    else:
+        questions = Question.objects.filter(field=field)
 
     # ランダムな問題を選択
     question = questions.order_by('?').first()
