@@ -545,6 +545,7 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
 
     # ランダムな問題を選択
     question = questions.order_by('?').first()
+    choices = [question.choice1, question.choice2, question.choice3, question.choice4]
 
     if request.method == 'POST':
         selected_answer = request.POST.get('selected_answer')
@@ -552,7 +553,7 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
         UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
         # 成績を更新（省略）
 
-    return render(request, '2quiz/quiz.html', {'question': question})
+    return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
 def quiz_page(request):
     questions = Question.objects.all()[:5]  # 最初の5問を取得
@@ -578,7 +579,9 @@ def submit_answer(request):
     question_id = data.get('question_id')
 
     # ログインしているユーザーを取得
-    user = request.user
+    User = get_user_model()
+    user_email = request.user.email  # ログインユーザーのemailを取得
+    user = User.objects.get(email=user_email)  # emailを使用してユーザーオブジェクトを取得
 
     # 選択した回答に対応する問題を取得
     question = Question.objects.get(pk=question_id)

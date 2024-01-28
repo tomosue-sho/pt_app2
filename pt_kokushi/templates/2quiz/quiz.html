@@ -3,107 +3,104 @@
 
 {% block content %}
 <style>
-    .inner-block {
-        position: relative;
-        width: calc(100% - 60px);
-        margin: 0 auto;
-        max-width: 1000px;
-      }
-      
-    .quiz {
-        min-height: 50vh;
-        padding: 100px 0;
-        background: #fff5db;
-      }
-      
-    .quiz-content {
-        border: 1px solid #222;
-        background-color: rgba(#fff, 0.4);
-        box-shadow: 2px 2px 4px rgba($color: #000, $alpha: 0.1);
-        position: relative;
-
-
-    .quiz-question-number {
-        text-align: center;
-        font-size: 26px;
-        font-weight: bold;
-        border-bottom: 1px solid #222;
-        padding: 20px;
-      }
-  
-    .quiz-question {
-        font-size: 32px;
-        font-weight: bold;
-        line-height: 1.8;
-        margin-bottom: 40px;
-        position: relative;
-        text-align: center;
-        padding: 30px 200px 0px;
-      }
     
-    
-    .quiz-answer {
-        display: grid;
-        position: relative;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        padding: 0 200px 100px;
-        li {
-          position: relative;
-          label {
-            color: #222;
-            display: block;
-            margin: 0 auto;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 4px 20px 4px 80px;
-            font-weight: bold;
-            font-size: 18px;
-            line-height: 1.16;
-            position: relative;
-            transition: 0.3s ease-in-out;
-            border: 1px solid #000;
-            white-space: pre-wrap;
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.1);
-            }
-          }
-        }
-      }
+.inner-block {
+  position: relative;
+  width: calc(100% - 60px);
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.quiz {
+  min-height: 100vh;
+  padding: 100px 0;
+  background: #fff5db;
+}
+
+.quiz-content {
+  border: 1px solid #222;
+  background-color: rgba(#fff, 0.4);
+  box-shadow: 2px 2px 4px rgba($color: #000, $alpha: 0.1);
+  position: relative;
+}
+
+.quiz-question-number {
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
+  padding: 20px;
+}
+
+.quiz-question-number {
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
+  padding: 20px;
+}
 
 .quiz-answer {
-    li {
-      label {
-        &::after {
-          position: absolute;
-          text-align: center;
-          font-size: 20px;
-          font-weight: bold;
-          content: "";
-          width: 60px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          top: 0;
-          bottom: 0;
-          left: 0;
-          margin: auto;
-          z-index: 1;
-          pointer-events: none;
-          border-right: 1px solid #000;
-        }
-      &:nth-child(1)::after {
-        content: "A";
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 200px 100px;
+  li {
+    position: relative;
+    label {
+      color: #222;
+      display: block;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 4px 20px 4px 80px;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1.16;
+      position: relative;
+      transition: 0.3s ease-in-out;
+      border: 1px solid #000;
+      white-space: pre-wrap;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
       }
-      &:nth-child(2)::after {
-        content: "B";
     }
   }
-  
-  
+}
+
+.quiz-answer {
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 200px 100px;
+  li {
+    position: relative;
+    label {
+      color: #222;
+      display: block;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 4px 20px 4px 80px;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1.16;
+      position: relative;
+      transition: 0.3s ease-in-out;
+      border: 1px solid #000;
+      white-space: pre-wrap;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
 </style>
 <main class="quiz outer-block">
   <div class="inner-block">
@@ -111,73 +108,41 @@
       <div class="quiz-question-number"></div>
       <h2 class="quiz-question">{{ question.question_text }}</h2>
       <ul class="quiz-answer">
-        <li>
-            <label class="quiz-button button01">
-                <input name="radio" type="radio" value="A">
-                <span class="quiz-text01">○</span>
-            </label>
-        </li>
-        <li>
-            <label class="quiz-button button02">
-                <input name="radio" type="radio" value="B">
-                <span class="quiz-text02">×</span>
-            </label>
-        </li>
+        {% for choice in choices %}
+            <li>
+                <label class="quiz-button">
+                    <input name="radio" type="radio" value="{{ choice }}">
+                    <span>{{ choice }}</span>
+                </label>
+            </li>
+        {% endfor %}
     </ul>
     </div>
   </div>
 </main>
- 
-{% endblock %}
+
 <script>
-    $(document).ready(function() {
-        // 最初の質問の読み込み
-        loadQuestion();
-    
-        // 質問の読み込み
-        function loadQuestion() {
-            $.ajax({
-                url: '/path/to/question/{{ question.id }}', // DjangoビューのURL
-                type: 'GET',
-                success: function(response) {
-                    // 質問の更新
-                    updateQuestion(response);
-                },
-                error: function(error) {
-                    console.error('Error loading question:', error);
-                }
-            });
-        }
-    
-        // 質問の更新
-        function updateQuestion(questionData) {
-            $('.quiz-question').text(questionData.question_text);
-            // 選択肢の更新など（必要に応じて）
-        }
-    
-        // 選択肢のクリックイベント
-        $('.quiz-answer li label').on('click', function() {
-            let selectedAnswer = $(this).find('input').val();
-    
-            $.ajax({
-                url: '{% url "pt_kokushi:submit_answer" %}',
-                type: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-                data: JSON.stringify({ 'question_id': '{{ question.id }}', 'selected_answer': selectedAnswer }),
-                contentType: 'application/json',
-                success: function(response) {
-                    if (response.is_correct) {
-                        // 正解の処理
-                    } else {
-                        // 不正解の処理
-                    }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-        });
-    });
-    
-</script>  
-  
+  function submitAnswer(questionId, selectedChoice) {
+      fetch('/submit_answer/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({
+              question_id: questionId,
+              selected_answer: selectedChoice
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.is_correct) {
+              alert("正解！");
+          } else {
+              alert("不正解！");
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+  </script>
+{% endblock %}

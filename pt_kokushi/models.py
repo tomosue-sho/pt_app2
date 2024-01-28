@@ -332,18 +332,17 @@ class Sub2field(models.Model):
         return self.name
     
 class Question(models.Model):
-    field_choices = [
-        ('Field 1', '分野1'),
-        ('Field 2', '分野2'),
-        # 他の分野を追加
-    ]
     
     question_text = models.TextField()
-    field = models.CharField(max_length=50, choices=field_choices)
-    correct_answer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')])
     subfield = models.ForeignKey(Subfield, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     sub2field = models.ForeignKey(Sub2field, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
-
+    choice1 = models.CharField(max_length=200)  # 選択肢1
+    choice2 = models.CharField(max_length=200)  # 選択肢2
+    choice3 = models.CharField(max_length=200)  # 選択肢3
+    choice4 = models.CharField(max_length=200)  # 選択肢4
+    
+    correct_answer = models.CharField(max_length=1, choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4')])
+    
     def __str__(self):
         return self.question_text
     
