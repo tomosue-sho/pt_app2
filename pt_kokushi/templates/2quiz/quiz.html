@@ -3,159 +3,75 @@
 
 {% block content %}
 <style>
-    
-.inner-block {
-  position: relative;
-  width: calc(100% - 60px);
-  margin: 0 auto;
-  max-width: 1000px;
-}
-
-.quiz {
-  min-height: 100vh;
-  padding: 100px 0;
-  background: #fff5db;
-}
-
-.quiz-content {
-  border: 1px solid #222;
-  background-color: rgba(#fff, 0.4);
-  box-shadow: 2px 2px 4px rgba($color: #000, $alpha: 0.1);
-  position: relative;
-}
-
-.quiz-question-number {
-  text-align: center;
-  font-size: 26px;
-  font-weight: bold;
-  border-bottom: 1px solid #222;
-  padding: 20px;
-}
-
-.quiz-question-number {
-  text-align: center;
-  font-size: 26px;
-  font-weight: bold;
-  border-bottom: 1px solid #222;
-  padding: 20px;
-}
-
-.quiz-answer {
-  display: grid;
-  position: relative;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 0 200px 100px;
-  li {
-    position: relative;
-    label {
-      color: #222;
-      display: block;
-      margin: 0 auto;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 4px 20px 4px 80px;
-      font-weight: bold;
-      font-size: 18px;
-      line-height: 1.16;
-      position: relative;
-      transition: 0.3s ease-in-out;
-      border: 1px solid #000;
-      white-space: pre-wrap;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-      }
-    }
+  .quiz-button {
+    margin-bottom: 10px; /* 選択肢間の間隔を調整 */
+    border: 1px solid #ddd; /* 枠線を細くして目立たなくする */
+    background-color: #f8f8f8; /* 背景色を薄くする */
+    border-radius: 5px; /* 角を丸くする */
+    cursor: pointer; /* カーソルをポインターにする */
   }
-}
 
-.quiz-answer {
-  display: grid;
-  position: relative;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 0 200px 100px;
-  li {
-    position: relative;
-    label {
-      color: #222;
-      display: block;
-      margin: 0 auto;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 4px 20px 4px 80px;
-      font-weight: bold;
-      font-size: 18px;
-      line-height: 1.16;
-      position: relative;
-      transition: 0.3s ease-in-out;
-      border: 1px solid #000;
-      white-space: pre-wrap;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-      }
-    }
+  .quiz-button:hover {
+    background-color: #e9ecef; /* ホバー時の背景色 */
   }
-}
-/* ラジオボタンを隠す */
-.quiz-button input[type="radio"] {
-  display: none;
-}
 
-/* ラジオボタンが選択されたときのスタイル */
-.quiz-button input[type="radio"]:checked + span {
-  background-color: #ccc; /* 選択されたときの背景色 */
-  /* その他のスタイル */
-}
+  /* ラジオボタンを隠す */
+  .quiz-button input[type="radio"] {
+    display: none;
+  }
 
+  /* ラジオボタンが選択されたときのスタイル */
+  .quiz-button input[type="radio"]:checked + span {
+    background-color: #ccc; /* 選択されたときの背景色 */
+  }
 </style>
 <main class="quiz outer-block">
   <div class="inner-block">
     <div class="quiz-content">
       <div class="quiz-question-number"></div>
       <h2 class="quiz-question">{{ question.question_text }}</h2>
-      <ul class="quiz-answer">
+      <div class="quiz-answer row">
         {% for choice in choices %}
-        <li>
-            <label class="quiz-button">
-              <input name="radio" type="radio" id="choice{{ forloop.counter }}" value="{{ forloop.counter }}">
-              <label for="choice{{ forloop.counter }}" onclick="submitAnswer({{ question.id }}, '{{ forloop.counter }}')">
-                  <span>{{ choice }}</span>
-              </label>              
-        </li>
+          <div class="col-md-6">
+            <label class="quiz-button d-block p-2" onclick="submitAnswer(event, {{ question.id }}, '{{ forloop.counter }}')">
+              <input type="radio" name="radio" id="choice{{ forloop.counter }}" value="{{ forloop.counter }}" class="d-none" onclick="stopPropagation(event)">
+              <span onclick="stopPropagation(event)">{{ choice }}</span>
+            </label>
+          </div>
         {% endfor %}
-    </ul>
+      </div>      
     </div>
   </div>
 </main>
 
 <script>
-  function submitAnswer(questionId, selectedChoice) {
+  function submitAnswer(event, questionId, selectedChoice) {
+    // イベントの伝播を停止
+    event.stopPropagation(); 
+
     fetch('{% url 'pt_kokushi:submit_answer' %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            question_id: questionId,
-            selected_answer: selectedChoice
-        })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        question_id: questionId,
+        selected_answer: selectedChoice
+      })
     })
     .then(response => response.json())
     .then(data => {
-        if (data.is_correct) {
-            alert("正解！");
-        } else {
-            alert("不正解！");
-        }
+      if (data.is_correct) {
+        alert("正解！");
+      } else {
+        alert("不正解！");
+      }
     })
     .catch(error => console.error('Error:', error));
-}
-
+  }
+  function stopPropagation(event) {
+    event.stopPropagation();
+  }
 </script>
 {% endblock %}

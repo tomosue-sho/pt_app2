@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import json
+import random
 from .forms import PostForm
 from .forms import EventForm
 from .forms import CommentForm
@@ -526,7 +527,7 @@ def update_timetable(request, timetable_id):
         form = TimeTableForm(instance=timetable)
     return render(request, 'login_app/edit_timetable.html', {'form': form, 'timetable': timetable})
 
-#2択問題のためのviews.py
+#4択問題のためのviews.py
 def start_quiz(request):
     # 分野を選択するページを表示
     fields = ['解剖学', 'ROM','MMT']
@@ -601,13 +602,6 @@ def submit_answer(request):
 
     # JSONレスポンスを返す
     return JsonResponse({'status': 'success', 'is_correct': is_correct})
-
-def get_question(request, question_id):
-    question = Question.objects.get(pk=question_id)
-    return JsonResponse({
-        'question_text': question.question_text,
-        'correct_answer': question.correct_answer  # 実際のアプリケーションでは正解をクライアントに送信しない方が良い
-    })
 
 def select_subfield(request, field_id):
     # 選択されたフィールドを取得
