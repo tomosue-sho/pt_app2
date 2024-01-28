@@ -101,6 +101,17 @@
     }
   }
 }
+/* ラジオボタンを隠す */
+.quiz-button input[type="radio"] {
+  display: none;
+}
+
+/* ラジオボタンが選択されたときのスタイル */
+.quiz-button input[type="radio"]:checked + span {
+  background-color: #ccc; /* 選択されたときの背景色 */
+  /* その他のスタイル */
+}
+
 </style>
 <main class="quiz outer-block">
   <div class="inner-block">
@@ -109,12 +120,12 @@
       <h2 class="quiz-question">{{ question.question_text }}</h2>
       <ul class="quiz-answer">
         {% for choice in choices %}
-            <li>
-                <label class="quiz-button">
-                    <input name="radio" type="radio" value="{{ choice }}">
-                    <span>{{ choice }}</span>
-                </label>
-            </li>
+        <li>
+            <label class="quiz-button" onclick="submitAnswer({{ question.id }}, '{{ choice }}')">
+                <input name="radio" type="radio" value="{{ choice }}">
+                <span>{{ choice }}</span>
+            </label>
+        </li>
         {% endfor %}
     </ul>
     </div>

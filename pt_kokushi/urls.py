@@ -52,6 +52,7 @@ urlpatterns = [
     path('quiz/<str:field>/', views.quiz, name='quiz_field'),  # 'field' に基づくパターン
     path('quiz/subfield/<int:subfield_id>/', views.quiz, name='quiz_subfield'),  # 'subfield_id' に基づくパターン
     path('quiz/sub2field/<int:sub2field_id>/', views.quiz, name='quiz_sub2field'),  # 'sub2field_id' に基づくパターン
+    path('submit_answer/', views.submit_answer, name='submit_answer'),
 ]
 
 if settings.DEBUG:
