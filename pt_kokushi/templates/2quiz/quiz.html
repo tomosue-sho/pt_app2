@@ -121,10 +121,11 @@
       <ul class="quiz-answer">
         {% for choice in choices %}
         <li>
-            <label class="quiz-button" onclick="submitAnswer({{ question.id }}, '{{ choice }}')">
-                <input name="radio" type="radio" value="{{ choice }}">
-                <span>{{ choice }}</span>
-            </label>
+            <label class="quiz-button">
+              <input name="radio" type="radio" id="choice{{ forloop.counter }}" value="{{ forloop.counter }}">
+              <label for="choice{{ forloop.counter }}" onclick="submitAnswer({{ question.id }}, '{{ forloop.counter }}')">
+                  <span>{{ choice }}</span>
+              </label>              
         </li>
         {% endfor %}
     </ul>
@@ -134,26 +135,27 @@
 
 <script>
   function submitAnswer(questionId, selectedChoice) {
-      fetch('/submit_answer/', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: JSON.stringify({
-              question_id: questionId,
-              selected_answer: selectedChoice
-          })
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.is_correct) {
-              alert("正解！");
-          } else {
-              alert("不正解！");
-          }
-      })
-      .catch(error => console.error('Error:', error));
-  }
-  </script>
+    fetch('{% url 'pt_kokushi:submit_answer' %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            question_id: questionId,
+            selected_answer: selectedChoice
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.is_correct) {
+            alert("正解！");
+        } else {
+            alert("不正解！");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+</script>
 {% endblock %}
