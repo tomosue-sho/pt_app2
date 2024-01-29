@@ -25,29 +25,62 @@
     background-color: #ccc; /* 選択されたときの背景色 */
   }
 </style>
+
 <main class="quiz outer-block">
   <div class="inner-block">
     <div class="quiz-content">
       <div class="quiz-question-number"></div>
       <h2 class="quiz-question">{{ question.question_text }}</h2>
       <div class="quiz-answer row">
-        {% for choice in choices %}
-          <div class="col-md-6">
-            <label class="quiz-button d-block p-2" onclick="submitAnswer(event, {{ question.id }}, '{{ forloop.counter }}')">
-              <input type="radio" name="radio" id="choice{{ forloop.counter }}" value="{{ forloop.counter }}" class="d-none" onclick="stopPropagation(event)">
-              <span onclick="stopPropagation(event)">{{ choice }}</span>
-            </label>
-          </div>
+        {% for choice_id, choice_text in choices %}
+        <div class="col-md-6">
+          <label class="quiz-button d-block p-2">
+            <input type="radio" name="radio" id="choice{{ choice_id }}" value="{{ choice_id }}" class="d-none" onclick="submitAnswer(event, {{ question.id }}, '{{ choice_id }}')">
+            <span onclick="event.stopPropagation()">{{ choice_text }}</span>
+          </label>
+        </div>
         {% endfor %}
       </div>      
     </div>
   </div>
 </main>
 
+<!-- カスタムポップアップのHTML -->
+<div id="customPopup" 
+style="display:none; 
+       font-weight:bold;
+       position:absolute; 
+       background-color:#EEFFFF; 
+       padding:20px; 
+       border:1px solid #ccc; 
+       border-radius:5px; 
+       box-shadow:0 2px 5px rgba(0,0,0,0.2);
+">
+  <p id="popupMessage"></p>
+</div>
+
 <script>
-  function submitAnswer(event, questionId, selectedChoice) {
-    // イベントの伝播を停止
-    event.stopPropagation(); 
+function showCustomPopup(message, element) {
+  var popup = document.getElementById('customPopup');
+  popup.style.display = 'block';
+  popup.innerHTML = message;
+
+  // 選択肢の位置を取得
+  var rect = element.getBoundingClientRect();
+
+  // ポップアップの位置を選択肢の上に設定
+  popup.style.top = rect.top + window.scrollY - popup.offsetHeight - 10 + 'px';
+  popup.style.left = rect.left + window.scrollX + 'px';
+
+  // ポップアップを1秒後に閉じる
+  setTimeout(function() {
+    popup.style.display = 'none';
+  }, 1000);
+}
+
+function submitAnswer(event, questionId, selectedChoice) {
+  event.stopPropagation(); // イベントの伝播を停止
+  console.log(event.currentTarget)
 
     fetch('{% url 'pt_kokushi:submit_answer' %}', {
       method: 'POST',
@@ -60,18 +93,18 @@
         selected_answer: selectedChoice
       })
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.is_correct) {
-        alert("正解！");
-      } else {
-        alert("不正解！");
-      }
-    })
-    .catch(error => console.error('Error:', error));
-  }
-  function stopPropagation(event) {
-    event.stopPropagation();
-  }
+
+  .then(response => response.json())
+  .then(data => {
+    if (data.is_correct) {
+      showCustomPopup("正解！", event.currentTarget);
+    } else {
+      showCustomPopup("不正解！", event.currentTarget);
+    }
+  })
+  .catch(error => console.error('Error:', error));
+}
 </script>
+
+
 {% endblock %}

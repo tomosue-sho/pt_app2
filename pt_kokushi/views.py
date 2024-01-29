@@ -549,16 +549,14 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
     choices = [('1', question.choice1), ('2', question.choice2), ('3', question.choice3), ('4', question.choice4)]
     random.shuffle(choices)
     
-    # シャッフルされた選択肢を辞書でテンプレートに渡す
-    shuffled_choices = {choice_id: choice_text for choice_id, choice_text in choices}
     
     if request.method == 'POST':
         selected_answer = request.POST.get('selected_answer')
         # ユーザーの回答を保存
         UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
         # 成績を更新（省略）
-
-    return render(request, '2quiz/quiz.html', {'question': question, 'choices': shuffled_choices})
+    
+    return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
 
 def quiz_page(request):
