@@ -11,6 +11,7 @@ from .forms import TimeTableForm
 from .forms import ToDoItemForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.urls import reverse
 from .models import Post, Comment
 from .models import Event
 from .models import ToDoItem
@@ -533,7 +534,7 @@ def start_quiz(request):
     fields = ['解剖学', 'ROM','MMT']
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
-def quiz(request, field=None, subfield_id=None, sub2field_id=None):
+def quiz(request, subfield_id=None, sub2field_id=None):
     # クエリパラメータに応じて問題をフィルタリング
     if sub2field_id:
         sub2field = get_object_or_404(Sub2field, id=sub2field_id)
@@ -542,14 +543,26 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
         subfield = get_object_or_404(Subfield, id=subfield_id)
         questions = Question.objects.filter(subfield=subfield)
     else:
-        questions = Question.objects.filter(field=field)
+
+        questions = Question.objects.all()
 
     # ランダムな問題を選択
     question = questions.order_by('?').first()
     choices = [('1', question.choice1), ('2', question.choice2), ('3', question.choice3), ('4', question.choice4)]
     random.shuffle(choices)
     
-    
+    # 現在の問題のインデックスを取得（修正が必要な場合はここを更新）
+    current_index = request.session.get('current_question_index', 0)
+    if current_index < len(questions):
+        question = questions[current_index]
+        next_index = current_index + 1
+    else:
+        # すべての問題が終了した場合の処理
+        next_index = 0
+        # ここで結果ページなどへのリダイレクトを行うか、または適切な処理を行います
+
+    request.session['current_question_index'] = next_index
+
     if request.method == 'POST':
         selected_answer = request.POST.get('selected_answer')
         # ユーザーの回答を保存
@@ -557,7 +570,6 @@ def quiz(request, field=None, subfield_id=None, sub2field_id=None):
         # 成績を更新（省略）
     
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
-
 
 def quiz_page(request):
     questions = Question.objects.all()[:5]  # 最初の5問を取得
@@ -577,35 +589,46 @@ def select_field(request):
 @csrf_exempt
 @require_POST
 def submit_answer(request):
-    # JSONデータを解析
-    data = json.loads(request.body)
-    selected_answer = data.get('selected_answer')
-    question_id = data.get('question_id')
+    try:
+        data = json.loads(request.body)
+        selected_answer = data.get('selected_answer')
+        question_id = data.get('question_id')
 
-    # ログインしているユーザーを取得
-    User = get_user_model()
-    user_email = request.user.email  # ログインユーザーのemailを取得
-    user = User.objects.get(email=user_email)  # emailを使用してユーザーオブジェクトを取得
+        if not selected_answer or not question_id:
+            return JsonResponse({'status': 'error', 'message': 'Missing data'}, status=400)
 
-    # 選択した回答に対応する問題を取得
-    question = Question.objects.get(pk=question_id)
+        User = get_user_model()
+        user_email = request.user.email
+        user = User.objects.get(email=user_email)
 
-    # ユーザーの回答を保存
-    user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
-    user_answer.save()
+        question = Question.objects.get(pk=question_id)
+        is_correct = selected_answer == question.correct_answer
 
-    # ユーザーのスコアを更新
-    user_score, created = UserScore.objects.get_or_create(user=user)
-    is_correct = selected_answer == question.correct_answer
-    if is_correct:
-        user_score.total_correct_answers += 1
-        user_score.total_score += 1
-    user_score.total_questions_attempted += 1
-    user_score.save()
+        # ユーザーの回答を保存
+        user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
+        user_answer.save()
 
-    # JSONレスポンスを返す
-    return JsonResponse({'status': 'success', 'is_correct': is_correct})
+        # ユーザーのスコアを更新
+        user_score, _ = UserScore.objects.get_or_create(user=user)
+        if is_correct:
+            user_score.total_correct_answers += 1
+            user_score.total_score += 1
+        user_score.total_questions_attempted += 1
+        user_score.save()
 
+        # 次の問題へのURLを生成
+        next_question_url = reverse('pt_kokushi:quiz_sub2field', kwargs={'sub2field_id': question.sub2field_id})
+        
+        return JsonResponse({'status': 'success', 'is_correct': is_correct, 'next_question_url': next_question_url})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Object not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    
 def select_subfield(request, field_id):
     # 選択されたフィールドを取得
     field = get_object_or_404(Field, id=field_id)
