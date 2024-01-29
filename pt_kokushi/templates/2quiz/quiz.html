@@ -32,14 +32,16 @@
       <div class="quiz-question-number"></div>
       <h2 class="quiz-question">{{ question.question_text }}</h2>
       <div class="quiz-answer row">
-        {% for choice_id, choice_text in choices %}
-        <div class="col-md-6">
-          <label class="quiz-button d-block p-2">
-            <input type="radio" name="radio" id="choice{{ choice_id }}" value="{{ choice_id }}" class="d-none" onclick="submitAnswer(event, {{ question.id }}, '{{ choice_id }}')">
-            <span onclick="event.stopPropagation()">{{ choice_text }}</span>
-          </label>
-        </div>
-        {% endfor %}
+<!-- HTML部分の修正例 -->
+      {% for choice_id, choice_text in choices %}
+       <div class="col-md-6">
+         <label class="quiz-button d-block p-2" id="label{{ choice_id }}">
+         <input type="radio" name="radio" id="choice{{ choice_id }}" value="{{ choice_id }}" class="d-none" onclick="submitAnswer(event, {{ question.id }}, '{{ choice_id }}', 'label{{ choice_id }}')">
+         <span onclick="event.stopPropagation()">{{ choice_text }}</span>
+         </label>
+       </div>
+      {% endfor %}
+
       </div>      
     </div>
   </div>
@@ -78,28 +80,27 @@ function showCustomPopup(message, element) {
   }, 1000);
 }
 
-function submitAnswer(event, questionId, selectedChoice) {
+function submitAnswer(event, questionId, selectedChoice, labelId) {
   event.stopPropagation(); // イベントの伝播を停止
-  console.log(event.currentTarget)
+  var selectedLabel = document.getElementById(labelId);
 
-    fetch('{% url 'pt_kokushi:submit_answer' %}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({
-        question_id: questionId,
-        selected_answer: selectedChoice
-      })
+  fetch('{% url 'pt_kokushi:submit_answer' %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      question_id: questionId,
+      selected_answer: selectedChoice
     })
-
+  })
   .then(response => response.json())
   .then(data => {
     if (data.is_correct) {
-      showCustomPopup("正解！", event.currentTarget);
+      showCustomPopup("正解！", selectedLabel);
     } else {
-      showCustomPopup("不正解！", event.currentTarget);
+      showCustomPopup("不正解！", selectedLabel);
     }
   })
   .catch(error => console.error('Error:', error));
