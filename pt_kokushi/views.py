@@ -140,6 +140,7 @@ def login_view(request):
 
 
 
+
 #ユーザーの登録内容(user.htmlだが今は使っていないエラーが出たら嫌なので消してない)
 @login_required
 def user_view(request):
@@ -537,9 +538,11 @@ def start_quiz(request):
 def quiz(request, subfield_id=None, sub2field_id=None):
     # クエリパラメータに応じて問題をフィルタリング
     if sub2field_id:
+        request.session['last_subfield_id'] = sub2field_id
         sub2field = get_object_or_404(Sub2field, id=sub2field_id)
         questions = Question.objects.filter(sub2field=sub2field)
     elif subfield_id:
+        request.session['last_subfield_id'] = subfield_id
         subfield = get_object_or_404(Subfield, id=subfield_id)
         questions = Question.objects.filter(subfield=subfield)
     else:
@@ -553,14 +556,20 @@ def quiz(request, subfield_id=None, sub2field_id=None):
     
     # 現在の問題のインデックスを取得（修正が必要な場合はここを更新）
     current_index = request.session.get('current_question_index', 0)
+    total_questions = 5
+
+    if current_index >= total_questions:
+        # インデックスをリセット
+        request.session['current_question_index'] = 0
+        # 成績ページへリダイレクト
+        return redirect('pt_kokushi:quiz_results')
+    
     if current_index < len(questions):
         question = questions[current_index]
         next_index = current_index + 1
     else:
-        # すべての問題が終了した場合の処理
         next_index = 0
-        # ここで結果ページなどへのリダイレクトを行うか、または適切な処理を行います
-
+        
     request.session['current_question_index'] = next_index
 
     if request.method == 'POST':
@@ -568,8 +577,37 @@ def quiz(request, subfield_id=None, sub2field_id=None):
         # ユーザーの回答を保存
         UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
         # 成績を更新（省略）
-    
+    print("セッションに保存されるsubfield_id: ", request.session['last_subfield_id'])
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
+
+def some_view(request):
+    if request.method == 'POST':
+        # ユーザーが選択した subfield_id を取得する
+        subfield_id = request.POST.get('subfield_id')
+        request.session['selected_subfield_id'] = subfield_id
+        
+def initialize_quiz(request):
+    if request.method == 'POST':
+        # セッション変数の初期化
+        request.session['current_question_index'] = 0
+        subfield_id = request.POST.get('subfield_id')
+        sub2field_id = request.POST.get('sub2field_id')
+
+        # subfield_id または sub2field_id をセッションに保存
+        if subfield_id:
+            request.session['selected_subfield_id'] = subfield_id
+            return redirect('pt_kokushi:quiz', subfield_id=subfield_id)
+        elif sub2field_id:
+            request.session['selected_subfield_id'] = sub2field_id
+            return redirect('pt_kokushi:quiz', sub2field_id=sub2field_id)
+        else:
+            # エラーハンドリング（適切なリダイレクト先を設定）
+            return redirect('pt_kokushi:error_page')
+
+    else:
+        # GET リクエストの場合（適切なリダイレクト先を設定）
+        return redirect('pt_kokushi:error_page')
+
 
 def quiz_page(request):
     questions = Question.objects.all()[:5]  # 最初の5問を取得
@@ -577,14 +615,20 @@ def quiz_page(request):
     return render(request, 'quiz_page.html', {'questions_json': questions_json})
 
 def quiz_results(request):
-    # 成績情報を取得
     user_score = UserScore.objects.get(user=request.user)
-    return render(request, '2quiz/results.html', {'user_score': user_score})
+    subfield_id = request.session.get('last_subfield_id') 
+    field_id = request.session.get('last_field_id')
+    return render(request, '2quiz/results.html', {'user_score': user_score, 'field_id': field_id, 'subfield_id': subfield_id})
+
 
 #分野選択のためのviews
 def select_field(request):
     fields = Field.objects.all()
+    if request.method == 'POST':
+        field_id = request.POST.get('field_id')
+        request.session['last_field_id'] = field_id
     return render(request, '2quiz/select_field.html', {'fields': fields})
+
 
 @csrf_exempt
 @require_POST
@@ -613,6 +657,7 @@ def submit_answer(request):
         if is_correct:
             user_score.total_correct_answers += 1
             user_score.total_score += 1
+            
         user_score.total_questions_attempted += 1
         user_score.save()
 
@@ -630,10 +675,14 @@ def submit_answer(request):
 
     
 def select_subfield(request, field_id):
-    # 選択されたフィールドを取得
     field = get_object_or_404(Field, id=field_id)
-    # 選択されたフィールドに関連する詳細な分野を取得
     subfields = Subfield.objects.filter(field=field)
+
+    if request.method == 'POST':
+        subfield_id = request.POST.get('subfield_id')
+        request.session['selected_subfield_id'] = subfield_id
+        # initialize_quiz ページへリダイレクト
+        return redirect('pt_kokushi:initialize_quiz')
 
     return render(request, '2quiz/select_subfield.html', {'field': field, 'subfields': subfields})
 
@@ -641,6 +690,11 @@ def select_sub2field(request, subfield_id):
     subfield = get_object_or_404(Subfield, id=subfield_id)
     sub2fields = Sub2field.objects.filter(subfield=subfield)
     field = subfield.field
-    
-    return render(request, '2quiz/select_sub2field.html', {'field': field, 'subfield': subfield, 'sub2fields': sub2fields})
 
+    if request.method == 'POST':
+        sub2field_id = request.POST.get('sub2field_id')
+        request.session['selected_subfield_id'] = sub2field_id
+        # initialize_quiz ページへリダイレクト
+        return redirect('pt_kokushi:initialize_quiz')
+
+    return render(request, '2quiz/select_sub2field.html', {'field': field, 'subfield': subfield, 'sub2fields': sub2fields})

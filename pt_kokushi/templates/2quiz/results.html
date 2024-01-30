@@ -5,4 +5,12 @@
     <p>回答済みの問題数: {{ user_score.total_questions_attempted }}</p>
     <p>正解した問題数: {{ user_score.total_correct_answers }}</p>
     <p>総合スコア: {{ user_score.total_score }}</p>
+
+    {% if subfield_id %}
+    <p><a href="{% url 'pt_kokushi:select_sub2field' subfield_id %}" class="btn btn-secondary">補足詳細へ戻る</a></p>
+    {% endif %}
+    {% if field_id %}
+    <p><a href="{% url 'pt_kokushi:select_subfield' field_id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
+    {% endif %}
+    <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
 {% endblock %}

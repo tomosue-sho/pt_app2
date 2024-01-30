@@ -17,15 +17,18 @@
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <!-- タイトルを大きな文字として表示 -->
                             <h5 class="subfield-title">{{ subfield.name }}</h5>
-                            <!-- 説明文は小さな文字として表示 -->
                             <p class="small text-muted">{{ subfield.description }}</p>
                         </div>
                         {% if subfield.has_detailed_selection %}
                             <a href="{% url 'pt_kokushi:select_sub2field' subfield.id %}" class="btn btn-info">さらに詳細な分野へ</a>
                         {% else %}
-                            <a href="{% url 'pt_kokushi:quiz' subfield.id %}" class="btn btn-primary">クイズを開始</a>
+                            <!-- ここを <form> に変更 -->
+                            <form method="post" action="{% url 'pt_kokushi:initialize_quiz' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="subfield_id" value="{{ subfield.id }}">
+                                <button type="submit" class="btn btn-primary">クイズを開始</button>
+                            </form>
                         {% endif %}
                     </div>
                 </li>

@@ -11,17 +11,21 @@
     }
 </style>    
     <div class="container mt-3">
-        <h1 class="mb-4">{{ subfield.name }}の詳細な分野を選択してください</h1>
+        <h1 class="mb-4">{{ subfield.name }}の補足詳細の分野を選択してください</h1>
         <ul class="list-group">
             {% for sub2field in sub2fields %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="subfield-title">{{ sub2field.name }}</p>
-                        <p>{{ sub2field.description }}</p>
-                    </div>
-                    <!-- 通常のクイズページへのリンク -->
-                    <a href="{% url 'pt_kokushi:quiz_sub2field' sub2field.id %}" class="btn btn-primary">クイズを開始</a>
-                </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="subfield-title">{{ sub2field.name }}</p>
+                    <p>{{ sub2field.description }}</p>
+                </div>
+                <form method="post" action="{% url 'pt_kokushi:initialize_quiz' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="sub2field_id" value="{{ sub2field.id }}">
+                    <input type="hidden" name="subfield_id" value="{{ subfield.id }}">
+                    <button type="submit" class="btn btn-primary">クイズを開始</button>
+                </form>
+            </li>
             {% endfor %}
         </ul>
     </div>
