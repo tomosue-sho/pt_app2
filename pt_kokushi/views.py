@@ -1,14 +1,4 @@
 from django.shortcuts import render, redirect
-import json
-import random
-from .forms import PostForm
-from .forms import EventForm
-from .forms import CommentForm
-from .forms import CustomLoginForm, forms
-from .forms import CustomUserForm
-from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
-from .forms import TimeTableForm
-from .forms import ToDoItemForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.urls import reverse
@@ -18,6 +8,14 @@ from .models import ToDoItem
 from .models import TimeTable
 from .models import Field,  Subfield, Sub2field
 from .models import Question, UserAnswer, UserScore
+from .forms import PostForm
+from .forms import EventForm
+from .forms import CommentForm
+from .forms import CustomLoginForm, forms
+from .forms import CustomUserForm
+from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
+from .forms import TimeTableForm
+from .forms import ToDoItemForm
 from django.views import generic
 from django.views.generic import DeleteView
 from django.views.generic.edit import FormView
@@ -35,8 +33,9 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date, datetime
 from django.utils import timezone
-from django.shortcuts import render, get_object_or_404, redirect
-
+from django.shortcuts import get_object_or_404
+import json
+import random
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
@@ -535,78 +534,53 @@ def start_quiz(request):
     fields = ['解剖学', 'ROM','MMT']
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
-def quiz(request, subfield_id=None, sub2field_id=None):
-    # クエリパラメータに応じて問題をフィルタリング
-    if sub2field_id:
-        request.session['last_subfield_id'] = sub2field_id
+# views.py
+def quiz(request, sub2field_id=None):
+    # URLパスから sub2field_id を取得
+    if sub2field_id is not None:
         sub2field = get_object_or_404(Sub2field, id=sub2field_id)
         questions = Question.objects.filter(sub2field=sub2field)
-    elif subfield_id:
-        request.session['last_subfield_id'] = subfield_id
-        subfield = get_object_or_404(Subfield, id=subfield_id)
-        questions = Question.objects.filter(subfield=subfield)
     else:
-
-        questions = Question.objects.all()
+        # 適切な問題が見つからない場合の処理
+        return render(request, '2quiz/no_questions.html', {})
 
     # ランダムな問題を選択
     question = questions.order_by('?').first()
+    if not question:
+        return render(request, '2quiz/no_questions.html', {})
+
     choices = [('1', question.choice1), ('2', question.choice2), ('3', question.choice3), ('4', question.choice4)]
     random.shuffle(choices)
-    
-    # 現在の問題のインデックスを取得（修正が必要な場合はここを更新）
+
+    # 現在の問題のインデックスを取得
     current_index = request.session.get('current_question_index', 0)
     total_questions = 5
 
     if current_index >= total_questions:
-        # インデックスをリセット
+        # インデックスをリセットし、成績ページへリダイレクト
         request.session['current_question_index'] = 0
-        # 成績ページへリダイレクト
         return redirect('pt_kokushi:quiz_results')
-    
-    if current_index < len(questions):
-        question = questions[current_index]
-        next_index = current_index + 1
-    else:
-        next_index = 0
-        
-    request.session['current_question_index'] = next_index
 
-    if request.method == 'POST':
-        selected_answer = request.POST.get('selected_answer')
-        # ユーザーの回答を保存
-        UserAnswer.objects.create(user=request.user, question=question, selected_answer=selected_answer)
-        # 成績を更新（省略）
-    print("セッションに保存されるsubfield_id: ", request.session['last_subfield_id'])
+    request.session['current_question_index'] = current_index + 1
+
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
-def some_view(request):
-    if request.method == 'POST':
-        # ユーザーが選択した subfield_id を取得する
-        subfield_id = request.POST.get('subfield_id')
-        request.session['selected_subfield_id'] = subfield_id
-        
+
 def initialize_quiz(request):
     if request.method == 'POST':
-        # セッション変数の初期化
         request.session['current_question_index'] = 0
-        subfield_id = request.POST.get('subfield_id')
-        sub2field_id = request.POST.get('sub2field_id')
-
-        # subfield_id または sub2field_id をセッションに保存
-        if subfield_id:
+        subfield_id = request.POST.get('subfield_id', None)
+        sub2field_id = request.POST.get('sub2field_id', None)
+        
+        if sub2field_id:
+            request.session['selected_sub2field_id'] = sub2field_id
+            return redirect('pt_kokushi:quiz_sub2field', sub2field_id=sub2field_id)
+        elif subfield_id:
             request.session['selected_subfield_id'] = subfield_id
-            return redirect('pt_kokushi:quiz', subfield_id=subfield_id)
-        elif sub2field_id:
-            request.session['selected_subfield_id'] = sub2field_id
-            return redirect('pt_kokushi:quiz', sub2field_id=sub2field_id)
+            return redirect('pt_kokushi:quiz_subfield', subfield_id=subfield_id)
         else:
-            # エラーハンドリング（適切なリダイレクト先を設定）
-            return redirect('pt_kokushi:error_page')
-
-    else:
-        # GET リクエストの場合（適切なリダイレクト先を設定）
-        return redirect('pt_kokushi:error_page')
+            # どちらのIDも存在しない場合の処理
+            return redirect('pt_kokushi:top')
 
 
 def quiz_page(request):
@@ -616,18 +590,28 @@ def quiz_page(request):
 
 def quiz_results(request):
     user_score = UserScore.objects.get(user=request.user)
-    subfield_id = request.session.get('last_subfield_id') 
+    subfield_id = request.session.get('last_subfield_id')
     field_id = request.session.get('last_field_id')
-    return render(request, '2quiz/results.html', {'user_score': user_score, 'field_id': field_id, 'subfield_id': subfield_id})
+    sub2field_id = request.session.get('selected_sub2field_id')  # セッションから sub2field_id を取得
+    print("subfield_id:", subfield_id, "field_id:", field_id)  # ここでセッション変数を出力
+    
+    return render(request, '2quiz/results.html', {
+        'user_score': user_score,
+        'field_id': field_id,
+        'subfield_id': subfield_id,
+        'sub2field_id': sub2field_id  # テンプレートに sub2field_id を渡す
+    })
 
 
 #分野選択のためのviews
 def select_field(request):
-    fields = Field.objects.all()
     if request.method == 'POST':
         field_id = request.POST.get('field_id')
         request.session['last_field_id'] = field_id
-    return render(request, '2quiz/select_field.html', {'fields': fields})
+        return redirect('pt_kokushi:select_subfield', field_id=field_id)
+    else:
+        fields = Field.objects.all()
+        return render(request, '2quiz/select_field.html', {'fields': fields})
 
 
 @csrf_exempt
@@ -673,28 +657,41 @@ def submit_answer(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-    
-def select_subfield(request, field_id):
-    field = get_object_or_404(Field, id=field_id)
-    subfields = Subfield.objects.filter(field=field)
 
+def select_subfield(request, field_id):
     if request.method == 'POST':
         subfield_id = request.POST.get('subfield_id')
-        request.session['selected_subfield_id'] = subfield_id
-        # initialize_quiz ページへリダイレクト
-        return redirect('pt_kokushi:initialize_quiz')
+        try:
+            subfield = Subfield.objects.get(id=subfield_id)
+            request.session['last_subfield_id'] = subfield_id
+            if not subfield.has_detailed_selection:
+                return redirect('pt_kokushi:initialize_quiz')
+            else:
+                return redirect('pt_kokushi:select_sub2field_template', subfield_id=subfield_id)
+        except Subfield.DoesNotExist:
+            messages.error(request, "選択されたサブフィールドは存在しません。")
+            return redirect('pt_kokushi:select_field')
+    else:
+        # GET リクエストの処理
+        field = get_object_or_404(Field, id=field_id)
+        subfields = Subfield.objects.filter(field=field)
+        return render(request, '2quiz/select_subfield.html', {'field': field, 'subfields': subfields})
 
-    return render(request, '2quiz/select_subfield.html', {'field': field, 'subfields': subfields})
-
+@require_POST
 def select_sub2field(request, subfield_id):
+    sub2field_id = request.POST.get('sub2field_id')
+    request.session['selected_sub2field_id'] = sub2field_id
+    
+    return redirect('pt_kokushi:select_sub2field_template', subfield_id=subfield_id)
+
+def select_sub2field_template(request, subfield_id):
     subfield = get_object_or_404(Subfield, id=subfield_id)
     sub2fields = Sub2field.objects.filter(subfield=subfield)
-    field = subfield.field
-
+    
     if request.method == 'POST':
         sub2field_id = request.POST.get('sub2field_id')
         request.session['selected_subfield_id'] = sub2field_id
         # initialize_quiz ページへリダイレクト
         return redirect('pt_kokushi:initialize_quiz')
-
-    return render(request, '2quiz/select_sub2field.html', {'field': field, 'subfield': subfield, 'sub2fields': sub2fields})
+    
+    return render(request, '2quiz/select_sub2field.html', {'sub2fields': sub2fields, 'subfield': subfield})

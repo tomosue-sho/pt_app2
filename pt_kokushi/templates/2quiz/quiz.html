@@ -81,6 +81,7 @@ style="display:none;
   }
   
   function submitAnswer(event, questionId, selectedChoice, elementId) {
+    console.log("Sending answer: ", selectedChoice); 
     event.stopPropagation(); // イベントの伝播を停止
   
     fetch('{% url 'pt_kokushi:submit_answer' %}', {

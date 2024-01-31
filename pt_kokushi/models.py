@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.contrib import auth
+from django.core.exceptions import ValidationError
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -301,7 +302,7 @@ class TimeTable(models.Model):
     def __str__(self):
         return f"{self.get_day_display()} - {self.get_period_display()} - {self.subject}"
     
-#2択問題用のmodels.py
+#4択問題用のmodels.py
 #基礎学習分野選択ページ
 class Field(models.Model):
     name = models.CharField(max_length=100, verbose_name="分野名")
@@ -334,6 +335,7 @@ class Sub2field(models.Model):
 class Question(models.Model):
     
     question_text = models.TextField()
+    field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     subfield = models.ForeignKey(Subfield, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     sub2field = models.ForeignKey(Sub2field, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     choice1 = models.CharField(max_length=200)  # 選択肢1
@@ -346,15 +348,24 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
     
+    def save(self, *args, **kwargs):
+        # subfield と sub2field の整合性をチェック
+        if self.sub2field and self.subfield != self.sub2field.subfield:
+            raise ValidationError("選択した sub2field は選択した subfield に属していません。")
+
+        super().save(*args, **kwargs)
+    
 # ユーザーの回答を記録するモデル
 class UserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_answer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')])
+    # 以下の行を変更
+    selected_answer = models.CharField(max_length=1, choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4')])
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username}'s Answer: {self.question.question_text}"
+
 
 # ユーザーのスコアを記録するモデル
 class UserScore(models.Model):

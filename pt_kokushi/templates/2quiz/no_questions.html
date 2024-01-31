@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-3">
+        <h1>問題が見つかりません</h1>
+        <p>選択された分野にはまだ問題が登録されていません。</p>
+        <a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a>
+    </div>
+{% endblock %}

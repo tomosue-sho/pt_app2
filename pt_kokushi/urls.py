@@ -48,16 +48,14 @@ urlpatterns = [
     path('select_subfield/<int:field_id>/', views.select_subfield, name='select_subfield'),
     path('select_sub2field/<int:subfield_id>/', views.select_sub2field, name='select_sub2field'),
     path('quiz/<int:subfield_id>/', views.quiz, name='quiz'),
-    path('quiz/<str:field>/', views.quiz, name='quiz_field'),  # 'field' に基づくパターン
-    path('quiz/subfield/<int:subfield_id>/', views.quiz, name='quiz_subfield'),  # 'subfield_id' に基づくパターン
-    path('quiz/sub2field/<int:sub2field_id>/', views.quiz, name='quiz_sub2field'),  # 'sub2field_id' に基づくパターン
+    path('quiz/<str:field>/', views.quiz, name='quiz_field'),
+    path('quiz/subfield/<int:subfield_id>/', views.quiz, name='quiz_subfield'),
+    path('quiz/sub2field/<int:sub2field_id>/', views.quiz, name='quiz_sub2field'),
     path('submit_answer/', views.submit_answer, name='submit_answer'),
     path('quiz/results/', views.quiz_results, name='quiz_results'),
     path('initialize_quiz/', views.initialize_quiz, name='initialize_quiz'),
-    
+    path('select_sub2field_template/<int:subfield_id>/', views.select_sub2field_template, name='select_sub2field_template'),
     ]
 
 if settings.DEBUG:
      urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-

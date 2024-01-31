@@ -59,7 +59,7 @@ ROOT_URLCONF = 'pt_project2.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # テンプレート用のフォルダを追記
+        'DIRS': [BASE_DIR / 'pt_kokushi/templates'], # テンプレート用のフォルダを追記
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

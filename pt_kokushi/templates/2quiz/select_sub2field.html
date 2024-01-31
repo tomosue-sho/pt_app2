@@ -9,26 +9,25 @@
         background: #fffaf4;
         border-left: solid 5px #ffaf58;
     }
-</style>    
-    <div class="container mt-3">
-        <h1 class="mb-4">{{ subfield.name }}の補足詳細の分野を選択してください</h1>
-        <ul class="list-group">
-            {% for sub2field in sub2fields %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+</style>
+<div class="container mt-3">
+    <h1 class="mb-4">{{ subfield.name }}の補足詳細の分野を選択してください</h1>
+    <ul class="list-group">
+        {% for sub2field in sub2fields %}
+            <li class="list-group-item">
                 <div>
-                    <p class="subfield-title">{{ sub2field.name }}</p>
+                    <h5 class="subfield-title">{{ sub2field.name }}</h5>
                     <p>{{ sub2field.description }}</p>
                 </div>
-                <form method="post" action="{% url 'pt_kokushi:initialize_quiz' %}">
+                <form method="post" action="{% url 'pt_kokushi:quiz_sub2field' sub2field.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="sub2field_id" value="{{ sub2field.id }}">
-                    <input type="hidden" name="subfield_id" value="{{ subfield.id }}">
                     <button type="submit" class="btn btn-primary">クイズを開始</button>
-                </form>
+                </form>                                            
             </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <br>
-    <p><a href="{% url 'pt_kokushi:select_subfield' field.id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
+        {% endfor %}
+    </ul>
+</div>
+<br>
+<p><a href="{% url 'pt_kokushi:select_subfield' subfield.field.id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
 {% endblock %}

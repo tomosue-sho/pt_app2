@@ -112,8 +112,8 @@ class Sub2fieldAdmin(admin.ModelAdmin):
     display_icon.short_description = "アイコン"
     
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('question_text',  'subfield', 'sub2field', 'correct_answer')
-    list_filter = ('subfield', 'sub2field')
+    list_display = ('question_text',  'field' ,'subfield', 'sub2field', 'correct_answer')
+    list_filter = ('field','subfield', 'sub2field')
     search_fields = ('question_text',)
 
 
