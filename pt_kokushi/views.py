@@ -535,11 +535,14 @@ def start_quiz(request):
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
 # views.py
-def quiz(request, sub2field_id=None):
-    # URLパスから sub2field_id を取得
-    if sub2field_id is not None:
+def quiz(request, subfield_id=None, sub2field_id=None):
+    # subfield_id または sub2field_id に基づいて問題をフィルタリング
+    if sub2field_id:
         sub2field = get_object_or_404(Sub2field, id=sub2field_id)
         questions = Question.objects.filter(sub2field=sub2field)
+    elif subfield_id:
+        subfield = get_object_or_404(Subfield, id=subfield_id)
+        questions = Question.objects.filter(subfield=subfield)
     else:
         # 適切な問題が見つからない場合の処理
         return render(request, '2quiz/no_questions.html', {})

@@ -81,7 +81,10 @@ style="display:none;
   }
   
   function submitAnswer(event, questionId, selectedChoice, elementId) {
-    console.log("Sending answer: ", selectedChoice); 
+    // selectedChoice を文字列に変換
+    var selectedChoiceStr = String(selectedChoice);
+
+    console.log("Sending answer: ", selectedChoiceStr); 
     event.stopPropagation(); // イベントの伝播を停止
   
     fetch('{% url 'pt_kokushi:submit_answer' %}', {
@@ -92,7 +95,7 @@ style="display:none;
       },
       body: JSON.stringify({
         question_id: questionId,
-        selected_answer: selectedChoice
+        selected_answer: selectedChoiceStr  // 文字列型で送信
       })
     })
     .then(response => response.json())
