@@ -338,6 +338,7 @@ class Question(models.Model):
     field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     subfield = models.ForeignKey(Subfield, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     sub2field = models.ForeignKey(Sub2field, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
+    score = models.IntegerField(default=1) 
     choice1 = models.CharField(max_length=200)  # 選択肢1
     choice2 = models.CharField(max_length=200)  # 選択肢2
     choice3 = models.CharField(max_length=200)  # 選択肢3
@@ -359,9 +360,9 @@ class Question(models.Model):
 class UserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    # 以下の行を変更
     selected_answer = models.CharField(max_length=1, choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4')])
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_correct = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}'s Answer: {self.question.question_text}"

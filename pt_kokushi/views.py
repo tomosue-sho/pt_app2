@@ -8,7 +8,8 @@ from .models import ToDoItem
 from .models import TimeTable
 from .models import Field,  Subfield, Sub2field
 from .models import Question, UserAnswer, UserScore
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Sum, Q
+from datetime import timedelta
 from .forms import PostForm
 from .forms import EventForm
 from .forms import CommentForm
@@ -603,26 +604,40 @@ def quiz_results(request):
     user_score = UserScore.objects.get(user=request.user)
     subfield_id = request.session.get('last_subfield_id')
     field_id = request.session.get('last_field_id')
-    sub2field_id = request.session.get('selected_sub2field_id')  # セッションから sub2field_id を取得
-    print("subfield_id:", subfield_id, "field_id:", field_id)  # ここでセッション変数を出力
-    
-    # 全体の正答率
-    total_accuracy = (user_score.total_correct_answers / user_score.total_questions_attempted * 100
-                     if user_score.total_questions_attempted > 0 else 0)
+    sub2field_id = request.session.get('selected_sub2field_id')
 
-    # 今回の正答率
-    current_quiz_correct_answers = request.session.get('current_quiz_correct_answers', 0)
-    current_accuracy = (current_quiz_correct_answers / 5 * 100
-                        if current_quiz_correct_answers > 0 else 0)
+    # 全ユーザーの成績情報を集計
+    total_scores = UserScore.objects.aggregate(
+        total_questions=Sum('total_questions_attempted'),
+        total_correct=Sum('total_correct_answers'),
+        average_score=Avg('total_score')
+    )
+    total_accuracy = (total_scores['total_correct'] / total_scores['total_questions'] * 100
+                      if total_scores['total_questions'] > 0 else 0)
     
+    # 週間ランキングデータを集計
+    one_week_ago = timezone.now() - timedelta(days=7)
+    weekly_scores = UserAnswer.objects.filter(
+        timestamp__gte=one_week_ago,
+        is_correct=True
+    ).values(
+        'user__nickname'
+    ).annotate(
+        # total_scoreの部分を修正するか削除するかに応じて変更
+        total_correct_answers=Count('id', filter=Q(is_correct=True)),
+        total_attempts=Count('id')
+    ).order_by('-total_correct_answers')[:10]  # 正解数に基づいてランキングを行う
+
     return render(request, '2quiz/results.html', {
         'user_score': user_score,
+        'total_scores': total_scores,
         'total_accuracy': total_accuracy,
-        'current_accuracy': current_accuracy,
-        'field_id': field_id,
+        'weekly_scores': weekly_scores,
         'subfield_id': subfield_id,
-        'sub2field_id': sub2field_id  # テンプレートに sub2field_id を渡す
+        'field_id': field_id,
+        'sub2field_id': sub2field_id
     })
+
 
 
 #分野選択のためのviews
@@ -643,6 +658,10 @@ def submit_answer(request):
         data = json.loads(request.body)
         selected_answer = str(data.get('selected_answer')) 
         question_id = data.get('question_id')
+        
+        # セッション変数の初期化
+        if 'current_quiz_correct_answers' not in request.session:
+            request.session['current_quiz_correct_answers'] = 0
 
         if not selected_answer or not question_id:
             return JsonResponse({'status': 'error', 'message': 'Missing data'}, status=400)
@@ -655,7 +674,8 @@ def submit_answer(request):
         is_correct = selected_answer == question.correct_answer
 
         # ユーザーの回答を保存
-        user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer)
+        is_correct = selected_answer == question.correct_answer
+        user_answer = UserAnswer(user=user, question=question, selected_answer=selected_answer, is_correct=is_correct)
         user_answer.save()
 
         # ユーザーのスコアを更新
@@ -664,6 +684,7 @@ def submit_answer(request):
             user_score.total_correct_answers += 1
             user_score.total_score += 1
             request.session['current_quiz_correct_answers'] += 1
+            request.session.modified = True  # セッションの更新を明示
             
         user_score.total_questions_attempted += 1
         user_score.save()
@@ -753,3 +774,19 @@ def all_users_quiz_results(request):
         'total_accuracy': total_accuracy,
         # その他のコンテキスト変数
     })
+#週間ランキング用
+def weekly_ranking_view(request):
+    one_week_ago = timezone.now() - timedelta(days=7)
+
+    weekly_scores = UserAnswer.objects.filter(
+        timestamp__gte=one_week_ago,
+        is_correct=True
+    ).values(
+        'user__nickname'
+    ).annotate(
+       total_score=Sum('question__score'),
+        total_correct_answers=Count('id', filter=Q(is_correct=True)),
+        total_attempts=Count('id')
+    ).order_by('-total_score')[:10]
+
+    return render(request, 'weekly_ranking.html', {'weekly_scores': weekly_scores})

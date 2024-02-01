@@ -5,16 +5,39 @@
     <h1>全ユーザーの成績情報</h1>
     <p>全問題数: {{ total_scores.total_questions }}</p>
     <p>全正解数: {{ total_scores.total_correct }}</p>
-    <p>平均点: {{ total_scores.average_score|floatformat:2 }}</p>
+    <p>全体の平均点: {{ total_scores.average_score|floatformat:2 }}</p>
     <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
 
-    <h2>トータル情報</h2>
+    <h1>週間ランキング</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ユーザー名</th>
+                <th>総合スコア</th>
+                <th>正解数</th>
+                <th>回答数</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in weekly_scores %}
+                <tr>
+                    <td>{{ score.user__nickname }}</td>
+                    <td>{{ score.total_score }}</td>
+                    <td>{{ score.total_correct_answers }}</td>
+                    <td>{{ score.total_attempts }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <h2>{{ user.nickname }}さんのトータル情報</h2>
     <p>回答済みの問題数: {{ user_score.total_questions_attempted }}</p>
     <p>正解した問題数: {{ user_score.total_correct_answers }}</p>
     <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
     <p>総合スコア: {{ user_score.total_score }}</p>
 
-    <h2>今回の成績</h2>
+    <h2>{{ user.nickname }}さんの今回の成績</h2>
     <p>今回の正解回数: {{ request.session.current_quiz_correct_answers }}</p>
     <p>今回の正答率: {{ current_accuracy|floatformat:2 }}%</p>
 
