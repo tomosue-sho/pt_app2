@@ -55,6 +55,7 @@ urlpatterns = [
     path('quiz/results/', views.quiz_results, name='quiz_results'),
     path('initialize_quiz/', views.initialize_quiz, name='initialize_quiz'),
     path('select_sub2field_template/<int:subfield_id>/', views.select_sub2field_template, name='select_sub2field_template'),
+    path('reset-quiz-count/', views.reset_quiz_count, name='reset_quiz_count'),
     ]
 
 if settings.DEBUG:

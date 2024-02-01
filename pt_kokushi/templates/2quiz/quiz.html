@@ -115,5 +115,18 @@ style="display:none;
       }, 1000); // 1秒後に次の問題へ遷移する
     });
   }
+
+  window.onbeforeunload = function() {
+    // AJAXリクエストを送る
+    fetch('/reset-quiz-count/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reset: true })
+    });
+};
+
 </script>
 {% endblock %}

@@ -8,6 +8,7 @@ from .models import ToDoItem
 from .models import TimeTable
 from .models import Field,  Subfield, Sub2field
 from .models import Question, UserAnswer, UserScore
+from django.db.models import Avg, Count, Sum
 from .forms import PostForm
 from .forms import EventForm
 from .forms import CommentForm
@@ -577,6 +578,8 @@ def quiz(request, subfield_id=None, sub2field_id=None):
 def initialize_quiz(request):
     if request.method == 'POST':
         request.session['current_question_index'] = 0
+        request.session['current_quiz_correct_answers'] = 0
+        
         subfield_id = request.POST.get('subfield_id', None)
         sub2field_id = request.POST.get('sub2field_id', None)
         
@@ -603,8 +606,19 @@ def quiz_results(request):
     sub2field_id = request.session.get('selected_sub2field_id')  # セッションから sub2field_id を取得
     print("subfield_id:", subfield_id, "field_id:", field_id)  # ここでセッション変数を出力
     
+    # 全体の正答率
+    total_accuracy = (user_score.total_correct_answers / user_score.total_questions_attempted * 100
+                     if user_score.total_questions_attempted > 0 else 0)
+
+    # 今回の正答率
+    current_quiz_correct_answers = request.session.get('current_quiz_correct_answers', 0)
+    current_accuracy = (current_quiz_correct_answers / 5 * 100
+                        if current_quiz_correct_answers > 0 else 0)
+    
     return render(request, '2quiz/results.html', {
         'user_score': user_score,
+        'total_accuracy': total_accuracy,
+        'current_accuracy': current_accuracy,
         'field_id': field_id,
         'subfield_id': subfield_id,
         'sub2field_id': sub2field_id  # テンプレートに sub2field_id を渡す
@@ -649,6 +663,7 @@ def submit_answer(request):
         if is_correct:
             user_score.total_correct_answers += 1
             user_score.total_score += 1
+            request.session['current_quiz_correct_answers'] += 1
             
         user_score.total_questions_attempted += 1
         user_score.save()
@@ -711,3 +726,30 @@ def select_sub2field_template(request, subfield_id):
         return redirect('pt_kokushi:initialize_quiz')
     
     return render(request, '2quiz/select_sub2field.html', {'sub2fields': sub2fields, 'subfield': subfield})
+
+#quiz.htmlから途中で抜けた場合の処理（問題を解いた回数をリセットする）
+@require_POST
+def reset_quiz_count(request):
+    data = json.loads(request.body)
+    if data.get('reset'):
+        request.session['current_question_index'] = 0
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'})
+
+def all_users_quiz_results(request):
+    # 全ユーザーの成績情報を集計
+    total_scores = UserScore.objects.aggregate(
+        total_questions=Sum('total_questions_attempted'),
+        total_correct=Sum('total_correct_answers'),
+        average_score=Avg('total_score')
+    )
+
+    # 全ユーザーの正答率
+    total_accuracy = (total_scores['total_correct'] / total_scores['total_questions'] * 100
+                     if total_scores['total_questions'] > 0 else 0)
+
+    return render(request, '2quiz/all_users_results.html', {
+        'total_scores': total_scores,
+        'total_accuracy': total_accuracy,
+        # その他のコンテキスト変数
+    })
