@@ -542,17 +542,24 @@ def quiz(request, subfield_id=None, sub2field_id=None):
 
     # subfield_id または sub2field_id に基づいて問題をフィルタリング
     if sub2field_id:
-        questions = Question.objects.filter(sub2field_id=sub2field_id)
+        sub2field = get_object_or_404(Sub2field, id=sub2field_id)
+        questions = Question.objects.filter(sub2field=sub2field)
     elif subfield_id:
-        questions = Question.objects.filter(subfield_id=subfield_id)
+        subfield = get_object_or_404(Subfield, id=subfield_id)
+        questions = Question.objects.filter(subfield=subfield, sub2field__isnull=True)
     else:
-        # ここにフィールドIDに基づくフィルタリングを追加
-        questions = Question.objects.none()
+        field_id = request.session.get('last_field_id')
+        if field_id:
+            field = get_object_or_404(Field, id=field_id)
+            questions = Question.objects.filter(subfield__field=field, subfield__isnull=True, sub2field__isnull=True)
+        else:
+            questions = Question.objects.none()
 
     # 提示済みの問題を除外
     questions = questions.exclude(id__in=asked_questions)
 
     # 問題が4問以下の場合、またはすべての問題が提示された場合、セッションをリセット
+    #ここ
     total_questions = questions.count()
     if total_questions <= 4 or len(asked_questions) >= total_questions:
         asked_questions = []
