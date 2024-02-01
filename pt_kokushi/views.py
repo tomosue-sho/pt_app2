@@ -536,26 +536,35 @@ def start_quiz(request):
     fields = ['解剖学', 'ROM','MMT']
     return render(request, '2quiz/start_quiz.html', {'fields': fields})
 
-# views.py
 def quiz(request, subfield_id=None, sub2field_id=None):
+    # 提示済み問題のIDをセッションから取得（存在しない場合は空のリスト）
+    asked_questions = request.session.get('asked_questions', [])
+
     # subfield_id または sub2field_id に基づいて問題をフィルタリング
     if sub2field_id:
-        sub2field = get_object_or_404(Sub2field, id=sub2field_id)
-        questions = Question.objects.filter(sub2field=sub2field)
+        questions = Question.objects.filter(sub2field_id=sub2field_id)
     elif subfield_id:
-        subfield = get_object_or_404(Subfield, id=subfield_id)
-        questions = Question.objects.filter(subfield=subfield, sub2field__isnull=True)
+        questions = Question.objects.filter(subfield_id=subfield_id)
     else:
-        field_id = request.session.get('last_field_id')
-        if field_id:
-            field = get_object_or_404(Field, id=field_id)
-            questions = Question.objects.filter(subfield__field=field, subfield__isnull=True, sub2field__isnull=True)
-        else:
-            questions = Question.objects.none()
+        # ここにフィールドIDに基づくフィルタリングを追加
+        questions = Question.objects.none()
 
+    # 提示済みの問題を除外
+    questions = questions.exclude(id__in=asked_questions)
 
-    # ランダムな問題を選択
+    # 問題が4問以下の場合、またはすべての問題が提示された場合、セッションをリセット
+    total_questions = questions.count()
+    if total_questions <= 4 or len(asked_questions) >= total_questions:
+        asked_questions = []
+
+    # 新しい問題を選択
     question = questions.order_by('?').first()
+
+    # 選択した問題のIDをセッションに追加
+    if question:
+        asked_questions.append(question.id)
+        request.session['asked_questions'] = asked_questions
+
     if not question:
         return render(request, '2quiz/no_questions.html', {})
 
@@ -576,10 +585,13 @@ def quiz(request, subfield_id=None, sub2field_id=None):
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
 
+
 def initialize_quiz(request):
     if request.method == 'POST':
-        request.session['current_question_index'] = 0
+        # クイズの新しいセットが開始されるため、正答数カウントをリセットする
         request.session['current_quiz_correct_answers'] = 0
+        request.session['current_question_index'] = 0
+        request.session.modified = True  # セッションの変更を保存
         
         subfield_id = request.POST.get('subfield_id', None)
         sub2field_id = request.POST.get('sub2field_id', None)
@@ -610,12 +622,12 @@ def quiz_results(request):
     user_accuracy = (user_score.total_correct_answers / user_score.total_questions_attempted * 100
                      if user_score.total_questions_attempted > 0 else 0)
 
-    # 今回のクイズの正答率
+    # 今回のクイズの正答回数と正答率を計算
     current_quiz_correct_answers = request.session.get('current_quiz_correct_answers', 0)
     current_quiz_accuracy = (current_quiz_correct_answers / 5 * 100
                              if current_quiz_correct_answers > 0 else 0)
-    
 
+    
     # 全ユーザーの成績情報を集計
     total_scores = UserScore.objects.aggregate(
         total_questions=Sum('total_questions_attempted'),
@@ -641,6 +653,7 @@ def quiz_results(request):
     return render(request, '2quiz/results.html', {
         'user_score': user_score,
         'user_accuracy': user_accuracy,
+        'current_quiz_correct_answers': current_quiz_correct_answers, 
         'current_quiz_accuracy': current_quiz_accuracy,
         'total_scores': total_scores,
         'total_accuracy': total_accuracy,
@@ -697,6 +710,7 @@ def submit_answer(request):
             user_score.total_score += 1
             request.session['current_quiz_correct_answers'] += 1
             request.session.modified = True
+            print("Current Quiz Correct Answers:", request.session['current_quiz_correct_answers'])  # デバッグ情報の出力
             
         user_score.total_questions_attempted += 1
         user_score.save()
@@ -764,10 +778,14 @@ def select_sub2field_template(request, subfield_id):
 @require_POST
 def reset_quiz_count(request):
     data = json.loads(request.body)
-    if data.get('reset'):
+    if request.method == 'POST':
+        # クイズの新しいセットが開始されるため、正答数カウントをリセットする
+        request.session['current_quiz_correct_answers'] = 0
         request.session['current_question_index'] = 0
+        request.session.modified = True  # セッションの変更を保存
         return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'})
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
 
 def all_users_quiz_results(request):
     # 全ユーザーの成績情報を集計
@@ -786,6 +804,7 @@ def all_users_quiz_results(request):
         'total_accuracy': total_accuracy,
         # その他のコンテキスト変数
     })
+    
 #週間ランキング用
 def weekly_ranking_view(request):
     one_week_ago = timezone.now() - timedelta(days=7)

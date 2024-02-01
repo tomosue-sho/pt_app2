@@ -22,7 +22,7 @@
                 <form method="post" action="{% url 'pt_kokushi:quiz_sub2field' sub2field.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="sub2field_id" value="{{ sub2field.id }}">
-                    <button type="submit" class="btn btn-primary">クイズを開始</button>
+                    <button type="submit" id="start-quiz-btn" class="btn btn-primary">クイズを開始する</button>
                 </form>                                            
             </li>
         {% endfor %}
@@ -30,4 +30,31 @@
 </div>
 <br>
 <p><a href="{% url 'pt_kokushi:select_subfield' subfield.field.id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var resetQuizCountUrl = "{% url 'pt_kokushi:reset_quiz_count' %}"; // DjangoのURL逆引きを使用
+        document.getElementById('start-quiz-btn').addEventListener('click', function() {
+            // Ajaxリクエストを送信してクイズ関連のセッション変数をリセット
+            fetch(resetQuizCountUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',  // CSRFトークンをヘッダーに含める
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ startQuiz: true })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('クイズの初期化に成功しました。');
+                } else {
+                    console.error('クイズの初期化に失敗しました。');
+                }
+            });
+        });
+    });
+    </script>
+    
+        
+    
 {% endblock %}
