@@ -1,52 +1,68 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>成績情報</h1>
-    <h1>全ユーザーの成績情報</h1>
-    <p>全問題数: {{ total_scores.total_questions }}</p>
-    <p>全正解数: {{ total_scores.total_correct }}</p>
-    <p>全体の平均点: {{ total_scores.average_score|floatformat:2 }}</p>
-    <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h1 class="card-title">全ユーザーの成績情報</h1>
+            <p>全問題数: {{ total_scores.total_questions }}</p>
+            <p>全正解数: {{ total_scores.total_correct }}</p>
+            <p>全体の平均点: {{ total_scores.average_score|floatformat:2 }}</p>
+            <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
+        </div>
+    </div>
 
-    <h1>週間ランキング</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h1 class="card-title">週間ランキング</h1>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ユーザー名</th>
+                        <th>総合スコア</th>
+                        <th>正解数</th>
+                        <th>回答数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in weekly_scores %}
+                        <tr>
+                            <td>{{ score.user__nickname }}</td>
+                            <td>{{ score.total_score }}</td>
+                            <td>{{ score.total_correct_answers }}</td>
+                            <td>{{ score.total_attempts }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ユーザー名</th>
-                <th>総合スコア</th>
-                <th>正解数</th>
-                <th>回答数</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for score in weekly_scores %}
-                <tr>
-                    <td>{{ score.user__nickname }}</td>
-                    <td>{{ score.total_score }}</td>
-                    <td>{{ score.total_correct_answers }}</td>
-                    <td>{{ score.total_attempts }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <h2>{{ user.nickname }}さんのトータル情報</h2>
-    <p>回答済みの問題数: {{ user_score.total_questions_attempted }}</p>
-    <p>正解した問題数: {{ user_score.total_correct_answers }}</p>
-    <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
-    <p>総合スコア: {{ user_score.total_score }}</p>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">{{ user.nickname }}さんの総合成績</h2>
+            <p>回答済みの問題数: {{ user_score.total_questions_attempted }}</p>
+            <p>正解した問題数: {{ user_score.total_correct_answers }}</p>
+            <p>{{ user.nickname }}さんの総合正答率: {{ user_accuracy|floatformat:2 }}%</p>
+            <p>総合スコア: {{ user_score.total_score }}</p>
+        </div>
+    </div>
 
-    <h2>{{ user.nickname }}さんの今回の成績</h2>
-    <p>今回の正解回数: {{ request.session.current_quiz_correct_answers }}</p>
-    <p>今回の正答率: {{ current_accuracy|floatformat:2 }}%</p>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">{{ user.nickname }}さんの今回の成績</h2>
+            <p>今回の正解回数: {{ request.session.current_quiz_correct_answers }}</p>
+            <p>今回の{{ user.nickname }}さんの正答率: {{ current_quiz_accuracy|floatformat:2 }}%</p>
+        </div>
+    </div>
 
     {% if subfield_id %}
-    <p><a href="{% url 'pt_kokushi:select_sub2field' subfield_id %}" class="btn btn-secondary">補足詳細へ戻る</a></p>
+        <a href="{% url 'pt_kokushi:select_sub2field' subfield_id %}" class="btn btn-primary">補足詳細へ戻る</a>
     {% endif %}
     {% if field_id %}
-    <p><a href="{% url 'pt_kokushi:select_subfield' field_id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
+        <a href="{% url 'pt_kokushi:select_subfield' field_id %}" class="btn btn-primary">詳細選択へ戻る</a>
     {% endif %}
-    
-    <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
+    <br>
+    <a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary mt-3">トップへ戻る</a>
+</div>
 {% endblock %}

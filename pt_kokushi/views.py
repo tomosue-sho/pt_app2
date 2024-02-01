@@ -605,6 +605,16 @@ def quiz_results(request):
     subfield_id = request.session.get('last_subfield_id')
     field_id = request.session.get('last_field_id')
     sub2field_id = request.session.get('selected_sub2field_id')
+    
+    # ユーザーの総合正答率
+    user_accuracy = (user_score.total_correct_answers / user_score.total_questions_attempted * 100
+                     if user_score.total_questions_attempted > 0 else 0)
+
+    # 今回のクイズの正答率
+    current_quiz_correct_answers = request.session.get('current_quiz_correct_answers', 0)
+    current_quiz_accuracy = (current_quiz_correct_answers / 5 * 100
+                             if current_quiz_correct_answers > 0 else 0)
+    
 
     # 全ユーザーの成績情報を集計
     total_scores = UserScore.objects.aggregate(
@@ -623,13 +633,15 @@ def quiz_results(request):
     ).values(
         'user__nickname'
     ).annotate(
-        # total_scoreの部分を修正するか削除するかに応じて変更
+        total_score=Sum('question__score'),
         total_correct_answers=Count('id', filter=Q(is_correct=True)),
         total_attempts=Count('id')
     ).order_by('-total_correct_answers')[:10]  # 正解数に基づいてランキングを行う
 
     return render(request, '2quiz/results.html', {
         'user_score': user_score,
+        'user_accuracy': user_accuracy,
+        'current_quiz_accuracy': current_quiz_accuracy,
         'total_scores': total_scores,
         'total_accuracy': total_accuracy,
         'weekly_scores': weekly_scores,
@@ -684,7 +696,7 @@ def submit_answer(request):
             user_score.total_correct_answers += 1
             user_score.total_score += 1
             request.session['current_quiz_correct_answers'] += 1
-            request.session.modified = True  # セッションの更新を明示
+            request.session.modified = True
             
         user_score.total_questions_attempted += 1
         user_score.save()
@@ -784,7 +796,7 @@ def weekly_ranking_view(request):
     ).values(
         'user__nickname'
     ).annotate(
-       total_score=Sum('question__score'),
+        total_score=Sum('question__score'),
         total_correct_answers=Count('id', filter=Q(is_correct=True)),
         total_attempts=Count('id')
     ).order_by('-total_score')[:10]
