@@ -542,10 +542,15 @@ def quiz(request, subfield_id=None, sub2field_id=None):
         questions = Question.objects.filter(sub2field=sub2field)
     elif subfield_id:
         subfield = get_object_or_404(Subfield, id=subfield_id)
-        questions = Question.objects.filter(subfield=subfield)
+        questions = Question.objects.filter(subfield=subfield, sub2field__isnull=True)
     else:
-        # 適切な問題が見つからない場合の処理
-        return render(request, '2quiz/no_questions.html', {})
+        field_id = request.session.get('last_field_id')
+        if field_id:
+            field = get_object_or_404(Field, id=field_id)
+            questions = Question.objects.filter(subfield__field=field, subfield__isnull=True, sub2field__isnull=True)
+        else:
+            questions = Question.objects.none()
+
 
     # ランダムな問題を選択
     question = questions.order_by('?').first()
@@ -622,7 +627,7 @@ def select_field(request):
 def submit_answer(request):
     try:
         data = json.loads(request.body)
-        selected_answer = data.get('selected_answer')
+        selected_answer = str(data.get('selected_answer')) 
         question_id = data.get('question_id')
 
         if not selected_answer or not question_id:
@@ -649,7 +654,15 @@ def submit_answer(request):
         user_score.save()
 
         # 次の問題へのURLを生成
-        next_question_url = reverse('pt_kokushi:quiz_sub2field', kwargs={'sub2field_id': question.sub2field_id})
+        if question.sub2field_id:
+            next_question_url = reverse('pt_kokushi:quiz_sub2field', kwargs={'sub2field_id': question.sub2field_id})
+        elif question.subfield_id:
+            next_question_url = reverse('pt_kokushi:quiz_subfield', kwargs={'subfield_id': question.subfield_id})
+        elif question.field_id:
+            next_question_url = reverse('pt_kokushi:quiz_field', kwargs={'field_id': question.field_id})
+        else:
+         # 適切なURLが生成できない場合の処理
+            next_question_url = None
         
         return JsonResponse({'status': 'success', 'is_correct': is_correct, 'next_question_url': next_question_url})
 
