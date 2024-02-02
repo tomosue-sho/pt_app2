@@ -51,7 +51,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="card-title">{{ user.nickname }}さんの今回の成績</h2>
-            <p>今回の正解回数: {{ request.session.current_quiz_correct_answers }}</p>
+            <p>今回の正解回数: {{ request.session.current_quiz_correct_answers }}問/5問中</p>
             <p>今回の{{ user.nickname }}さんの正答率: {{ current_quiz_accuracy|floatformat:2 }}%</p>
         </div>
     </div>

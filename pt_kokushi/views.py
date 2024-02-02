@@ -555,17 +555,18 @@ def quiz(request, subfield_id=None, sub2field_id=None):
         else:
             questions = Question.objects.none()
 
+    total_questions = questions.count()
+
+    # 既に全ての問題が提示された場合、または問題が4問以下の場合は、提示済みリストをリセット
+    if len(asked_questions) >= total_questions or total_questions <= 4:
+        asked_questions = []
+        
     # 提示済みの問題を除外
     questions = questions.exclude(id__in=asked_questions)
 
-    # 問題が4問以下の場合、またはすべての問題が提示された場合、セッションをリセット
-    #ここ
-    total_questions = questions.count()
-    if total_questions <= 4 or len(asked_questions) >= total_questions:
-        asked_questions = []
-
-    # 新しい問題を選択
-    question = questions.order_by('?').first()
+    # 提示済みの問題を除外して問題を選択
+    # 問題が4問以下の場合はリセットされたため、再度全ての問題から選択可能
+    question = questions.exclude(id__in=asked_questions).order_by('?').first()
 
     # 選択した問題のIDをセッションに追加
     if question:
@@ -579,15 +580,13 @@ def quiz(request, subfield_id=None, sub2field_id=None):
     random.shuffle(choices)
 
     # 現在の問題のインデックスを取得
-    current_index = request.session.get('current_question_index', 0)
-    total_questions = 5
+    current_index = request.session.get('current_question_index', 0) + 1
+    request.session['current_question_index'] = current_index
 
-    if current_index >= total_questions:
+    if current_index >= 5:
         # インデックスをリセットし、成績ページへリダイレクト
         request.session['current_question_index'] = 0
         return redirect('pt_kokushi:quiz_results')
-
-    request.session['current_question_index'] = current_index + 1
 
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
