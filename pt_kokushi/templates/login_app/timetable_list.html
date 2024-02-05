@@ -25,6 +25,13 @@
       width: 50%; /* 画面幅が768px以上の場合の幅 */
   }
 }
+.table th, .table td {
+  width: 70px;
+  max-width: 100px; /* 最大幅を設定 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .custom-button {
   font-size: 16px; /* フォントサイズの変更 */

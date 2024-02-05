@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path ,include
-from pt_kokushi import views
+from pt_kokushi import views_org
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
@@ -24,6 +24,6 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.TopView.as_view(), name="top"),
+    path('',views_org.TopView.as_view(), name="top"),
     path('login_app/', include('pt_kokushi.urls')),
 ]

@@ -91,6 +91,7 @@ class FieldAdmin(admin.ModelAdmin):
     
 class SubfieldAdmin(admin.ModelAdmin):
     list_display = ('custom_name', 'custom_description', 'custom_icon', 'field', 'has_detailed_selection')
+    list_filter = ('name', 'field')
 
     def custom_name(self, obj):
         return obj.name
@@ -106,6 +107,7 @@ class SubfieldAdmin(admin.ModelAdmin):
 
 class Sub2fieldAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'display_icon', 'subfield')
+    list_filter = ['subfield',]
 
     def display_icon(self, obj):
         return obj.icon.url if obj.icon else 'No Icon'
