@@ -8,6 +8,7 @@
             <p>全問題数: {{ total_scores.total_questions }}</p>
             <p>全正解数: {{ total_scores.total_correct }}</p>
             <p>全体の平均点: {{ total_scores.average_score|floatformat:2 }}</p>
+            <p>全ユーザーの平均正解数: {{ average_correct_answers.average_correct|floatformat:2 }}問/5問中</p>
             <p>全体の正答率: {{ total_accuracy|floatformat:2 }}%</p>
         </div>
     </div>

@@ -79,8 +79,8 @@ class FieldAdmin(admin.ModelAdmin):
         return obj.description
     custom_description.short_description = "説明"
 
-    def custom_icon(self, obj):
-        # 画像のフルパスを文字列として返す
+    def custom_icon(self, obj): 
+        
         if obj.icon:
             return format_html('<img src="{}" width="50" height="50" />', obj.icon.url)
         else:
@@ -101,7 +101,7 @@ class SubfieldAdmin(admin.ModelAdmin):
     custom_description.short_description = "説明"
 
     def custom_icon(self, obj):
-        return obj.icon  # ここでは画像の表示方法を指定する必要があります
+        return obj.icon 
     custom_icon.short_description = "アイコン"
 
 class Sub2fieldAdmin(admin.ModelAdmin):

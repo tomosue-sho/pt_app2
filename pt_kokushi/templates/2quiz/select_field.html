@@ -2,21 +2,67 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-3">
-        <h1 class="mb-4">分野を選択してください</h1>
-        <ul class="list-group">
-            {% for field in fields %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <form method="post" action="{% url 'pt_kokushi:select_field' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="field_id" value="{{ field.id }}">
-                        <button type="submit" class="btn btn-primary">{{ field.name }}</button>
-                    </form>
-                    <p>{{ field.description }}</p>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <br>
-    <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
+<style>
+    .field-card .d-flex > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 中央揃えで内容を配置 */
+    }
+
+    .field-title {
+        color: #494949;
+        background: #fffaf4;
+        border-left: solid 5px #ffaf58;
+        padding: 0.5em;
+        margin: 0; /* 余白のリセット */
+        width: 150px;
+        font-weight: bold;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    }
+    .field-description{
+        margin:0px 10px;
+        font-weight: bold;
+        text-align: left;
+    }
+    .btn-info {
+        width: 150px; /* ボタンの幅を内容に合わせる */
+        height: auto; /* ボタンの高さを内容に合わせる */
+        padding: 0.5em 1em; /* ボタンのパディングを調整 */
+    }
+    .field-card {
+        display: flex;
+        align-items: stretch; /* アイテムの高さを揃える */
+        border: 3px solid #ddd;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    .field-card:nth-child(even) {
+        background-color: #e9e9e9;
+    }
+</style>
+
+
+<div class="container mt-3">
+    <h1 class="mb-4">分野を選択してください</h1>
+    <ul class="list-group">
+    {% for field in fields %}
+    <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h5 class="field-title">{{ field.name }}</h5>
+            </div>
+            <div class="flex-grow-1" style="text-align: left;">
+            <p class = "field-description">{{ field.description }}</p>
+            </div>
+            <form method="post" action="{% url 'pt_kokushi:select_field' %}">
+                {% csrf_token %}
+                <input type="hidden" name="field_id" value="{{ field.id }}">
+                <button type="submit" class="btn btn-info">詳細な分野へ</button>
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</div>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
 {% endblock %}

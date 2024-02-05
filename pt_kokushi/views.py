@@ -6,6 +6,7 @@ from .models import Post, Comment
 from .models import Event
 from .models import ToDoItem
 from .models import TimeTable
+from .models import QuizSession
 from .models import Field,  Subfield, Sub2field
 from .models import Question, UserAnswer, UserScore
 from django.db.models import Avg, Count, Sum, Q
@@ -532,9 +533,9 @@ def update_timetable(request, timetable_id):
 
 #4択問題のためのviews.py
 def start_quiz(request):
-    # 分野を選択するページを表示
-    fields = ['解剖学', 'ROM','MMT']
-    return render(request, '2quiz/start_quiz.html', {'fields': fields})
+    # 分野を選択するページを表
+    fields = Field.objects.all()
+    return render(request, '2quiz/select_field.html', {'fields': fields})
 
 def quiz(request, subfield_id=None, sub2field_id=None):
     # 提示済み問題のIDをセッションから取得（存在しない場合は空のリスト）
@@ -561,11 +562,6 @@ def quiz(request, subfield_id=None, sub2field_id=None):
     if len(asked_questions) >= total_questions or total_questions <= 4:
         asked_questions = []
         
-    # 提示済みの問題を除外
-    questions = questions.exclude(id__in=asked_questions)
-
-    # 提示済みの問題を除外して問題を選択
-    # 問題が4問以下の場合はリセットされたため、再度全ての問題から選択可能
     question = questions.exclude(id__in=asked_questions).order_by('?').first()
 
     # 選択した問題のIDをセッションに追加
@@ -590,8 +586,6 @@ def quiz(request, subfield_id=None, sub2field_id=None):
 
     return render(request, '2quiz/quiz.html', {'question': question, 'choices': choices})
 
-
-
 def initialize_quiz(request):
     if request.method == 'POST':
         # クイズの新しいセットが開始されるため、正答数カウントをリセットする
@@ -611,7 +605,6 @@ def initialize_quiz(request):
         else:
             # どちらのIDも存在しない場合の処理
             return redirect('pt_kokushi:top')
-
 
 def quiz_page(request):
     questions = Question.objects.all()[:5]  # 最初の5問を取得
@@ -680,7 +673,6 @@ def select_field(request):
     else:
         fields = Field.objects.all()
         return render(request, '2quiz/select_field.html', {'fields': fields})
-
 
 @csrf_exempt
 @require_POST
@@ -827,3 +819,14 @@ def weekly_ranking_view(request):
     ).order_by('-total_score')[:10]
 
     return render(request, 'weekly_ranking.html', {'weekly_scores': weekly_scores})
+
+def some_view(request):
+    # 全クイズセッションの平均正解数を計算
+    average_correct_answers = QuizSession.objects.aggregate(average_correct=Avg('correct_answers'))
+
+    # テンプレートに渡すコンテキスト
+    context = {
+        'average_correct_answers': average_correct_answers['average_correct'],
+    }
+
+    return render(request, 'your_template.html', context)

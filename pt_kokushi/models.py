@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
+from django.db.models import Avg
 from django.contrib import auth
 from django.core.exceptions import ValidationError
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -386,3 +387,10 @@ class UserScore(models.Model):
         self.total_questions_attempted += 1
         self.save()
         
+class QuizSession(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    correct_answers = models.IntegerField(default=0)  # 正解数
+    total_questions = models.IntegerField(default=5)  # クイズの問題数、ここでは5と仮定
+
+    def __str__(self):
+        return f"{self.user.username} - Session {self.id}"
