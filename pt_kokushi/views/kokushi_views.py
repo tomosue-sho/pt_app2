@@ -39,8 +39,7 @@ def time_setting_view(request):
                 # フォームにエラーメッセージを表示するためには、contextにエラーを追加して再度テンプレートをレンダリングする
                 return render(request, 'kokushi/timer.html', {'error': '有効な時間を入力してください。'})
 
-        # 問題ページへリダイレクト。まだ未作成
-        return HttpResponseRedirect(reverse('pt_kokushi:kokushi_quiz_page'))
+        return HttpResponseRedirect(reverse('pt_kokushi:timer'))
     else:
         # GETリクエストの場合は時間設定ページを表示
         return render(request, 'kokushi/timer.html')

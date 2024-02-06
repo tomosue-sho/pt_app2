@@ -2,23 +2,49 @@
 {% load static %}
 
 {% block content %}
+<style>
+    .title{
+        font-weight: bold;
+    }
+    .card{
+        width:50%;
+    }
+    .card-title{
+        font-weight: bold;
+    }
+    .btn-custom{
+        margin:5px;
+        border-radius: 15px !important;
+        width:150px;
+    }
+    .btn-timer{
+        border-radius: 15px !important;
+    }
+</style>
 <div class="container mt-3">
-    <h1>試験時間設定</h1>
-    <p>理学療法国家試験時間</p>
-    <p>午前2時間40分（9時50分〜12時30分）</p>
-    <p>午後2時間40分（14時20分〜17時00分）</p>
+    <h1 class = "title">試験時間設定</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">理学療法国家試験時間</h5>
+            <p class="card-text">午前2時間40分（9時50分〜12時30分）</p>
+            <p class="card-text">午後2時間40分（14時20分〜17時00分）</p>
+        </div>
+    </div>
+<br>
     
-    <form method="post" action="{% url 'time_setting_view' %}">
+    <form method="post" action="{% url 'pt_kokushi:timer' %}">
         {% csrf_token %}
         <div class="btn-group" role="group" aria-label="Time options">
-            <button type="submit" name="time_limit" value="60" class="btn btn-warning">1時間</button>
-            <button type="submit" name="time_limit" value="120" class="btn btn-warning">2時間</button>
-            <button type="submit" name="time_limit" value="160" class="btn btn-warning">2時間40分</button>
-            <button type="submit" name="time_limit" value="320" class="btn btn-warning">5時間20分</button>
+            <button type="submit" name="time_limit" value="60" class="btn btn-primary btn-custom">1時間</button>
+            <button type="submit" name="time_limit" value="120" class="btn btn-primary btn-custom">2時間</button>
+            <button type="submit" name="time_limit" value="160" class="btn btn-primary btn-custom">2時間40分</button>
+            <button type="submit" name="time_limit" value="320" class="btn btn-primary btn-custom">5時間20分</button>
         </div>
+        <br><br>
         <div>
-            <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力" class="form-control" />
-            <button type="submit" id="setCustomTimeLimit" class="btn btn-warning">任意の時間で開始</button>
+            <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力:例 2時間→120 , 3時間→180" class="form-control" />
+            <br>
+            <button type="submit" id="setCustomTimeLimit" class="btn btn-warning btn-timer">任意の時間で開始</button>
         </div>
     </form>
 </div>

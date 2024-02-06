@@ -9,7 +9,7 @@ from pt_kokushi.models.calender_models import Event
 from pt_kokushi.models.timetable_models import TimeTable
 from pt_kokushi.models.question_models import Field, Subfield, Sub2field
 from pt_kokushi.models.question_models import Question, UserAnswer, UserScore
-from pt_kokushi.models.kokushi_models import Exam
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuestionUserAnswer
 
 
 CustomUser = get_user_model()
@@ -123,6 +123,24 @@ class QuestionAdmin(admin.ModelAdmin):
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('year',)
 
+@admin.register(QuizQuestion)
+class QuizQuestionAdmin(admin.ModelAdmin):
+    # 'exam__year' を取得するヘルパーメソッドを定義
+    def get_exam_year(self, obj):
+        return obj.exam.year
+    get_exam_year.short_description = '年度'  # 管理サイトでの列名を設定
+    get_exam_year.admin_order_field = 'exam__year' 
+
+    list_display = ('get_exam_year', 'field', 'sub_field', 'point', 'question_number', 'answer_time', 'question_text', 'answer_text', 'answer_video_url', 'question_image')
+    search_fields = ('field', 'sub_field', 'question_text')
+    list_filter = ('exam__year', 'field', 'point')
+
+@admin.register(QuestionUserAnswer)
+class QuestionUserAnswerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'exam_question', 'answer', 'answered_at')
+    search_fields = ('user__username', 'exam_question__question_text', 'answer')
+    list_filter = ('user', 'exam_question__exam__year') 
+
 
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
@@ -132,3 +150,5 @@ admin.site.register(Field, FieldAdmin)
 admin.site.register(Subfield, SubfieldAdmin)
 admin.site.register(Sub2field, Sub2fieldAdmin)
 admin.site.register(Question, QuestionAdmin)
+#admin.site.register(QuizQuestion, QuizQuestionAdmin)
+#admin.site.register(QuestionUserAnswer, QuestionUserAnswerAdmin)
