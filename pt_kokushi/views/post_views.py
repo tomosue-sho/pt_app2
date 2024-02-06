@@ -5,9 +5,9 @@ from django.views.generic import DeleteView
 from django.views import generic
 from django.urls import reverse_lazy
 from django.utils import timezone
-from ..models import Post, Comment
-from ..forms import PostForm
-from ..forms import CommentForm
+from pt_kokushi.models.post_models import Post, Comment
+from pt_kokushi.forms.post_forms import PostForm
+from pt_kokushi.forms.post_forms import CommentForm
 
 #掲示板用
 class PostListView(generic.ListView):

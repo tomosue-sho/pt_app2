@@ -7,9 +7,9 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.urls import reverse
-from ..models import QuizSession
-from ..models import Field,  Subfield, Sub2field
-from ..models import Question, UserAnswer, UserScore
+from pt_kokushi.models.question_models import QuizSession
+from pt_kokushi.models.question_models import Field,  Subfield, Sub2field
+from pt_kokushi.models.question_models import Question, UserAnswer, UserScore
 from django.db.models import Avg, Count, Sum, Q
 from datetime import timedelta
 from django.utils import timezone

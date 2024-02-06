@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from .models import Event
-from .forms import CustomLoginForm, forms
-from .forms import CustomUserForm
-from .forms import CustomPasswordChangeForm, CustomNicknameChangeForm
+from pt_kokushi.models.calender_models import Event
+from .forms_org import CustomLoginForm, forms
+from .forms_org import CustomUserForm
+from .forms_org import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView

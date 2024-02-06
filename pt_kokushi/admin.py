@@ -2,13 +2,13 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
-from .models import CustomUser
-from .models import ToDoItem
-from .models import Post, Comment
-from .models import Event
-from .models import TimeTable
-from .models import Field, Subfield, Sub2field
-from .models import Question, UserAnswer, UserScore
+from .models_org import CustomUser
+from pt_kokushi.models.todo_models import ToDoItem
+from pt_kokushi.models.post_models import Post, Comment
+from pt_kokushi.models.calender_models import Event
+from pt_kokushi.models.timetable_models import TimeTable
+from pt_kokushi.models.question_models import Field, Subfield, Sub2field
+from pt_kokushi.models.question_models import Question, UserAnswer, UserScore
 
 
 CustomUser = get_user_model()

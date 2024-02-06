@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from ..models import TimeTable
-from ..forms import TimeTableForm
+from pt_kokushi.models.timetable_models import TimeTable
+from pt_kokushi.forms.timetable_forms import TimeTableForm
 
 #時間割表用views.py
 def create_timetable(request):

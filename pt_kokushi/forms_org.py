@@ -1,20 +1,13 @@
 from django import forms
-import os
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
-from .models import CustomUser
-from .models import Post, Comment
-from .models import ToDoItem
-from .models import Event
-from .models import TimeTable
-from django.forms import ModelForm
+from .models_org import CustomUser
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
-
 
 CustomUser = get_user_model()
 
@@ -136,7 +129,6 @@ class CustomUserForm(forms.ModelForm):
             initial = "東京都"
             )
 
-    
     class Meta:
         
         #どのモデルを選択するか
@@ -164,8 +156,6 @@ class CustomUserForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.label_suffix = ''  # ラベルの末尾に何も表示しないように設定
 
-        
-                
 class CustomLoginForm(forms.Form):
     
     email = forms.EmailField(label='メールアドレス')
@@ -208,123 +198,5 @@ class CustomNicknameChangeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-            
-            
-#掲示板用
-def load_banned_words(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return [line.strip() for line in file if line.strip()]
-
-# ここでファイルパスを指定
-BANNED_WORDS = load_banned_words(os.path.join(os.path.dirname(__file__), 'banned_words.txt'))
-
-class PostForm(forms.ModelForm):
-    class Meta:
-        model = Post
-        fields = ['nickname','title', 'content',]
-        widgets = {
-            'nickname': forms.TextInput(attrs={'class': 'form-control'}),
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control'}),
-        }
-    def clean_nickname(self):
-        nickname = self.cleaned_data['nickname']
-        if not nickname:
-            # nicknameが未入力の場合、デフォルト値を設定します
-            nickname = "Anonymous"  # ここでデフォルトの値を設定
-        return nickname
-    
-    def clean_nickname(self):
-        nickname = self.cleaned_data.get('nickname', '').lower()
-        for banned_word in BANNED_WORDS:
-            if banned_word.lower() in nickname:
-                raise ValidationError("ニックネームには不適切な内容が含まれています。")
-        return nickname
-
-    def clean_title(self):
-        title = self.cleaned_data.get('title', '').lower()
-        for banned_word in BANNED_WORDS:
-            if banned_word.lower() in title:
-                raise ValidationError("タイトルには不適切な内容が含まれています。")
-        return title
-    
-    def clean_content(self):
-        content = self.cleaned_data.get('content', '').lower()
-        for banned_word in BANNED_WORDS:
-            if banned_word.lower() in content:
-                raise ValidationError("投稿には不適切な内容が含まれています。")
-        return content
-
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['content','nickname']
-        widgets = {
-            'content': forms.Textarea(attrs={'class': 'form-control'}),
-            'nickname': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-    def clean_nickname(self):
-        nickname = self.cleaned_data['nickname']
-        if not nickname:
-            # nicknameが未入力の場合、デフォルト値を設定します
-            nickname = "Anonymous"  # ここでデフォルトの値を設定
-        return nickname
-    
-    def clean_content(self):
-        content = self.cleaned_data.get('content', '').lower()
-        for banned_word in BANNED_WORDS:
-            if banned_word in content:
-                raise ValidationError("コメントには不適切な内容が含まれています。")
-        return content
-    
-
-#ToDoリストのフォーム
-class ToDoItemForm(forms.ModelForm):
-    class Meta:
-        model = ToDoItem
-        fields = ['title', 'content', 'purpose', 'priority', 'deadline']
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control'}),
-            'purpose': forms.Textarea(attrs={'class': 'form-control'}),
-            'priority': forms.Select(attrs={'class': 'form-control'}),
-            'deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
-
-
-#カレンダーイベント追記用
-class EventForm(ModelForm):
-    start_date = forms.DateField(
-        input_formats=['%Y-%m-%d'],
-        initial=timezone.now().date(),
-        widget=forms.SelectDateWidget(
-            years=range(timezone.now().year, timezone.now().year - 10, -1),
-            empty_label=("Year", "Month", "Day"),
-        )
-    )
-    end_date = forms.DateField(
-        input_formats=['%Y-%m-%d'],
-        initial=timezone.now().date(),
-        widget=forms.SelectDateWidget(
-            years=range(timezone.now().year, timezone.now().year - 10, -1),
-            empty_label=("Year", "Month", "Day"),
-        )
-    )
-
-    class Meta:
-        model = Event
-        fields = ['title', 'start_date', 'end_date']
+            field.widget.attrs['class'] = 'form-control'     
         
-        
-#時間割用forms.py
-class TimeTableForm(forms.ModelForm):
-    class Meta:
-        model = TimeTable
-        fields = ['day', 'period', 'subject']
-        labels = {
-            'day': '曜日',
-            'time_slot': '時間帯',
-            'subject': '科目名',
-            'period':'時限'
-        }

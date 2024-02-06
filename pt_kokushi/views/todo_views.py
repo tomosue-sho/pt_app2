@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from ..models import ToDoItem
-from ..forms import ToDoItemForm
+from pt_kokushi.models.todo_models import ToDoItem
+from pt_kokushi.forms.todo_forms import ToDoItemForm
 
 #ToDoリストのためのviews.py
 # views.py

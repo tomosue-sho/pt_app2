@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from ..forms import EventForm
-from ..models import Event
+from pt_kokushi.forms.calender_forms import EventForm
+from pt_kokushi.models.calender_models import Event
 
 #カレンダー用のviews.py
 def create_event(request):
