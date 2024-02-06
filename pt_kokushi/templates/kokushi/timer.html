@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <h1>試験時間設定</h1>
+    <p>理学療法国家試験時間</p>
+    <p>午前2時間40分（9時50分〜12時30分）</p>
+    <p>午後2時間40分（14時20分〜17時00分）</p>
+    
+    <form method="post" action="{% url 'time_setting_view' %}">
+        {% csrf_token %}
+        <div class="btn-group" role="group" aria-label="Time options">
+            <button type="submit" name="time_limit" value="60" class="btn btn-warning">1時間</button>
+            <button type="submit" name="time_limit" value="120" class="btn btn-warning">2時間</button>
+            <button type="submit" name="time_limit" value="160" class="btn btn-warning">2時間40分</button>
+            <button type="submit" name="time_limit" value="320" class="btn btn-warning">5時間20分</button>
+        </div>
+        <div>
+            <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力" class="form-control" />
+            <button type="submit" id="setCustomTimeLimit" class="btn btn-warning">任意の時間で開始</button>
+        </div>
+    </form>
+</div>
+<!-- JavaScriptでバリデーションとフォーム送信の処理を追加 -->
+<script>
+    document.getElementById('setCustomTimeLimit').addEventListener('click', function(e) {
+        e.preventDefault();  // フォームのデフォルトの送信を防ぐ
+        var customTimeLimit = document.getElementById('customTimeLimit').value;
+        if (customTimeLimit && !isNaN(customTimeLimit) && parseInt(customTimeLimit) > 0) {
+            // バリデーションを通過した場合、フォームを送信
+            document.querySelector('form').submit();
+        } else {
+            alert('有効な時間（分）を入力してください。');
+        }
+    });
+</script>
+{% endblock %}

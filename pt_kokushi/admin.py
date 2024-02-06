@@ -9,6 +9,7 @@ from pt_kokushi.models.calender_models import Event
 from pt_kokushi.models.timetable_models import TimeTable
 from pt_kokushi.models.question_models import Field, Subfield, Sub2field
 from pt_kokushi.models.question_models import Question, UserAnswer, UserScore
+from pt_kokushi.models.kokushi_models import Exam
 
 
 CustomUser = get_user_model()
@@ -117,6 +118,10 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('question_text',  'field' ,'subfield', 'sub2field', 'correct_answer')
     list_filter = ('field','subfield', 'sub2field')
     search_fields = ('question_text',)
+    
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('year',)
 
 
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある

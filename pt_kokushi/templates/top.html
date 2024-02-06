@@ -1,10 +1,31 @@
 {% extends "base.html" %}
 {% block title %}理学療法国試対策{% endblock%}
 {% block content %}
+<style>
+    #national-examination {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    
+    .form-container {
+        flex: 0 0 20%; /* 1行に5つ収まるように */
+        box-sizing: border-box;
+        padding: 5px; /* 内側の余白を減らす */
+        margin-bottom: 10px; /* 行間のマージンを調整 */
+    }
+    
+    .button {
+        width: 80%; /* ボタンの幅をフォームコンテナに合わせる */
+        /* 必要に応じてボタンのマージンやパディングを調整 */
+    }
+</style>
+    
+
 <div id = "all-display">
  <div id = "top-nav">
      <div class = "title">
-         <h1 id = "title_top">理学療法国試対策アプリ</h1>
+        <h1 id = "title_top">理学療法国試対策アプリ</h1>
      </div>
  </div>
  <div id = "timelimit-view" name="year_number">
@@ -46,17 +67,16 @@
         <p class = "button-001" iD = "three-q">3点問題のみ</p>
         <a class = "button-001" is = "study-mode" href="{% url 'pt_kokushi:select_field' %}"><p>基礎学習</p></a>
     </div>
-    <div id = "national-examination">
-        <div class = "button national-year even" id = "58-year">第58回</div>
-        <p class = "button national-year odd" id = "57-year">第57回</p>
-        <p class = "button national-year even" id = "56-year">第56回</p>
-        <p class = "button national-year odd" id = "55-year">第55回</p>
-        <p class = "button national-year even" id = "54-year">第54回</p>
-        <p class = "button national-year odd" id = "53-year">第53回</p>
-        <p class = "button national-year even" id = "52-year">第52回</p>
-        <p class = "button national-year odd" id = "51-year">第51回</p>
-        <p class = "button national-year even" id = "50-year">第50回</p>
-        <p class = "button national-year odd" id = "49-year">第49回</p>
+    <div id="national-examination" style="text-align: center;"  >
+        {% for year in years %}
+        <form method="post" action="{% url 'pt_kokushi:timer' %}" style="display: inline-block; margin: 5px;">
+            {% csrf_token %}
+            <input type="hidden" name="exam_year" value="{{ year }}">
+            <button type="submit" class="button national-year {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}" id="{{ year }}-year">
+                第{{ year }}回
+            </button>
+        </form>
+        {% endfor %}
     </div>    
 </div>
 </div>

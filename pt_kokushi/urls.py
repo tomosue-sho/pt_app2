@@ -1,4 +1,5 @@
 from . import views_org
+from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from django.urls import path
@@ -9,11 +10,12 @@ from pt_kokushi.views.todo_views import create_todo_item, todo_list, update_todo
 from pt_kokushi.views.post_views import PostListView, PostDetailView,PostCreateView,PostDeleteView,CommentDeleteView,add_comment_to_post
 from pt_kokushi.views.timetable_views import create_timetable,timetable_list,delete_timetable,update_timetable
 from pt_kokushi.views.quiz_views import start_quiz,quiz,initialize_quiz,quiz_page,quiz_results,select_field,submit_answer,select_subfield,select_sub2field,select_sub2field_template,reset_quiz_count,all_users_quiz_results,weekly_ranking_view,some_view
+from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,kokushi_quiz_page
 
 app_name = 'pt_kokushi'
 
 urlpatterns = [
-    path('top/', views_org.TopView.as_view(), name='top'),
+    path('top_view/', views_org.TopView.as_view(), name='top_view'),
     path('signup/', views_org.signup_view, name='signup'),
     path('login/', views_org.login_view, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
@@ -60,6 +62,9 @@ urlpatterns = [
     path('initialize_quiz/', initialize_quiz, name='initialize_quiz'),
     path('select_sub2field_template/<int:subfield_id>/', select_sub2field_template, name='select_sub2field_template'),
     path('reset-quiz-count/', reset_quiz_count, name='reset_quiz_count'),
+    path('top/', exam_selection_view, name='top'),#国試年度選択用
+    path('timer/', time_setting_view, name='timer'),#国試試験時間
+    path('kokushi_quiz_page/', kokushi_quiz_page, name='kokushi_quiz_page'),
     ]
 
 if settings.DEBUG:
