@@ -8,6 +8,10 @@ class Exam(models.Model):
     def __str__(self):
         return f"{self.year}年度"
     
+    class Meta:
+        verbose_name = "国試「年度追加」" 
+        verbose_name_plural = "国試「年度追加」" 
+    
 class QuizQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="年度")
     field = models.CharField("分野", max_length=100)
@@ -23,11 +27,19 @@ class QuizQuestion(models.Model):
     def __str__(self):
         return f"{self.year}年 {self.field} {self.question_number}問"
     
+    class Meta:
+        verbose_name = "国試「問題作成」" 
+        verbose_name_plural = "国試「問題作成」"
+    
     
 class Choice(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
     choice_text = models.CharField("選択肢", max_length=255)
     is_correct = models.BooleanField("正解", default=False)
+    
+    class Meta:
+        verbose_name = "国試「回答選択肢」" 
+        verbose_name_plural = "国試「回答選択肢」"
     
 class QuizUserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
@@ -47,9 +59,13 @@ class Bookmark(models.Model):
 
     class Meta:
         unique_together = ('user', 'question')  # ユーザーと問題の組み合わせはユニーク
+        verbose_name = "国試「ブックマーク」" 
+        verbose_name_plural = "国試「ブックマーク」" 
 
     def __str__(self):
         return f"{self.user} - {self.question}"
+    
+    
     
 class QuestionUserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
@@ -59,3 +75,7 @@ class QuestionUserAnswer(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.exam_question}"
+    
+    class Meta:
+        verbose_name = "国試「ユーザーの回答」" 
+        verbose_name_plural = "国試「ユーザーの回答」"

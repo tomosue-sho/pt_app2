@@ -24,3 +24,7 @@ class Comment(models.Model):
 
     def __str__(self):
       return f"{self.nickname} - {self.post.title}"
+  
+    class Meta:
+        verbose_name = "掲示板（コメント）" 
+        verbose_name_plural = "掲示板（コメント）" 

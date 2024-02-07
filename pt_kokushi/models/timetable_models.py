@@ -25,3 +25,6 @@ class TimeTable(models.Model):
     def __str__(self):
         return f"{self.get_day_display()} - {self.get_period_display()} - {self.subject}"
     
+    class Meta:
+        verbose_name = "時間割" 
+        verbose_name_plural = "時間割" 

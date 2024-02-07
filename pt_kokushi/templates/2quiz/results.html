@@ -57,9 +57,6 @@
         </div>
     </div>
 
-    {% if subfield_id %}
-        <a href="{% url 'pt_kokushi:select_sub2field' subfield_id %}" class="btn btn-primary">補足詳細へ戻る</a>
-    {% endif %}
     {% if field_id %}
         <a href="{% url 'pt_kokushi:select_subfield' field_id %}" class="btn btn-primary">詳細選択へ戻る</a>
     {% endif %}

@@ -22,3 +22,5 @@ class ToDoItem(models.Model):
 
     class Meta:
         ordering = ['-priority', '-created_at']  # 優先度が高く、作成日が新しい順に並べる
+        verbose_name = "ToDoリスト" 
+        verbose_name_plural = "ToDoリスト" 

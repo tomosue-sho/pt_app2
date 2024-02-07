@@ -11,6 +11,10 @@ class Field(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = "基礎学習「分野追加」" 
+        verbose_name_plural = "基礎学習「分野追加」" 
 
 class Subfield(models.Model):
     has_detailed_selection = models.BooleanField(default=False, verbose_name='さらに詳細な分野選択を可能にする')
@@ -22,6 +26,10 @@ class Subfield(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        verbose_name = "基礎学習「詳細分野追加」" 
+        verbose_name_plural = "基礎学習「詳細分野追加」"
+    
 class Sub2field(models.Model):
     subfield = models.ForeignKey(Subfield, on_delete=models.CASCADE, related_name='sub2fields')
     has_detailed_selection = models.BooleanField(default=False, verbose_name='さらに詳細な分野選択')
@@ -31,6 +39,10 @@ class Sub2field(models.Model):
     
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = "基礎学習「補足詳細分野追加」" 
+        verbose_name_plural = "基礎学習「補足詳細分野追加」"
     
 class Question(models.Model):
     
@@ -55,6 +67,10 @@ class Question(models.Model):
             raise ValidationError("選択した sub2field は選択した subfield に属していません。")
 
         super().save(*args, **kwargs)
+        
+    class Meta:
+        verbose_name = "基礎学習「問題作成」" 
+        verbose_name_plural = "基礎学習「問題作成」"
     
 # ユーザーの回答を記録するモデル
 class UserAnswer(models.Model):

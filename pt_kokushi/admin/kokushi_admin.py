@@ -4,7 +4,7 @@ from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuestionUserAnswe
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('year',)
-
+    
 @admin.register(QuizQuestion)
 class QuizQuestionAdmin(admin.ModelAdmin):
     def get_exam_year(self, obj):

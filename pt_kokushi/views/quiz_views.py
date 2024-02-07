@@ -250,13 +250,8 @@ def select_sub2field_template(request, subfield_id):
     subfield = get_object_or_404(Subfield, id=subfield_id)
     sub2fields = Sub2field.objects.filter(subfield=subfield)
     
-    if request.method == 'POST':
-        sub2field_id = request.POST.get('sub2field_id')
-        request.session['selected_subfield_id'] = sub2field_id
-        # initialize_quiz ページへリダイレクト
-        return redirect('pt_kokushi:initialize_quiz')
-    
-    return render(request, '2quiz/select_sub2field.html', {'sub2fields': sub2fields, 'subfield': subfield})
+    # subfield_id をテンプレートのコンテキストに追加
+    return render(request, '2quiz/select_sub2field.html', {'sub2fields': sub2fields, 'subfield': subfield, 'subfield_id': subfield_id})
 
 #quiz.htmlから途中で抜けた場合の処理（問題を解いた回数をリセットする）
 @require_POST
