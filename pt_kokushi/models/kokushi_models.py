@@ -14,7 +14,7 @@ class QuizQuestion(models.Model):
     sub_field = models.CharField("詳細分野", max_length=100, blank=True)
     point = models.IntegerField("配点", choices=((1, '1点'), (3, '3点')))
     question_number = models.IntegerField("問題番号")
-    answer_time = models.IntegerField("回答時間（秒）")
+    answer_time = models.IntegerField("回答時間（秒）",blank=True, null=True)
     question_text = models.TextField("問題文")
     question_image = models.ImageField("問題画像", upload_to='quiz_questions/', blank=True, null=True)
     answer_text = models.TextField("解答分")
@@ -22,6 +22,34 @@ class QuizQuestion(models.Model):
 
     def __str__(self):
         return f"{self.year}年 {self.field} {self.question_number}問"
+    
+    
+class Choice(models.Model):
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
+    choice_text = models.CharField("選択肢", max_length=255)
+    is_correct = models.BooleanField("正解", default=False)
+    
+class QuizUserAnswer(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
+    selected_choices = models.ManyToManyField(Choice, verbose_name="選んだ選択肢")
+    answered_at = models.DateTimeField("回答日時", auto_now_add=True)
+
+    def is_correct(self):
+        # すべての選択した選択肢が正解で、正解の選択肢をすべて選んでいるかをチェック
+        correct_choices = self.question.choices.filter(is_correct=True)
+        return set(self.selected_choices.all()) == set(correct_choices)
+    
+class Bookmark(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="ブックマークした問題")
+    created_at = models.DateTimeField("ブックマーク日時", auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'question')  # ユーザーと問題の組み合わせはユニーク
+
+    def __str__(self):
+        return f"{self.user} - {self.question}"
     
 class QuestionUserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")

@@ -23,4 +23,4 @@ class Comment(models.Model):
     nickname = models.CharField(max_length=20, verbose_name="ニックネーム",blank=True) 
 
     def __str__(self):
-        return f"{self.author} - {self.post}"
+      return f"{self.nickname} - {self.post.title}"
