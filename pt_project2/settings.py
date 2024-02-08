@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_cw96)(nn564gn#c&56w&6k_$54p9&_lq)fskma(m7xwlw4ovd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True   
 
 ALLOWED_HOSTS = ["*"]
 
@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'pt_kokushi',#追加（カスタマイズしたページを優先したい場合は一番上にアプリ名を書く）
+    'pt_kokushi',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

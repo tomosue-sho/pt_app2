@@ -64,3 +64,12 @@
     <a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary mt-3">トップへ戻る</a>
 </div>
 {% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('beforeunload', function(e) {
+        navigator.sendBeacon("{% url 'pt_kokushi:reset_quiz_count' %}", JSON.stringify({}));
+    });
+});
+</script>
+{% endblock %}

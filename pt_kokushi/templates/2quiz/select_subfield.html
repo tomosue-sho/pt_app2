@@ -51,7 +51,8 @@
     {% endfor %}
     <br>
     <p><a href="{% url 'pt_kokushi:select_field' %}" class="btn btn-secondary">分野選択へ戻る</a></p>
-
+    {% endblock %}
+    {% block extra_js %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var resetQuizCountUrl = "{% url 'pt_kokushi:reset_quiz_count' %}"; // DjangoのURL逆引きを使用

@@ -33,7 +33,8 @@
 
 <br>
 <p><a href="{% url 'pt_kokushi:select_subfield' subfield.field.id %}" class="btn btn-secondary">詳細選択へ戻る</a></p>
-
+{% endblock %}
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var resetQuizCountUrl = "{% url 'pt_kokushi:reset_quiz_count' %}"; // DjangoのURL逆引きを使用
@@ -56,5 +57,6 @@
             });
         });
     });
-</script>
+    </script>
+    
 {% endblock %}
