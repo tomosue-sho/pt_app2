@@ -7,8 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.urls import reverse
-from pt_kokushi.models.question_models import QuizSession
-from pt_kokushi.models.question_models import Field,  Subfield, Sub2field
+from pt_kokushi.models.question_models import Field,  Subfield, Sub2field, QuizSession
 from pt_kokushi.models.question_models import Question, UserAnswer, UserScore
 from django.db.models import Avg, Count, Sum, Q
 from datetime import timedelta
@@ -167,6 +166,47 @@ def reset_quiz_count(request):
     request.session.modified = True  # セッションの変更を保存
     return JsonResponse({'status': 'success', 'message': 'クイズのセッション変数がリセットされました。'})
 
+@csrf_exempt
+@require_POST
+def reset_quiz_session_for_sub2field(request):
+    """
+    sub2field経由でクイズを開始する際にセッション変数をリセットする専用関数。
+    """
+    # セッション変数のリセット
+    request.session['current_quiz_correct_answers'] = 0
+    request.session['current_quiz_total_questions'] = 5
+    request.session['asked_questions'] = []
+    request.session['current_question_index'] = 0
+    request.session.modified = True  # 変更をセッションに適用
+
+    # リセット成功のレスポンスを返す
+    return JsonResponse({'status': 'success', 'message': 'クイズセッションがリセットされました。'})
+
+def quiz_page_for_sub2field(request, sub2field_id):
+    # サブフィールドオブジェクトを取得
+    sub2field = get_object_or_404(Sub2field, pk=sub2field_id)
+    
+    # サブフィールドに紐づく質問をランダムに取得
+    questions = Question.objects.filter(sub2field=sub2field).order_by('?')
+    
+    # クイズに使用する問題数を制限する（例えば最初の5問）
+    questions = questions[:5]
+    
+    # クイズ開始時にセッション変数をリセット
+    request.session['current_quiz_correct_answers'] = 0
+    request.session['current_quiz_total_questions'] = len(questions)
+    request.session['asked_questions'] = [question.id for question in questions]
+    request.session['current_question_index'] = 0
+    request.session.modified = True
+    
+    # クイズページへのコンテキスト
+    context = {
+        'sub2field': sub2field,
+        'questions': questions,
+    }
+
+    # クイズページをレンダリング
+    return render(request, 'quiz_page_for_sub2field.html', context)
 
 #------------------------------------成績計算用--------------------
 #成績計算用
@@ -214,7 +254,7 @@ def some_view(request):
         'average_correct_answers': average_correct_answers['average_correct'],
     }
 
-    return render(request, 'your_template.html', context)
+    return render(request, '2quiz/results.html', context)
 
 def quiz_results(request):
     user_score = UserScore.objects.get(user=request.user)

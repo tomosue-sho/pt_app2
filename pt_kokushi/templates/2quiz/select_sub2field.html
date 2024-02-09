@@ -20,10 +20,10 @@
                         <h5 class="subfield-title">{{ sub2field.name }}</h5>
                         <p>{{ sub2field.description }}</p>
                     </div>
-                    <form method="post" action="{% url 'pt_kokushi:quiz_sub2field' sub2field.id %}" class="ms-auto"> <!-- マージンを自動で右寄せ -->
+                    <form method="post" action="{% url 'pt_kokushi:initialize_quiz' %}" class="ms-auto">
                         {% csrf_token %}
                         <input type="hidden" name="sub2field_id" value="{{ sub2field.id }}">
-                        <button type="submit" id="start-quiz-btn" class="btn btn-primary">クイズを開始する</button>
+                        <button type="submit" class="btn btn-primary">クイズを開始する</button>
                     </form>
                 </div>
             </li>
@@ -36,27 +36,37 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var resetQuizCountUrl = "{% url 'pt_kokushi:reset_quiz_count' %}"; // DjangoのURL逆引きを使用
-        document.getElementById('start-quiz-btn').addEventListener('click', function() {
-            // Ajaxリクエストを送信してクイズ関連のセッション変数をリセット
-            fetch(resetQuizCountUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',  // CSRFトークンをヘッダーに含める
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ startQuiz: true })
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('クイズの初期化に成功しました。');
-                } else {
-                    console.error('クイズの初期化に失敗しました。');
-                }
-            });
-        });
+    // CSRFトークンを取得する関数
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // DjangoのURLをJavaScriptで使用可能にする
+    var resetQuizURL = "{% url 'pt_kokushi:reset_quiz_session_for_sub2field' %}";
+    var quizPageURLForSub2Field = "{% url 'pt_kokushi:quiz_page_for_sub2field' %}";
+
+    document.getElementById('start-quiz-btn-for-sub2field').addEventListener('click', function() {
+        console.log('クイズ開始ボタンがクリックされました。');
+        fetch('/reset_quiz_session_for_sub2field/', {  
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,  // CSRFトークンを適切に設定
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reset: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                console.log(data.message);
+                // ここでクイズページへの遷移をトリガー
+                window.location.href = '/quiz_page_for_sub2field/';
+            } else {
+                console.error('セッションリセットに失敗しました。');
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
-    </script>
+</script>
     
 {% endblock %}

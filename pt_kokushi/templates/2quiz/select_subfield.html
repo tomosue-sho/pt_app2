@@ -58,6 +58,7 @@
             var resetQuizCountUrl = "{% url 'pt_kokushi:reset_quiz_count' %}"; // DjangoのURL逆引きを使用
             document.getElementById('start-quiz-btn').addEventListener('click', function() {
                 // Ajaxリクエストを送信してクイズ関連のセッション変数をリセット
+                console.log('クイズ開始ボタンがクリックされました。');
                 fetch(resetQuizCountUrl, {
                     method: 'POST',
                     headers: {
@@ -75,6 +76,6 @@
                 });
             });
         });
-        </script>
+    </script>
         
     {% endblock %}
