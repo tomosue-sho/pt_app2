@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-3">
-    <h2>{{ exam.year }}年度 国試問題</h2>
+    <h2>第{{ exam.year }}回 国試問題</h2>
     {% for question in questions %}
         <div class="question">
             <p><strong>問{{ question.question_number }}:</strong> {{ question.question_text }}</p>

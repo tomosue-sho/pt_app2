@@ -40,13 +40,14 @@
         <button type="submit" name="time_limit" value="160" class="btn btn-primary btn-custom">2時間40分</button>
         <button type="submit" name="time_limit" value="320" class="btn btn-primary btn-custom">5時間20分</button>
     </div>
+    <input type="hidden" name="exam_year" value="{{ request.session.exam_year }}">
     <br><br>
-        <div>
-            <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力:例 2時間→120 , 3時間→180" class="form-control" />
-            <br>
-            <button type="submit" id="setCustomTimeLimit" class="btn btn-warning btn-timer">任意の時間で開始</button>
-        </div>
-    </form>
+    <div>
+        <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力:例 2時間→120 , 3時間→180" class="form-control" />
+        <br>
+        <button type="submit" id="setCustomTimeLimit" class="btn btn-warning btn-timer">任意の時間で開始</button>
+    </div>
+</form>
 </div>
 <!-- JavaScriptでバリデーションとフォーム送信の処理を追加 -->
 <script>

@@ -10,7 +10,7 @@ def exam_selection_view(request):
     years = list(reversed(range(49, 60)))  # 49から59までのリストを作成
     if request.method == 'POST':
         exam_year = request.POST.get('exam_year')
-        request.session['exam_year'] = int('exam_year')
+        request.session['exam_year'] = int(exam_year)
         return HttpResponseRedirect(reverse('pt_kokushi:timer'))
     else:
         return render(request, 'top.html', {'years': years})
@@ -26,6 +26,8 @@ def time_setting_view(request):
         # 時間設定を受け取る
         time_limit = request.POST.get('time_limit')
         custom_time_limit = request.POST.get('custom_time_limit')
+        
+        exam_year = request.POST.get('exam_year')
 
         if time_limit:
             # 事前定義された時間をセッションに保存
@@ -40,6 +42,9 @@ def time_setting_view(request):
         else:
             # 時間設定がない場合のエラーハンドリング
             return render(request, 'kokushi/timer.html', {'error': '時間を設定してください。'})
+        
+        if exam_year:
+            request.session['exam_year'] = int(exam_year)
 
         # 正常に時間設定が完了した場合、quiz_questions_viewにリダイレクト
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
@@ -48,19 +53,29 @@ def time_setting_view(request):
         return render(request, 'kokushi/timer.html')
     
 def quiz_questions_view(request):
-    if request.method == 'POST':
-        # POSTリクエストから時間設定などを取得
-        time_limit = request.POST.get('time_limit')
-        custom_time_limit = request.POST.get('custom_time_limit')
-        
-        questions = QuizQuestion.objects.all()  # 仮にすべての質問を取得
-        
-        # テンプレートに渡すデータをcontextにセット
-        context = {
-            'questions': questions,
-            'time_limit': time_limit or custom_time_limit  # Noneでなければどちらかの値を設定
-        }
-        
-        return render(request, 'kokushi/quiz_questions.html', context)
-    else:
-        return render(request, 'kokushi/some_template.html')
+    # セッションから試験年度と時間設定を取得
+    exam_year = request.session.get('exam_year')
+    time_limit = request.session.get('time_limit')
+
+    if not exam_year:
+        # 試験年度がセッションに存在しない場合はエラーメッセージを表示
+        return HttpResponse("試験年度が選択されていません。")
+
+    try:
+        # 試験年度に基づいたExamオブジェクトを取得
+        exam = Exam.objects.get(year=exam_year)
+    except Exam.DoesNotExist:
+        # 指定された年度の試験が存在しない場合はエラーメッセージを表示
+        return HttpResponse("指定された試験年度のデータが存在しません。")
+
+    # 選択された試験年度に基づく問題を取得
+    questions = QuizQuestion.objects.filter(exam=exam)
+
+    # テンプレートに渡すデータをcontextにセット
+    context = {
+        'exam': exam,
+        'questions': questions,
+        'time_limit': time_limit,  # 時間設定をテンプレートに渡す
+    }
+    
+    return render(request, 'kokushi/quiz_questions.html', context)

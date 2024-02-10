@@ -6,7 +6,7 @@ class Exam(models.Model):
     year = models.IntegerField("年度", unique=True)
 
     def __str__(self):
-        return f"{self.year}年度"
+        return f"{self.year}回"
     
     class Meta:
         verbose_name = "国試「年度追加」" 
