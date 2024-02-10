@@ -12,7 +12,7 @@ from pt_kokushi.views.timetable_views import create_timetable,timetable_list,del
 from pt_kokushi.views.quiz_views import start_quiz,quiz,initialize_quiz,quiz_page,quiz_results,select_field
 from pt_kokushi.views.quiz_views import submit_answer,select_subfield,select_sub2field,select_sub2field_template
 from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view,reset_quiz_session_for_sub2field,quiz_page_for_sub2field
-from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,kokushi_quiz_page
+from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view
 
 app_name = 'pt_kokushi'
 
@@ -66,8 +66,9 @@ urlpatterns = [
     path('reset-quiz-count/', reset_quiz_count, name='reset_quiz_count'),
     path('top/', exam_selection_view, name='top'),#国試年度選択用
     path('timer/', time_setting_view, name='timer'),#国試試験時間
-    path('kokushi_quiz_page/', kokushi_quiz_page, name='kokushi_quiz_page'),
-    ]
+    path('quiz_questions/', quiz_questions_view, name='quiz_questions'),#国試問題出題ページ
+]
+    
 
 
 if settings.DEBUG:

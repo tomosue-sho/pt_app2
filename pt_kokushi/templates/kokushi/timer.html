@@ -32,15 +32,15 @@
     </div>
 <br>
     
-    <form method="post" action="{% url 'pt_kokushi:timer' %}">
-        {% csrf_token %}
-        <div class="btn-group" role="group" aria-label="Time options">
-            <button type="submit" name="time_limit" value="60" class="btn btn-primary btn-custom">1時間</button>
-            <button type="submit" name="time_limit" value="120" class="btn btn-primary btn-custom">2時間</button>
-            <button type="submit" name="time_limit" value="160" class="btn btn-primary btn-custom">2時間40分</button>
-            <button type="submit" name="time_limit" value="320" class="btn btn-primary btn-custom">5時間20分</button>
-        </div>
-        <br><br>
+<form method="post" action="{% url 'pt_kokushi:quiz_questions' %}">
+    {% csrf_token %}
+    <div class="btn-group" role="group" aria-label="Time options">
+        <button type="submit" name="time_limit" value="60" class="btn btn-primary btn-custom">1時間</button>
+        <button type="submit" name="time_limit" value="120" class="btn btn-primary btn-custom">2時間</button>
+        <button type="submit" name="time_limit" value="160" class="btn btn-primary btn-custom">2時間40分</button>
+        <button type="submit" name="time_limit" value="320" class="btn btn-primary btn-custom">5時間20分</button>
+    </div>
+    <br><br>
         <div>
             <input type="text" name="custom_time_limit" id="customTimeLimit" placeholder="分単位で時間を入力:例 2時間→120 , 3時間→180" class="form-control" />
             <br>

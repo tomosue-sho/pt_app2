@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from pt_kokushi.models.kokushi_models import Exam
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion
 
 
 # 試験回選択用
@@ -10,7 +10,7 @@ def exam_selection_view(request):
     years = list(reversed(range(49, 60)))  # 49から59までのリストを作成
     if request.method == 'POST':
         exam_year = request.POST.get('exam_year')
-        request.session['exam_year'] = exam_year
+        request.session['exam_year'] = int('exam_year')
         return HttpResponseRedirect(reverse('pt_kokushi:timer'))
     else:
         return render(request, 'top.html', {'years': years})
@@ -36,14 +36,31 @@ def time_setting_view(request):
                 request.session['time_limit'] = int(custom_time_limit)
             except ValueError:
                 # 不正な入力の場合、エラーメッセージを設定
-                # フォームにエラーメッセージを表示するためには、contextにエラーを追加して再度テンプレートをレンダリングする
                 return render(request, 'kokushi/timer.html', {'error': '有効な時間を入力してください。'})
+        else:
+            # 時間設定がない場合のエラーハンドリング
+            return render(request, 'kokushi/timer.html', {'error': '時間を設定してください。'})
 
-        return HttpResponseRedirect(reverse('pt_kokushi:timer'))
+        # 正常に時間設定が完了した場合、quiz_questions_viewにリダイレクト
+        return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
     else:
         # GETリクエストの場合は時間設定ページを表示
         return render(request, 'kokushi/timer.html')
-
-#エラー回避の仮views.py
-def kokushi_quiz_page(request):
-    return HttpResponse("これは問題ページの仮のビューです。")
+    
+def quiz_questions_view(request):
+    if request.method == 'POST':
+        # POSTリクエストから時間設定などを取得
+        time_limit = request.POST.get('time_limit')
+        custom_time_limit = request.POST.get('custom_time_limit')
+        
+        questions = QuizQuestion.objects.all()  # 仮にすべての質問を取得
+        
+        # テンプレートに渡すデータをcontextにセット
+        context = {
+            'questions': questions,
+            'time_limit': time_limit or custom_time_limit  # Noneでなければどちらかの値を設定
+        }
+        
+        return render(request, 'kokushi/quiz_questions.html', context)
+    else:
+        return render(request, 'kokushi/some_template.html')

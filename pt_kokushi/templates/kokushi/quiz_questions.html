@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-3">
+    <h2>{{ exam.year }}年度 国試問題</h2>
+    {% for question in questions %}
+        <div class="question">
+            <p><strong>問{{ question.question_number }}:</strong> {{ question.question_text }}</p>
+            {% if question.question_image %}
+                <img src="{{ question.question_image.url }}" alt="問題画像">
+            {% endif %}
+            <!-- 選択肢の表示 -->
+            {% for choice in question.choices.all %}
+                <div>
+                    <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
+                    <label>{{ choice.choice_text }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
