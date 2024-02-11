@@ -1,8 +1,11 @@
 from django.shortcuts import redirect, render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion
+from django.db.models import Q
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuizQuestion, Choice, QuizUserAnswer
+from django.db.models import Count, Sum, Avg
 
 
 # 試験回選択用
@@ -52,30 +55,107 @@ def time_setting_view(request):
         # GETリクエストの場合は時間設定ページを表示
         return render(request, 'kokushi/timer.html')
     
-def quiz_questions_view(request):
-    # セッションから試験年度と時間設定を取得
-    exam_year = request.session.get('exam_year')
-    time_limit = request.session.get('time_limit')
+from django.shortcuts import get_object_or_404, redirect
 
+def quiz_questions_view(request, question_id=None):
+    # セッションから試験年度を取得
+    exam_year = request.session.get('exam_year', None)
     if not exam_year:
-        # 試験年度がセッションに存在しない場合はエラーメッセージを表示
-        return HttpResponse("試験年度が選択されていません。")
+        return redirect('pt_kokushi:top')  # 試験年度が設定されていなければトップページへ
 
-    try:
-        # 試験年度に基づいたExamオブジェクトを取得
-        exam = Exam.objects.get(year=exam_year)
-    except Exam.DoesNotExist:
-        # 指定された年度の試験が存在しない場合はエラーメッセージを表示
-        return HttpResponse("指定された試験年度のデータが存在しません。")
+    # 試験年度に基づくExamオブジェクトを取得
+    exam = get_object_or_404(Exam, year=exam_year)
 
-    # 選択された試験年度に基づく問題を取得
-    questions = QuizQuestion.objects.filter(exam=exam)
+    # question_idが指定されていればその質問を、そうでなければ最初の質問を取得
+    if question_id:
+        question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
+    else:
+        question = QuizQuestion.objects.filter(exam=exam).first()
 
-    # テンプレートに渡すデータをcontextにセット
     context = {
         'exam': exam,
-        'questions': questions,
-        'time_limit': time_limit,  # 時間設定をテンプレートに渡す
+        'question': question,  # 一つの質問のみを渡す
     }
-    
     return render(request, 'kokushi/quiz_questions.html', context)
+
+
+#正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+def submit_quiz_answers(request, question_id):
+    if request.method == 'POST':
+        user = request.user
+        total_score = 0
+        for question in QuizQuestion.objects.all():
+            selected_choices = request.POST.getlist(f'question_{question.id}')
+            correct_choices = question.choices.filter(is_correct=True).values_list('id', flat=True)
+            selected_correctly = all(choice in map(str, correct_choices) for choice in selected_choices) and len(selected_choices) == len(correct_choices)
+            
+            if selected_correctly:
+                total_score += question.point  # 問題の点数を合計に加算
+        
+        # 次の問題を見つける
+        next_question = QuizQuestion.objects.filter(id__gt=question_id).order_by('id').first()
+        if next_question:
+            return redirect('pt_kokushi:quiz_questions_view', question_id=next_question.id)
+        else:
+            # 次の問題がなければ、結果ページやクイズ終了ページへリダイレクト
+            return redirect('quiz_result')
+
+
+def result_view(request):
+    user = request.user  # 現在のユーザーを取得
+    
+    if user.is_authenticated:
+        # 分野ごとの得点を集計
+        field_scores = QuizUserAnswer.objects.filter(
+            user=user,
+            selected_choices__is_correct=True
+        ).values('question__field').annotate(
+            total_score=Sum('question__point')
+        )
+
+        # 設定点数ごとの正解率を計算
+        point_accuracy = QuizUserAnswer.objects.filter(
+            user=user
+        ).values('question__point').annotate(
+            correct_count=Count('id', filter=Q(selected_choices__is_correct=True)),
+            total_count=Count('id')
+        )
+
+        # 集計結果をテンプレートに渡す
+        context = {
+            'field_scores': field_scores,
+            'point_accuracy': point_accuracy,
+        }
+        return render(request, 'kokushi_results.html', context)
+    else:
+        return redirect('pt_kokushi:top')
+    
+    
+#セッションクリアのための関数（時直し時とかに使う）ーーーーーーーーーーーー
+#最初からやり直す関数
+def restart_kokushi_quiz_view(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+
+    # ユーザーのクイズ回答と進行状態をリセット
+    QuizUserAnswer.objects.filter(user=user).delete()
+    # 必要に応じてセッション情報のリセットも行う
+    # request.session.pop('key', None)
+
+    return redirect('pt_kokushi:quiz_questions_with_id', question_id=1)
+
+#前回の続きから用
+def continue_quiz_view(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+
+    # ユーザーの最後の進行状態を取得
+    last_answer = QuizUserAnswer.objects.filter(user=user).order_by('-id').first()
+    if last_answer:
+        next_question_id = last_answer.question.id + 1
+        return redirect('quiz_question', question_id=next_question_id)
+    else:
+        # 進行状態がなければ、最初の問題から開始
+        return redirect('quiz_question', question_id=1)

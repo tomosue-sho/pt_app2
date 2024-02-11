@@ -18,17 +18,17 @@ class QuizQuestion(models.Model):
     sub_field = models.CharField("詳細分野", max_length=100, blank=True)
     point = models.IntegerField("配点", choices=((1, '1点'), (3, '3点')))
     question_number = models.IntegerField("問題番号")
-    answer_time = models.IntegerField("回答時間（秒）",blank=True, null=True)
+    answer_time = models.IntegerField("回答時間（秒）", blank=True, null=True)
     question_text = models.TextField("問題文")
     question_image = models.ImageField("問題画像", upload_to='quiz_questions/', blank=True, null=True)
     answer_text = models.TextField("解答分")
     answer_video_url = models.URLField("解答動画URL", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.year}年 {self.field} {self.question_number}問"
-    
+        return f"{self.exam.year}年 {self.field} {self.question_number}問"  # self.year を self.exam.year に変更
+
     class Meta:
-        verbose_name = "国試「問題作成」" 
+        verbose_name = "国試「問題作成」"
         verbose_name_plural = "国試「問題作成」"
     
     

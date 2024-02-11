@@ -1,21 +1,87 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+    .choice-label {
+        display: block;
+        padding: 10px;
+        margin-bottom: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+        cursor: pointer;
+    }
+    
+    .choice-label:hover {
+        background-color: #e9ecef;
+    }
+    
+    .choice-input {
+        display: none;
+    }
+    
+    .choice-input:checked + .choice-label {
+        background-color: #cae0f4;
+        border-color: #b8daff;
+    }
+
+    .card {
+        /* カードのカスタムスタイル */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつける */
+        border: none; /* 枠線を消す */
+    }
+    
+    .card-body {
+        /* カードボディのカスタムスタイル */
+    }
+    
+    .card-text {
+        /* カードテキストのカスタムスタイル */
+        font-size: 1.1em; /* フォントサイズを大きく */
+    }
+    
+</style>
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
-    {% for question in questions %}
-        <div class="question">
-            <p><strong>問{{ question.question_number }}:</strong> {{ question.question_text }}</p>
-            {% if question.question_image %}
-                <img src="{{ question.question_image.url }}" alt="問題画像">
-            {% endif %}
-            <!-- 選択肢の表示 -->
-            {% for choice in question.choices.all %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <form action="{% url 'pt_kokushi:submit_quiz_answers' question.id %}" method="post">
+                {% csrf_token %}
+                <!-- 問題文の表示 -->
+                <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
+                {% if question.question_image %}
+                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+                {% endif %}
+                <!-- 選択肢の表示 -->
+                {% for choice in question.choices.all %}
                 <div>
-                    <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
-                    <label>{{ choice.choice_text }}</label>
+                    <input type="checkbox" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" class="choice-input">
+                    <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
                 </div>
-            {% endfor %}
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">次の問題へ</button>
+            </form>
         </div>
-    {% endfor %}
+    </div>
 </div>
+
+<div class="container mt-3">
+    <h2>クイズの選択</h2>
+    <!-- 前回の続きから開始するボタン -->
+    <a href="{% url 'pt_kokushi:continue_quiz' %}" class="btn btn-info">前回の続きから</a>
+    <!-- 最初から解き直すボタン -->
+    <a href="{% url 'pt_kokushi:restart_kokushi_quiz' %}" class="btn btn-warning">最初から解き直す</a>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const choices = document.querySelectorAll('.choice-input');
+    choices.forEach(choice => {
+        choice.addEventListener('change', function() {
+            if(this.checked) {
+                // ここにチェックされたときの処理を書く
+                console.log(this.value + 'が選択されました');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

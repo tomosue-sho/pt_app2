@@ -17,10 +17,6 @@ import random
 import logging
 logger = logging.getLogger(__name__)
 
-def start_quiz(request):
-    # 分野を選択するページを表
-    fields = Field.objects.all()
-    return render(request, '2quiz/select_field.html', {'fields': fields})
 
 def quiz(request, subfield_id=None, sub2field_id=None):
     # 提示済み問題のIDをセッションから取得（存在しない場合は空のリスト）
