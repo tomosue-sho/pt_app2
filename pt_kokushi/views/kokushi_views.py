@@ -65,6 +65,10 @@ def quiz_questions_view(request, question_id=None):
     
     exam = get_object_or_404(Exam, year=exam_year)
     question = get_object_or_404(QuizQuestion, pk=question_id) if question_id else None
+    questions = QuizQuestion.objects.filter(exam=exam)
+    
+    if not questions.exists():
+        return render(request, 'kokushi/no_questions.html', {'exam': exam})
     
     # question_idが指定されていればその質問を、そうでなければ最初の質問を取得
     if question_id:
