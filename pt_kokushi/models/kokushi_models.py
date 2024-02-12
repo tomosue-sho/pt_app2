@@ -11,20 +11,20 @@ class Exam(models.Model):
     class Meta:
         verbose_name = "国試「年度追加」" 
         verbose_name_plural = "国試「年度追加」" 
-        
+
 class KokushiField(models.Model):
     name = models.CharField("分野名", max_length=100)
 
     def __str__(self):
         return self.name
-
+    
     class Meta:
-        verbose_name = "分野"
-        verbose_name_plural = "分野"
+        verbose_name = "国試「分野追加」"
+        verbose_name_plural = "国試「分野追加」"
     
 class QuizQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="年度")
-    field = models.ForeignKey(KokushiField, on_delete=models.CASCADE, verbose_name="分野")
+    field = models.ForeignKey(KokushiField, on_delete=models.CASCADE, verbose_name="分野", default=1)
     point = models.IntegerField("配点", choices=((1, '1点'), (3, '3点')))
     question_number = models.IntegerField("問題番号")
     answer_time = models.IntegerField("回答時間（秒）", blank=True, null=True)

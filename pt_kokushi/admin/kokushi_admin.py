@@ -1,5 +1,6 @@
 from django.contrib import admin
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuestionUserAnswer,Bookmark,Choice,QuizUserAnswer
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuestionUserAnswer,Bookmark
+from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
@@ -12,8 +13,8 @@ class QuizQuestionAdmin(admin.ModelAdmin):
     get_exam_year.short_description = '年度'
     get_exam_year.admin_order_field = 'exam__year'
 
-    list_display = ('get_exam_year', 'field', 'sub_field', 'point', 'question_number', 'answer_time', 'question_text', 'answer_video_url', 'question_image')
-    search_fields = ('field', 'sub_field', 'question_text')
+    list_display = ('get_exam_year', 'field', 'point', 'question_number', 'answer_time', 'question_text', 'answer_video_url', 'question_image')
+    search_fields = ('field', 'question_text')
     list_filter = ('exam__year', 'field', 'point')
 
     # 選択肢をインラインで表示するための設定
@@ -41,5 +42,10 @@ class BookmarkAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'question__question_text')
     list_filter = ('user',)
     
+class KokushiFieldAdmin(admin.ModelAdmin):
+    list_display = ('name',)  # 管理サイトのリスト表示に名前を表示
+    search_fields = ('name',)  # 名前で検索できるようにする
+
+admin.site.register(KokushiField, KokushiFieldAdmin)  
 #admin.site.register(QuizQuestion, QuizQuestionAdmin)
 #admin.site.register(QuizUserAnswer, QuizUserAnswerAdmin)
