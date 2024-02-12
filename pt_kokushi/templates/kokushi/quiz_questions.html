@@ -38,15 +38,38 @@
         /* カードテキストのカスタムスタイル */
         font-size: 1.1em; /* フォントサイズを大きく */
     }
-    
+
+    .btn-warning{
+        margin-top:10px;
+    }
+
+    #timer {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000; /* 必要に応じて調整 */
+    }
+
+    #timer-placeholder {
+        height: 50px; /* タイマーの高さに応じて調整 */
+    }
 </style>
+<div id="timer-placeholder" style="height: 50px;"></div>
+
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
+    <div id="timer"></div>
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:submit_quiz_answers' question.id %}" method="post">
                 {% csrf_token %}
                 <!-- 問題文の表示 -->
+                
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
                     <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
@@ -66,10 +89,14 @@
 
 <div class="container mt-3">
     <h2>クイズの選択</h2>
-    <!-- 前回の続きから開始するボタン -->
-    <a href="{% url 'pt_kokushi:continue_quiz' %}" class="btn btn-info">前回の続きから</a>
     <!-- 最初から解き直すボタン -->
     <a href="{% url 'pt_kokushi:restart_kokushi_quiz' %}" class="btn btn-warning">最初から解き直す</a>
+    <br>
+
+<form action="{% url 'pt_kokushi:exit_quiz' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-warning">途中で抜ける</button>
+</form>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -83,5 +110,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+//試験時間のカウントダウン用
+    document.addEventListener('DOMContentLoaded', function() {
+        // 残り時間（秒）を取得
+        var timeLimit = {{ time_limit|default:"0" }};
+        var endTime = new Date().getTime() + timeLimit * 1000; // 終了時刻を設定
+        
+        var timer = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = endTime - now;
+    
+            // 残り時間を時間、分、秒に変換
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+            // 残り時間を表示
+            document.getElementById("timer").innerHTML = hours + "時間 " + minutes + "分 " + seconds + "秒";
+    
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById("timer").innerHTML = "時間切れ";
+                // 必要に応じて試験を終了する処理をここに追加
+            }
+        }, 1000);
+    });
 </script>
+    
 {% endblock %}

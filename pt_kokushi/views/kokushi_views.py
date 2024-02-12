@@ -33,12 +33,12 @@ def time_setting_view(request):
         exam_year = request.POST.get('exam_year')
 
         if time_limit:
-            # 事前定義された時間をセッションに保存
-            request.session['time_limit'] = int(time_limit)
+            time_limit_seconds = int(time_limit) * 60  # 分を秒に変換
+            request.session['time_limit'] = time_limit_seconds
         elif custom_time_limit:
             try:
-                # 任意の時間を整数としてセッションに保存
-                request.session['time_limit'] = int(custom_time_limit)
+                time_limit_seconds = int(custom_time_limit) * 60  # 分を秒に変換
+                request.session['time_limit'] = time_limit_seconds
             except ValueError:
                 # 不正な入力の場合、エラーメッセージを設定
                 return render(request, 'kokushi/timer.html', {'error': '有効な時間を入力してください。'})
@@ -54,27 +54,28 @@ def time_setting_view(request):
     else:
         # GETリクエストの場合は時間設定ページを表示
         return render(request, 'kokushi/timer.html')
-    
-from django.shortcuts import get_object_or_404, redirect
 
 def quiz_questions_view(request, question_id=None):
     # セッションから試験年度を取得
     exam_year = request.session.get('exam_year', None)
+    time_limit = request.session.get('time_limit')  # 時間設定をセッションから取得
+    
     if not exam_year:
-        return redirect('pt_kokushi:top')  # 試験年度が設定されていなければトップページへ
-
-    # 試験年度に基づくExamオブジェクトを取得
+        return redirect('pt_kokushi:top')
+    
     exam = get_object_or_404(Exam, year=exam_year)
-
+    question = get_object_or_404(QuizQuestion, pk=question_id) if question_id else None
+    
     # question_idが指定されていればその質問を、そうでなければ最初の質問を取得
     if question_id:
         question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
     else:
         question = QuizQuestion.objects.filter(exam=exam).first()
-
+    
     context = {
         'exam': exam,
-        'question': question,  # 一つの質問のみを渡す
+        'question': question,
+        'time_limit': time_limit,  # コンテキストに時間設定を追加
     }
     return render(request, 'kokushi/quiz_questions.html', context)
 
@@ -83,21 +84,35 @@ def quiz_questions_view(request, question_id=None):
 def submit_quiz_answers(request, question_id):
     if request.method == 'POST':
         user = request.user
-        total_score = 0
-        for question in QuizQuestion.objects.all():
-            selected_choices = request.POST.getlist(f'question_{question.id}')
-            correct_choices = question.choices.filter(is_correct=True).values_list('id', flat=True)
-            selected_correctly = all(choice in map(str, correct_choices) for choice in selected_choices) and len(selected_choices) == len(correct_choices)
-            
-            if selected_correctly:
-                total_score += question.point  # 問題の点数を合計に加算
+        current_question = get_object_or_404(QuizQuestion, pk=question_id)
+        selected_choice_ids = request.POST.getlist(f'question_{question_id}')
+
+        # QuizUserAnswer インスタンスを作成または取得
+        quiz_user_answer, created = QuizUserAnswer.objects.get_or_create(
+            user=user,
+            question=current_question
+        )
         
-        # 次の問題を見つける
+        # 選択した選択肢をクリアし、新たに選択された選択肢を追加
+        quiz_user_answer.selected_choices.clear()
+        for choice_id in selected_choice_ids:
+            selected_choice = get_object_or_404(Choice, pk=choice_id)
+            quiz_user_answer.selected_choices.add(selected_choice)
+
+        # 正解の選択肢を取得
+        correct_choices = current_question.choices.filter(is_correct=True)
+        correct_choice_ids = set(correct_choices.values_list('id', flat=True))
+        selected_correctly = correct_choice_ids == set(map(int, selected_choice_ids))
+
+        if selected_correctly:
+            # スコアを更新するロジックをここに追加
+            pass
+
+        # 次の問題へのリダイレクトまたは結果ページへのリダイレクトを行う
         next_question = QuizQuestion.objects.filter(id__gt=question_id).order_by('id').first()
         if next_question:
-            return redirect('pt_kokushi:quiz_questions_view', question_id=next_question.id)
+            return redirect('pt_kokushi:quiz_questions', question_id=next_question.id)
         else:
-            # 次の問題がなければ、結果ページやクイズ終了ページへリダイレクト
             return redirect('quiz_result')
 
 
@@ -155,7 +170,21 @@ def continue_quiz_view(request):
     last_answer = QuizUserAnswer.objects.filter(user=user).order_by('-id').first()
     if last_answer:
         next_question_id = last_answer.question.id + 1
-        return redirect('quiz_question', question_id=next_question_id)
+        return redirect('pt_kokushi:quiz_questions_view', question_id=next_question_id)
     else:
         # 進行状態がなければ、最初の問題から開始
-        return redirect('quiz_question', question_id=1)
+        return redirect('pt_kokushi:quiz_questions_view', question_id=1)
+    
+def exit_quiz(request):
+    # セッションから最後に解答した質問のIDを取得
+    last_question_id = request.session.get('last_question_id', None)
+    
+    if last_question_id is not None:
+        # 最後に解答した質問のIDがある場合、適切な処理を行う
+        # 例: ユーザーをクイズの結果ページやトップページにリダイレクトする
+        return redirect('pt_kokushi:top')
+    else:
+        # 最後に解答した質問のIDがない場合の処理
+        # 例: エラーメッセージを表示する、またはクイズのトップページにリダイレクトする
+        return redirect('pt_kokushi:timer')
+

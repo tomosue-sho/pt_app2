@@ -7,13 +7,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from pt_kokushi.views.calender_views import create_event,calendar_events,delete_event,update_event
 from pt_kokushi.views.todo_views import create_todo_item, todo_list, update_todo_item, delete_todo_item
-from pt_kokushi.views.post_views import PostListView, PostDetailView,PostCreateView,PostDeleteView,CommentDeleteView,add_comment_to_post
+from pt_kokushi.views.post_views import PostListView, PostDetailView,PostCreateView,PostDeleteView
+from pt_kokushi.views.post_views import CommentDeleteView,add_comment_to_post
 from pt_kokushi.views.timetable_views import create_timetable,timetable_list,delete_timetable,update_timetable
 from pt_kokushi.views.quiz_views import quiz,initialize_quiz,quiz_page,quiz_results,select_field
 from pt_kokushi.views.quiz_views import submit_answer,select_subfield,select_sub2field,select_sub2field_template
-from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view,reset_quiz_session_for_sub2field,quiz_page_for_sub2field
+from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view
+from pt_kokushi.views.quiz_views import reset_quiz_session_for_sub2field,quiz_page_for_sub2field
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
-from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view
+from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz
 
 app_name = 'pt_kokushi'
 
@@ -66,15 +68,14 @@ urlpatterns = [
     path('reset-quiz-count/', reset_quiz_count, name='reset_quiz_count'),
     path('top/', exam_selection_view, name='top'),#国試年度選択用
     path('timer/', time_setting_view, name='timer'),#国試試験時間
-    path('quiz_questions/', quiz_questions_view, name='quiz_questions_view'),
-    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_view'),#国試問題出題ページ
-    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_view'),
+    path('quiz_questions/', quiz_questions_view, name='quiz_questions'),
+    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions'),#国試問題出題ページ
     path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_by_id'),
     path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_with_id'),
     path('quiz/<int:question_id>/submit_quiz/', submit_quiz_answers, name='submit_quiz_answers'),
     path('quiz_questions/continue/', continue_quiz_view, name='continue_quiz'),#前回の続きから
     path('quiz_questions/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す
-    
+    path('quiz_question/exit/', exit_quiz, name='exit_quiz'),
 ]
 
 if settings.DEBUG:

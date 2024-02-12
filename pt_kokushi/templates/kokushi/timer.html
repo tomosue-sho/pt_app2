@@ -32,7 +32,7 @@
     </div>
 <br>
     
-<form method="post" action="{% url 'pt_kokushi:quiz_questions_view' %}">
+<form method="post" action="{% url 'pt_kokushi:timer' %}">
     {% csrf_token %}
     <div class="btn-group" role="group" aria-label="Time options">
         <button type="submit" name="time_limit" value="60" class="btn btn-primary btn-custom">1時間</button>
@@ -48,7 +48,10 @@
         <button type="submit" id="setCustomTimeLimit" class="btn btn-warning btn-timer">任意の時間で開始</button>
     </div>
 </form>
-</div>
+<br>
+    <!-- 前回の続きから開始するボタン -->
+    <a href="{% url 'pt_kokushi:continue_quiz' %}" class="btn btn-info">前回の続きから</a>
+
 <!-- JavaScriptでバリデーションとフォーム送信の処理を追加 -->
 <script>
     document.getElementById('setCustomTimeLimit').addEventListener('click', function(e) {
