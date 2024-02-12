@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from pt_kokushi.models.calender_models import Event
 from .forms_org import CustomLoginForm, forms
-from .forms_org import CustomUserForm
+from .forms_org import CustomUserForm, TestYearForm
 from .forms_org import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.views import generic
 from django.views.generic.edit import FormView
@@ -284,3 +284,13 @@ def get_remaining_time(request):
             })
     
     return JsonResponse({'remaining_seconds': None})
+
+def update_test_year(request):
+    if request.method == 'POST':
+        form = TestYearForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('pt_kokushi:my_page')  # 保存後にリダイレクトするページ
+    else:
+        form = TestYearForm(instance=request.user)
+    return render(request, 'login_app/update_test_year.html', {'form': form})

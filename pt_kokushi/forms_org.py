@@ -199,4 +199,11 @@ class CustomNicknameChangeForm(forms.Form):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'     
-        
+    
+class TestYearForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['test_year']  # ユーザーが変更できるフィールドを指定
+        labels = {
+            'test_year': '国試受験年度',
+        }

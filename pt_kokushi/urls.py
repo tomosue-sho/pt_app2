@@ -1,5 +1,6 @@
 from . import views_org
 from . import views
+from pt_kokushi.views_org import update_test_year
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from django.urls import path
@@ -34,6 +35,7 @@ urlpatterns = [
     path('reset/done/', views_org.PasswordResetComplete.as_view(), name='password_reset_complete'), #追加
     path('change_password/', views_org.change_password_view, name='change_password'),
     path('change_nickname/', views_org.change_nickname_view, name='change_nickname'),
+    path('update-test-year/', update_test_year, name='update_test_year'),
     path('get-remaining-time/', views_org.get_remaining_time, name='get-remaining-time'),
     path('posts/', PostListView.as_view(), name='post_list'),  # 掲示板投稿一覧
     path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),  # 掲示板投稿詳細
