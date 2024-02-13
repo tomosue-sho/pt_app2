@@ -33,13 +33,11 @@
     <tr>
         <td>問題 {{ answer.question_number }}</td>
         <td>{{ answer.answer_time }}</td>
+        <td>開始: {{ answer.start_time }}</td>
+        <td>終了: {{ answer.end_time }}</td>
     </tr>
     {% endfor %}
 </table>
-<!-- 解答時間の表示 -->
-<p>解答時間: {{ answer_time_str }}</p>
-<p>開始時刻: {{ answer.start_time }}</p>
-<p>終了時刻: {{ answer.end_time }}</p>
 
 <br>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>

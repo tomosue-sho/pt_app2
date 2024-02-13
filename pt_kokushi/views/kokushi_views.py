@@ -26,7 +26,7 @@ def your_view_function(request):
     years = list(range(49, 59))  # Python 3ではrangeをlistに変換する必要がある
     return render(request, 'top.html', {'years': years})
 
-# 国試タイマー用
+#国試タイマー
 def time_setting_view(request):
     if request.method == 'POST':
         # 時間設定を受け取る
@@ -51,6 +51,18 @@ def time_setting_view(request):
         
         if exam_year:
             request.session['exam_year'] = int(exam_year)
+
+        # ここで開始時間を記録
+        # ※ この例では、すべての問題に対してstart_timeを設定していますが、
+        #    実際には特定の問題や試験セッションに関連付ける必要があります。
+        #    また、現在のユーザーと試験年度を基にQuizUserAnswerインスタンスを特定または作成する必要があります。
+        questions = QuizQuestion.objects.filter(exam__year=exam_year)
+        for question in questions:
+            QuizUserAnswer.objects.update_or_create(
+                user=request.user,
+                question=question,
+                defaults={'start_time': now()}
+            )
 
         # 正常に時間設定が完了した場合、quiz_questions_viewにリダイレクト
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
@@ -153,16 +165,25 @@ def kokushi_results_view(request):
         answer_duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
     )
 
+     # 解答時間をフォーマットし、開始時刻と終了時刻をリストに追加
     formatted_answers = []
     for answer in user_answers:
-        duration = answer.answer_duration
-        hours, remainder = divmod(duration.total_seconds(), 3600)
-        minutes, seconds = divmod(remainder, 60)
+        # answer_durationを持っていることを前提としていますが、実際には別の計算方法を使うかもしれません
+        if answer.end_time:  # end_timeが設定されている場合のみ計算
+            duration = answer.end_time - answer.start_time
+            hours, remainder = divmod(duration.total_seconds(), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            answer_time_str = f"{int(hours)}時間{int(minutes)}分{int(seconds)}秒"
+        else:
+            answer_time_str = "未完了"
+
         formatted_answers.append({
             'question_number': answer.question.question_number,
-            'answer_time': f"{int(hours)}時間{int(minutes)}分{int(seconds)}秒"
+            'answer_time': answer_time_str,
+            'start_time': answer.start_time.strftime("%Y-%m-%d %H:%M:%S") if answer.start_time else '未開始',
+            'end_time': answer.end_time.strftime("%Y-%m-%d %H:%M:%S") if answer.end_time else '未完了'
         })
-    
+
     # 個人の分野ごとの正答数と質問数を計算
     field_accuracy = QuizUserAnswer.objects.filter(user=user).annotate(
         is_correct=Case(

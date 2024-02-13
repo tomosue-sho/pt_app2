@@ -57,7 +57,7 @@ class QuizUserAnswer(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
     selected_choices = models.ManyToManyField(Choice, verbose_name="選んだ選択肢")
     answered_at = models.DateTimeField("回答日時", auto_now_add=True)
-    start_time = models.DateTimeField(default = now)
+    start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
     def is_correct(self):
