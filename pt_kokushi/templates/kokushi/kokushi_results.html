@@ -1,15 +1,31 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block content %}
-<h2>成績結果</h2>
+<h2>第{{ exam.year }}回 国試問題 成績結果</h2>
 
-<h3>分野ごとの正答率</h3>
-{% for field in field_accuracy %}  <!-- ここを field_results から field_accuracy に修正 -->
-    <p>{{ field.question__field__name }}: 正答率 {{ field.correct_avg }}%</p>  <!-- accuracy を correct_avg に修正 -->
-{% endfor %}
+<!-- 「あなたの正答率」の表示を修正 -->
+<h3>{{ user.nickname }}さんの正答率: {{ all_user_accuracy }}%</h3> 
+<h3>全ユーザーの平均正答率: {{ all_user_accuracy }}%</h3>
 
-<h3>全体の正答率</h3>
-<p>正答率: {{ overall_accuracy.accuracy }}%</p>
+<h4>{{ user.nickname }}さんの分野ごとの正答率</h4>
+<table>
+    {% for field in field_accuracy %}
+    <tr>
+        <td>{{ field.question__field__name }}</td>
+        <td>{{ field.accuracy }}%</td>
+    </tr>
+    {% endfor %}
+</table>
 
-<!-- 解答時間と目標正答率との差に関する表示もここに追加 -->
-
+<h4>全ユーザーの分野ごとの正答率</h4>
+<table>
+    {% for field in field_accuracy_all %}
+    <tr>
+        <td>{{ field.question__field__name }}</td>
+        <td>{{ field.accuracy }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
 {% endblock %}
