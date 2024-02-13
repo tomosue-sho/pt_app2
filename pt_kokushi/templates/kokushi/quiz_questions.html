@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% block content %}
+
 <style>
     .choice-label {
         display: block;
@@ -58,6 +60,21 @@
     #timer-placeholder {
         height: 50px; /* タイマーの高さに応じて調整 */
     }
+
+    /* ブックマークに追加ボタンのマウスオーバー時 */
+    .btn-outline-secondary:hover {
+        background-color: #6c757d; /* 濃い灰色 */
+        color: white;
+    }
+    
+    /* ブックマーク済みボタンのマウスオーバー時 */
+    .btn-warning:hover {
+        background-color: #ffc107; /* より鮮やかな黄色 */
+        color: black;
+    }
+
+
+
 </style>
 <div id="timer-placeholder" style="height: 50px;"></div>
 
@@ -87,9 +104,23 @@
     </div>
 </div>
 
+{% if request.user.is_authenticated %}
+    {% if question|is_bookmarked:request.user %}
+        <form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">ブックマーク済み</button>
+        </form>
+    {% else %}
+        <form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary">ブックマークに追加</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+
 <div class="container mt-3">
-    <h2>クイズの選択</h2>
-    <!-- 最初から解き直すボタン -->
+    <h2>国試から抜ける</h2>
     <a href="{% url 'pt_kokushi:restart_kokushi_quiz' %}" class="btn btn-warning">最初から解き直す</a>
     <br>
 

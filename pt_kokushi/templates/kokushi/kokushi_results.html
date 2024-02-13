@@ -26,17 +26,16 @@
     </tr>
     {% endfor %}
 </table>
-
+<br>
 <h4>解答時間</h4>
 <table>
-    {% for answer in formatted_answers %}
-    <tr>
-        <td>問題 {{ answer.question_number }}</td>
-        <td>{{ answer.answer_time }}</td>
-        <td>開始: {{ answer.start_time }}</td>
-        <td>終了: {{ answer.end_time }}</td>
-    </tr>
-    {% endfor %}
+    {% if quiz_session %}
+    <p>開始時刻: {{ quiz_session.start_time }}</p>
+    <p>終了時刻: {{ quiz_session.end_time }}</p>
+    {% if quiz_session.start_time and quiz_session.end_time %}
+        <p>合計試験時間: {{ quiz_session.end_time|timesince:quiz_session.start_time }}</p>
+    {% endif %}
+{% endif %}
 </table>
 
 <br>

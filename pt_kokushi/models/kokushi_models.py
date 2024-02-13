@@ -65,6 +65,16 @@ class QuizUserAnswer(models.Model):
         correct_choices = self.question.choices.filter(is_correct=True)
         return set(self.selected_choices.all()) == set(correct_choices)
     
+class KokushiQuizSession(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="試験")
+    start_time = models.DateTimeField("開始時刻", default=now)
+    end_time = models.DateTimeField("終了時刻", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.exam}"
+
+    
 class Bookmark(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="ブックマークした問題")

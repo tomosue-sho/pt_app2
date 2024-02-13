@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.http import HttpResponseRedirect
 from django.db.models import Q
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuizQuestion, Choice, QuizUserAnswer
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
+from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
@@ -32,9 +33,7 @@ def time_setting_view(request):
         # 時間設定を受け取る
         time_limit = request.POST.get('time_limit')
         custom_time_limit = request.POST.get('custom_time_limit')
-        
         exam_year = request.POST.get('exam_year')
-
         if time_limit:
             time_limit_seconds = int(time_limit) * 60  # 分を秒に変換
             request.session['time_limit'] = time_limit_seconds
@@ -50,12 +49,13 @@ def time_setting_view(request):
             return render(request, 'kokushi/timer.html', {'error': '時間を設定してください。'})
         
         if exam_year:
-            request.session['exam_year'] = int(exam_year)
+            exam = Exam.objects.get(year=exam_year)
+            KokushiQuizSession.objects.create(
+                user=request.user,
+                exam=exam,
+                start_time=now()  # 開始時刻を現在時刻に設定
+            )
 
-        # ここで開始時間を記録
-        # ※ この例では、すべての問題に対してstart_timeを設定していますが、
-        #    実際には特定の問題や試験セッションに関連付ける必要があります。
-        #    また、現在のユーザーと試験年度を基にQuizUserAnswerインスタンスを特定または作成する必要があります。
         questions = QuizQuestion.objects.filter(exam__year=exam_year)
         for question in questions:
             QuizUserAnswer.objects.update_or_create(
@@ -98,6 +98,20 @@ def quiz_questions_view(request, question_id=None):
     }
     return render(request, 'kokushi/quiz_questions.html', context)
 
+def finish_quiz_view(request):
+    # 試験年度をセッションまたは他の方法から取得
+    exam_year = request.session.get('exam_year', None)
+    if exam_year:
+        exam = Exam.objects.get(year=exam_year)
+        # 現在のユーザーと試験に対応するセッションを取得し、終了時刻を更新
+        session = KokushiQuizSession.objects.get(user=request.user, exam=exam)
+        session.end_time = now()
+        session.save()
+
+    # 終了後のページにリダイレクト
+    return redirect('pt_kokushi:kokushi_results')
+
+
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
@@ -120,6 +134,9 @@ def submit_quiz_answers(request, question_id):
         current_question = get_object_or_404(QuizQuestion, pk=question_id)
         selected_choice_ids = request.POST.getlist(f'question_{question_id}')
 
+        # セッションから試験年度を取得
+        exam_year = request.session.get('exam_year', None)  # ここでexam_yearを定義
+
         # QuizUserAnswer インスタンスを取得または作成し、終了時刻を更新
         quiz_user_answer, created = QuizUserAnswer.objects.get_or_create(
             user=user,
@@ -129,11 +146,24 @@ def submit_quiz_answers(request, question_id):
         quiz_user_answer.end_time = now()  # 回答終了時刻を更新
         quiz_user_answer.save()
 
+        # 最後の問題に回答したかどうかをチェック
+        if exam_year:
+            total_questions = QuizQuestion.objects.filter(exam__year=exam_year).count()
+            answered_questions = QuizUserAnswer.objects.filter(user=user, question__exam__year=exam_year).count()
+
+            if total_questions == answered_questions:
+                # 全問題に回答した場合、試験セッションの終了時刻を更新
+                quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
+                if quiz_session:  # quiz_sessionが存在する場合のみ更新
+                    quiz_session.end_time = now()
+                    quiz_session.save()
+                    
         # 選択した選択肢をクリアし、新たに選択された選択肢を追加
         quiz_user_answer.selected_choices.clear()
         for choice_id in selected_choice_ids:
             selected_choice = get_object_or_404(Choice, pk=choice_id)
             quiz_user_answer.selected_choices.add(selected_choice)
+            
         # 正解の選択肢を取得
         correct_choices = current_question.choices.filter(is_correct=True)
         correct_choice_ids = set(correct_choices.values_list('id', flat=True))
@@ -154,16 +184,15 @@ def submit_quiz_answers(request, question_id):
 def kokushi_results_view(request):
     user = request.user
     total_questions = QuizQuestion.objects.count()
-    exam_year = request.session.get('exam_year', None)  # セッションから試験年度を取得
-    if exam_year is not None:
-        exam = Exam.objects.get(year=exam_year)  # 試験年度に基づいてExamオブジェクトを取得
-    else:
-        exam = None 
+    exam_year = request.session.get('exam_year', None)
+    exam = Exam.objects.get(year=exam_year) if exam_year else None
     
     #回答時間の計算
     user_answers = QuizUserAnswer.objects.filter(user=user).annotate(
         answer_duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
     )
+    
+    quiz_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).order_by('-start_time').first()
 
      # 解答時間をフォーマットし、開始時刻と終了時刻をリストに追加
     formatted_answers = []
@@ -218,6 +247,7 @@ def kokushi_results_view(request):
     )
     context = {
         'exam': exam,
+        'quiz_session': quiz_session,
         'formatted_answers': formatted_answers,
         'all_user_accuracy': all_user_accuracy,
         'field_accuracy': field_accuracy,
@@ -267,3 +297,18 @@ def exit_quiz(request):
         # 最後に解答した質問のIDがない場合の処理
         # 例: エラーメッセージを表示する、またはクイズのトップページにリダイレクトする
         return redirect('pt_kokushi:timer')
+
+#ブックマーク機能のためのviews.pyーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+def add_bookmark(request, question_id):
+    question = get_object_or_404(QuizQuestion, pk=question_id)
+    Bookmark.objects.get_or_create(user=request.user, question=question)
+    return redirect('pt_kokushi:quiz_questions')
+
+def remove_bookmark(request, question_id):
+    question = get_object_or_404(QuizQuestion, pk=question_id)
+    Bookmark.objects.filter(user=request.user, question=question).delete()
+    return redirect('pt_kokushi:quiz_questions')
+
+def bookmark_list(request):
+    bookmarks = Bookmark.objects.filter(user=request.user).select_related('question')
+    return render(request, 'bookmark_list.html', {'bookmarks': bookmarks})
