@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.utils.timezone import now
+
 
 #試験年度用
 class Exam(models.Model):
@@ -55,6 +57,8 @@ class QuizUserAnswer(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
     selected_choices = models.ManyToManyField(Choice, verbose_name="選んだ選択肢")
     answered_at = models.DateTimeField("回答日時", auto_now_add=True)
+    start_time = models.DateTimeField(default = now)
+    end_time = models.DateTimeField(null=True, blank=True)
 
     def is_correct(self):
         # すべての選択した選択肢が正解で、正解の選択肢をすべて選んでいるかをチェック
@@ -74,17 +78,3 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user} - {self.question}"
     
-    
-    
-class QuestionUserAnswer(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
-    exam_question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
-    answer = models.TextField("ユーザーの回答")
-    answered_at = models.DateTimeField("回答日時", auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user} - {self.exam_question}"
-    
-    class Meta:
-        verbose_name = "国試「ユーザーの回答」" 
-        verbose_name_plural = "国試「ユーザーの回答」"

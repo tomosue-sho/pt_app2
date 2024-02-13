@@ -1,5 +1,5 @@
 from django.contrib import admin
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuestionUserAnswer,Bookmark
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,Bookmark
 from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField
 
 @admin.register(Exam)
@@ -30,12 +30,6 @@ class ChoiceAdmin(admin.ModelAdmin):
     list_filter = ('question', 'is_correct')
     search_fields = ('choice_text',)
 
-@admin.register(QuestionUserAnswer)  # ここを正しいモデル名に修正
-class QuestionUserAnswerAdmin(admin.ModelAdmin):
-    list_display = ('user', 'exam_question', 'answer', 'answered_at')  # 'question' を 'exam_question' に修正
-    search_fields = ('user__username', 'exam_question__question_text', 'answer')  # 修正箇所を確認
-    list_filter = ('user', 'exam_question')  # 'exam_question' を正しく指定
-
 @admin.register(Bookmark)
 class BookmarkAdmin(admin.ModelAdmin):
     list_display = ('user', 'question', 'created_at')
@@ -48,4 +42,3 @@ class KokushiFieldAdmin(admin.ModelAdmin):
 
 admin.site.register(KokushiField, KokushiFieldAdmin)  
 #admin.site.register(QuizQuestion, QuizQuestionAdmin)
-#admin.site.register(QuizUserAnswer, QuizUserAnswerAdmin)

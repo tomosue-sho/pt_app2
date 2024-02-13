@@ -1,11 +1,14 @@
 from django.shortcuts import redirect, render
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuizQuestion, Choice, QuizUserAnswer
-from django.db.models import Count, Sum, Avg
+from django.db.models import Count, Sum, Avg,Q,Case,When
+from django.db.models import F, FloatField, ExpressionWrapper
+
 
 
 # 試験回選択用
@@ -117,38 +120,40 @@ def submit_quiz_answers(request, question_id):
         if next_question:
             return redirect('pt_kokushi:quiz_questions', question_id=next_question.id)
         else:
-            return redirect('quiz_result')
+            return redirect('pt_kokushi:kokushi_results')
 
+@login_required
+def kokushi_results_view(request):
+    user = request.user
+    user_answers = QuizUserAnswer.objects.filter(user=user)
+    total_questions = QuizQuestion.objects.count()
 
-def result_view(request):
-    user = request.user  # 現在のユーザーを取得
-    
-    if user.is_authenticated:
-        # 分野ごとの得点を集計
-        field_scores = QuizUserAnswer.objects.filter(
-            user=user,
-            selected_choices__is_correct=True
-        ).values('question__field').annotate(
-            total_score=Sum('question__point')
+    # 分野ごとの正解数と質問数を取得し、正答率を計算
+    field_accuracy = QuizUserAnswer.objects.filter(user=user).annotate(
+        is_correct=Case(
+            When(selected_choices__is_correct=True, then=1),
+            default=0,
+            output_field=FloatField()
         )
+    ).values('question__field__name').annotate(
+        correct_avg=Avg('is_correct') * 100  # 正答率をパーセンテージで計算
+    ).order_by('question__field__name')
 
-        # 設定点数ごとの正解率を計算
-        point_accuracy = QuizUserAnswer.objects.filter(
-            user=user
-        ).values('question__point').annotate(
-            correct_count=Count('id', filter=Q(selected_choices__is_correct=True)),
-            total_count=Count('id')
-        )
+    # 全体の正答率を計算
+    overall_accuracy = user_answers.aggregate(
+        correct=Count('selected_choices', filter=Q(selected_choices__is_correct=True)),
+        total=Count('id')
+    )
+    overall_accuracy['accuracy'] = overall_accuracy['correct'] * 100.0 / overall_accuracy['total'] if overall_accuracy['total'] > 0 else 0
 
-        # 集計結果をテンプレートに渡す
-        context = {
-            'field_scores': field_scores,
-            'point_accuracy': point_accuracy,
-        }
-        return render(request, 'kokushi_results.html', context)
-    else:
-        return redirect('pt_kokushi:top')
-    
+    context = {
+        'field_accuracy': field_accuracy,
+        'overall_accuracy': overall_accuracy,
+        'total_questions': total_questions,
+    }
+
+    # HttpResponse オブジェクトを返す
+    return render(request, 'kokushi/kokushi_results.html', context)
     
 #セッションクリアのための関数（時直し時とかに使う）ーーーーーーーーーーーー
 #最初からやり直す関数

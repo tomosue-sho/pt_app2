@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>成績結果</h2>
+
+<h3>分野ごとの正答率</h3>
+{% for field in field_accuracy %}  <!-- ここを field_results から field_accuracy に修正 -->
+    <p>{{ field.question__field__name }}: 正答率 {{ field.correct_avg }}%</p>  <!-- accuracy を correct_avg に修正 -->
+{% endfor %}
+
+<h3>全体の正答率</h3>
+<p>正答率: {{ overall_accuracy.accuracy }}%</p>
+
+<!-- 解答時間と目標正答率との差に関する表示もここに追加 -->
+
+{% endblock %}

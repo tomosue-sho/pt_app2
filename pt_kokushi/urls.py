@@ -16,7 +16,7 @@ from pt_kokushi.views.quiz_views import submit_answer,select_subfield,select_sub
 from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view
 from pt_kokushi.views.quiz_views import reset_quiz_session_for_sub2field,quiz_page_for_sub2field
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
-from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz
+from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 
 app_name = 'pt_kokushi'
 
@@ -78,6 +78,7 @@ urlpatterns = [
     path('quiz_questions/continue/', continue_quiz_view, name='continue_quiz'),#前回の続きから
     path('quiz_questions/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す
     path('quiz_question/exit/', exit_quiz, name='exit_quiz'),
+    path('quiz_question/kokushi_results/', kokushi_results_view, name='kokushi_results'),
 ]
 
 if settings.DEBUG:
