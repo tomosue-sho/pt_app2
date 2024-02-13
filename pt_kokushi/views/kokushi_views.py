@@ -3,11 +3,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils.timezone import now
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,QuizQuestion, Choice, QuizUserAnswer
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
-from django.db.models import F, FloatField, ExpressionWrapper,IntegerField
+from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
 
 # 試験回選択用
@@ -87,24 +88,40 @@ def quiz_questions_view(request, question_id=None):
 
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+# 問題に取り組み始めるビュー
+def start_quiz_question(request, question_id):
+    # 問題の取得
+    question = get_object_or_404(QuizQuestion, pk=question_id)
+    # QuizUserAnswer インスタンスを作成または更新
+    quiz_user_answer, created = QuizUserAnswer.objects.update_or_create(
+        user=request.user,
+        question=question,
+        defaults={'start_time': now()}  # start_time を現在時刻に設定
+    )
+    # 問題ページにリダイレクト
+    return redirect('quiz_question_view', question_id=question_id)
+
+
 def submit_quiz_answers(request, question_id):
     if request.method == 'POST':
         user = request.user
         current_question = get_object_or_404(QuizQuestion, pk=question_id)
         selected_choice_ids = request.POST.getlist(f'question_{question_id}')
 
-        # QuizUserAnswer インスタンスを作成または取得
+        # QuizUserAnswer インスタンスを取得または作成し、終了時刻を更新
         quiz_user_answer, created = QuizUserAnswer.objects.get_or_create(
             user=user,
-            question=current_question
+            question=current_question,
+            defaults={'start_time': now()}  # ここは必要に応じて調整してください
         )
-        
+        quiz_user_answer.end_time = now()  # 回答終了時刻を更新
+        quiz_user_answer.save()
+
         # 選択した選択肢をクリアし、新たに選択された選択肢を追加
         quiz_user_answer.selected_choices.clear()
         for choice_id in selected_choice_ids:
             selected_choice = get_object_or_404(Choice, pk=choice_id)
             quiz_user_answer.selected_choices.add(selected_choice)
-
         # 正解の選択肢を取得
         correct_choices = current_question.choices.filter(is_correct=True)
         correct_choice_ids = set(correct_choices.values_list('id', flat=True))
@@ -125,6 +142,26 @@ def submit_quiz_answers(request, question_id):
 def kokushi_results_view(request):
     user = request.user
     total_questions = QuizQuestion.objects.count()
+    exam_year = request.session.get('exam_year', None)  # セッションから試験年度を取得
+    if exam_year is not None:
+        exam = Exam.objects.get(year=exam_year)  # 試験年度に基づいてExamオブジェクトを取得
+    else:
+        exam = None 
+    
+    #回答時間の計算
+    user_answers = QuizUserAnswer.objects.filter(user=user).annotate(
+        answer_duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
+    )
+
+    formatted_answers = []
+    for answer in user_answers:
+        duration = answer.answer_duration
+        hours, remainder = divmod(duration.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        formatted_answers.append({
+            'question_number': answer.question.question_number,
+            'answer_time': f"{int(hours)}時間{int(minutes)}分{int(seconds)}秒"
+        })
     
     # 個人の分野ごとの正答数と質問数を計算
     field_accuracy = QuizUserAnswer.objects.filter(user=user).annotate(
@@ -158,11 +195,13 @@ def kokushi_results_view(request):
     ).annotate(
         accuracy=ExpressionWrapper(F('correct_sum') * 100.0 / F('total'), output_field=FloatField())
     )
-    
     context = {
+        'exam': exam,
+        'formatted_answers': formatted_answers,
         'all_user_accuracy': all_user_accuracy,
         'field_accuracy': field_accuracy,
         'field_accuracy_all': field_accuracy_all,
+        
     }
     return render(request, 'kokushi/kokushi_results.html', context)
 
@@ -207,4 +246,3 @@ def exit_quiz(request):
         # 最後に解答した質問のIDがない場合の処理
         # 例: エラーメッセージを表示する、またはクイズのトップページにリダイレクトする
         return redirect('pt_kokushi:timer')
-
