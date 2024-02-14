@@ -79,6 +79,11 @@
                 <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
             </div>
             {% endfor %}
+            <div id="answer" style="display:none;">
+                <p><strong>解答：</strong>{{ question.answer_text }}</p>
+            </div>
+            <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
+        </div>
     </div> 
 </div>
 <!-- ブックマークボタン -->
@@ -98,4 +103,22 @@
 <p><a href="{% url 'pt_kokushi:bookmark_list' %}" class="btn btn-secondary">リストへ戻る</a></p>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const answerDiv = document.getElementById('answer');
+    
+        showAnswerBtn.addEventListener('click', function() {
+            // 解答が現在非表示なら表示し、表示されているなら非表示にする
+            if (answerDiv.style.display === "none") {
+                answerDiv.style.display = "block";
+                showAnswerBtn.textContent = "解答を隠す"; // ボタンのテキストを変更
+            } else {
+                answerDiv.style.display = "none";
+                showAnswerBtn.textContent = "解答を表示"; // ボタンのテキストを変更
+            }
+        });
+    });
+</script>
 {% endblock %}

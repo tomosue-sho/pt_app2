@@ -1,9 +1,8 @@
-from django.shortcuts import redirect, render
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.timezone import now
+from django.utils.timezone import now,timedelta
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
@@ -30,44 +29,48 @@ def your_view_function(request):
 #国試タイマー
 def time_setting_view(request):
     if request.method == 'POST':
-        # 時間設定を受け取る
         time_limit = request.POST.get('time_limit')
         custom_time_limit = request.POST.get('custom_time_limit')
         exam_year = request.POST.get('exam_year')
-        if time_limit:
-            time_limit_seconds = int(time_limit) * 60  # 分を秒に変換
-            request.session['time_limit'] = time_limit_seconds
-        elif custom_time_limit:
-            try:
-                time_limit_seconds = int(custom_time_limit) * 60  # 分を秒に変換
-                request.session['time_limit'] = time_limit_seconds
-            except ValueError:
-                # 不正な入力の場合、エラーメッセージを設定
-                return render(request, 'kokushi/timer.html', {'error': '有効な時間を入力してください。'})
-        else:
-            # 時間設定がない場合のエラーハンドリング
-            return render(request, 'kokushi/timer.html', {'error': '時間を設定してください。'})
         
+        exam = None
         if exam_year:
-            exam = Exam.objects.get(year=exam_year)
+            try:
+                exam = Exam.objects.get(year=exam_year)
+            except Exam.DoesNotExist:
+                return render(request, 'kokushi/timer.html', {'error': '指定された試験が存在しません。'})
+
+        # 時間の設定
+        time_limit_seconds = int(time_limit) * 60 if time_limit else int(custom_time_limit) * 60
+        end_time = now() + timedelta(seconds=time_limit_seconds)
+
+        # 既存のセッションを検索
+        existing_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).first()
+
+        if existing_session:
+            # 既存のセッションがある場合、終了時刻を更新
+            existing_session.end_time = end_time
+            existing_session.save()
+        else:
+            # 既存のセッションがない場合、新しいセッションを作成
             KokushiQuizSession.objects.create(
                 user=request.user,
                 exam=exam,
-                start_time=now()  # 開始時刻を現在時刻に設定
+                start_time=now(),
+                end_time=end_time
             )
 
-        questions = QuizQuestion.objects.filter(exam__year=exam_year)
-        for question in questions:
-            QuizUserAnswer.objects.update_or_create(
-                user=request.user,
-                question=question,
-                defaults={'start_time': now()}
-            )
-
-        # 正常に時間設定が完了した場合、quiz_questions_viewにリダイレクト
+        if exam:
+            questions = QuizQuestion.objects.filter(exam__year=exam_year)
+            for question in questions:
+                QuizUserAnswer.objects.update_or_create(
+                    user=request.user,
+                    question=question,
+                    defaults={'start_time': now()}
+                )
+        
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
     else:
-        # GETリクエストの場合は時間設定ページを表示
         return render(request, 'kokushi/timer.html')
 
 def quiz_questions_view(request, question_id=None):
@@ -81,6 +84,7 @@ def quiz_questions_view(request, question_id=None):
     exam = get_object_or_404(Exam, year=exam_year)
     question = get_object_or_404(QuizQuestion, pk=question_id) if question_id else None
     questions = QuizQuestion.objects.filter(exam=exam)
+    quiz_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).first()
     
     if not questions.exists():
         return render(request, 'kokushi/no_questions.html', {'exam': exam})
@@ -94,7 +98,8 @@ def quiz_questions_view(request, question_id=None):
     context = {
         'exam': exam,
         'question': question,
-        'time_limit': time_limit,  # コンテキストに時間設定を追加
+        'time_limit': time_limit,
+        'quiz_session': quiz_session,
     }
     return render(request, 'kokushi/quiz_questions.html', context)
 
