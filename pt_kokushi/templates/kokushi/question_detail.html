@@ -44,16 +44,8 @@
         margin-top:10px;
     }
 
-    #timer {
-        position: fixed;
-        top: 80px;
-        right: 10px;
-        background-color: rgba(255, 255, 255, 0.9);
-        color: #333;
-        padding: 10px 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        z-index: 1000; /* 必要に応じて調整 */
+    .btn{
+        margin:5px;
     }
 
     #timer-placeholder {
@@ -90,15 +82,20 @@
     </div> 
 </div>
 <!-- ブックマークボタン -->
+<div class="container mt-3">
 {% if is_bookmarked %}
 <form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
     {% csrf_token %}
-    <button type="submit">ブックマークを削除</button>
+    <button type="submit"  class="btn btn-warning">ブックマークを削除</button>
 </form>
 {% else %}
 <form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
     {% csrf_token %}
-    <button type="submit">ブックマークに追加</button>
+    <button type="submit" class="btn btn-outline-secondary">ブックマークに追加</button>
 </form>
 {% endif %}
+
+<p><a href="{% url 'pt_kokushi:bookmark_list' %}" class="btn btn-secondary">リストへ戻る</a></p>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
+</div>
 {% endblock %}

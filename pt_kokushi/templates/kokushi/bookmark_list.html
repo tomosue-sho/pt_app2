@@ -1,15 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>ブックマークした問題</h2>
-<ul>
-    {% for bookmark in bookmarks %}
-    <li>
-        <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}">
-            問題 {{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
+<div class="container mt-4">
+    <h2 class="mb-3">ブックマークした問題</h2>
+    <div class="list-group">
+        {% for bookmark in bookmarks %}
+        <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        [{{ bookmark.question.exam.year }}年度]問題{{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
+            <form action="{% url 'pt_kokushi:remove_bookmark' bookmark.question.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">ブックマーク解除</button>
+            </form>
         </a>
-        - <a href="{% url 'pt_kokushi:remove_bookmark' bookmark.question.id %}">ブックマーク解除</a>
-    </li>
-    {% endfor %}
-</ul>
+        {% empty %}
+        <div class="list-group-item">ブックマークした問題はありません。</div>
+        {% endfor %}
+    </div>
+</div>
+<br>
+<p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
 {% endblock %}
+
+

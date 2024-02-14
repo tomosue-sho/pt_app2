@@ -310,7 +310,8 @@ def remove_bookmark(request, question_id):
     return redirect('pt_kokushi:quiz_questions')
 
 def bookmark_list(request):
-    bookmarks = Bookmark.objects.filter(user=request.user).select_related('question')
+    bookmarks = Bookmark.objects.filter(user=request.user).select_related('question__exam')
+    
     return render(request, 'kokushi/bookmark_list.html', {'bookmarks': bookmarks})
 
 def question_detail(request, question_id):
