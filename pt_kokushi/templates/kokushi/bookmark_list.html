@@ -5,10 +5,10 @@
 <ul>
     {% for bookmark in bookmarks %}
     <li>
-        <a href="{% url 'question_detail' bookmark.question.id %}">
+        <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}">
             問題 {{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
         </a>
-        - <a href="{% url 'remove_bookmark' bookmark.question.id %}">ブックマーク解除</a>
+        - <a href="{% url 'pt_kokushi:remove_bookmark' bookmark.question.id %}">ブックマーク解除</a>
     </li>
     {% endfor %}
 </ul>

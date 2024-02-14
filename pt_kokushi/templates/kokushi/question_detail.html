@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .choice-label {
+        display: block;
+        padding: 10px;
+        margin-bottom: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+        cursor: pointer;
+    }
+    
+    .choice-label:hover {
+        background-color: #e9ecef;
+    }
+    
+    .choice-input {
+        display: none;
+    }
+    
+    .choice-input:checked + .choice-label {
+        background-color: #cae0f4;
+        border-color: #b8daff;
+    }
+
+    .card {
+        /* カードのカスタムスタイル */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつける */
+        border: none; /* 枠線を消す */
+    }
+    
+    .card-body {
+        /* カードボディのカスタムスタイル */
+    }
+    
+    .card-text {
+        /* カードテキストのカスタムスタイル */
+        font-size: 1.1em; /* フォントサイズを大きく */
+    }
+
+    .btn-warning{
+        margin-top:10px;
+    }
+
+    #timer {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000; /* 必要に応じて調整 */
+    }
+
+    #timer-placeholder {
+        height: 50px; /* タイマーの高さに応じて調整 */
+    }
+
+    /* ブックマークに追加ボタンのマウスオーバー時 */
+    .btn-outline-secondary:hover {
+        background-color: #6c757d; /* 濃い灰色 */
+        color: white;
+    }
+    
+    /* ブックマーク済みボタンのマウスオーバー時 */
+    .btn-warning:hover {
+        background-color: #ffc107; /* より鮮やかな黄色 */
+        color: black;
+    }
+</style>
+<h2>第{{ exam.year }}回 国試問題</h2>
+<div class="card mb-3">
+    <div class="card-body">
+            <!-- 問題文の表示 -->
+            <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
+            {% if question.question_image %}
+                <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+            {% endif %}
+            <!-- 選択肢の表示 -->
+            {% for choice in question.choices.all %}
+            <div>
+                <input type="checkbox" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" class="choice-input">
+                <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
+            </div>
+            {% endfor %}
+    </div> 
+</div>
+<!-- ブックマークボタン -->
+{% if is_bookmarked %}
+<form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">ブックマークを削除</button>
+</form>
+{% else %}
+<form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">ブックマークに追加</button>
+</form>
+{% endif %}
+{% endblock %}

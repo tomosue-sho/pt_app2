@@ -311,4 +311,24 @@ def remove_bookmark(request, question_id):
 
 def bookmark_list(request):
     bookmarks = Bookmark.objects.filter(user=request.user).select_related('question')
-    return render(request, 'bookmark_list.html', {'bookmarks': bookmarks})
+    return render(request, 'kokushi/bookmark_list.html', {'bookmarks': bookmarks})
+
+def question_detail(request, question_id):
+    exam_year = request.session.get('exam_year', None)
+    exam = Exam.objects.get(year=exam_year) if exam_year else None
+    
+    # 指定されたIDを持つ問題を取得
+    question = get_object_or_404(QuizQuestion, pk=question_id)
+    
+    # ブックマークされているかどうかを確認
+    is_bookmarked = Bookmark.objects.filter(user=request.user, question=question).exists()
+
+    # テンプレートに渡すコンテキスト
+    context = {
+        'exam': exam,
+        'question': question,
+        'is_bookmarked': is_bookmarked
+    }
+    
+    # テンプレートをレンダリング
+    return render(request, 'kokushi/question_detail.html', context)
