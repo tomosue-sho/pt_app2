@@ -13,7 +13,7 @@ class QuizQuestionAdmin(admin.ModelAdmin):
     get_exam_year.short_description = '年度'
     get_exam_year.admin_order_field = 'exam__year'
 
-    list_display = ('get_exam_year', 'field', 'point', 'question_number', 'answer_time', 'question_text', 'answer_video_url', 'question_image')
+    list_display = ('get_exam_year', 'field', 'point','time', 'question_number', 'answer_time', 'question_text', 'answer_video_url', 'question_image')
     search_fields = ('field', 'question_text')
     list_filter = ('exam__year', 'field', 'point')
 

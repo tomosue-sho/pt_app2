@@ -25,9 +25,15 @@ class KokushiField(models.Model):
         verbose_name_plural = "国試「分野追加」"
     
 class QuizQuestion(models.Model):
+    EXAM_TIME_CHOICES = (
+        ('午前', '午前'),
+        ('午後', '午後'),
+    )
+
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="年度")
-    field = models.ForeignKey(KokushiField, on_delete=models.CASCADE, verbose_name="分野", default=1)
+    field = models.ForeignKey(KokushiField, on_delete=models.CASCADE, verbose_name="分野")
     point = models.IntegerField("配点", choices=((1, '1点'), (3, '3点')))
+    time = models.CharField("午前・午後", max_length=2, choices=EXAM_TIME_CHOICES, default='午前')
     question_number = models.IntegerField("問題番号")
     answer_time = models.IntegerField("回答時間（秒）", blank=True, null=True)
     question_text = models.TextField("問題文")
@@ -36,12 +42,12 @@ class QuizQuestion(models.Model):
     answer_video_url = models.URLField("解答動画URL", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.exam.year}年 {self.field} {self.question_number}問"  # self.year を self.exam.year に変更
+        return f"{self.exam.year}年 {self.time} {self.question_number}問" 
 
     class Meta:
         verbose_name = "国試「問題作成」"
         verbose_name_plural = "国試「問題作成」"
-    
+
     
 class Choice(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
@@ -87,4 +93,3 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.question}"
-    

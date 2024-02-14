@@ -304,20 +304,45 @@ def exit_quiz(request):
         return redirect('pt_kokushi:timer')
 
 #ブックマーク機能のためのviews.pyーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+# ブックマークを追加する関数
 def add_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.get_or_create(user=request.user, question=question)
-    return redirect('pt_kokushi:quiz_questions')
+    
+    return redirect('pt_kokushi:quiz_questions', question_id=question_id)
 
+# ブックマークを削除する関数
 def remove_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.filter(user=request.user, question=question).delete()
+    
     return redirect('pt_kokushi:quiz_questions')
 
 def bookmark_list(request):
-    bookmarks = Bookmark.objects.filter(user=request.user).select_related('question__exam')
+    # ユーザーに紐付いたブックマークを取得し、年度と分野で注文
+    user_bookmarks = Bookmark.objects.filter(user=request.user).select_related('question__exam', 'question__field').order_by('question__exam__year', 'question__field__name')
     
-    return render(request, 'kokushi/bookmark_list.html', {'bookmarks': bookmarks})
+    # 年度ごとにブックマークをまとめる
+    bookmarks_by_year = {}
+    for bookmark in user_bookmarks:
+        year = bookmark.question.exam.year
+        if year not in bookmarks_by_year:
+            bookmarks_by_year[year] = []
+        bookmarks_by_year[year].append(bookmark.question)  # ブックマークされた問題の情報を追加
+
+    # 分野ごとにブックマークをまとめる
+    bookmarks_by_field = {}
+    for bookmark in user_bookmarks:
+        field_name = bookmark.question.field.name
+        if field_name not in bookmarks_by_field:
+            bookmarks_by_field[field_name] = []
+        bookmarks_by_field[field_name].append(bookmark.question)
+    
+    context = {
+        'bookmarks_by_year': bookmarks_by_year,
+        'bookmarks_by_field': bookmarks_by_field,
+    }
+    return render(request, 'kokushi/bookmark_list.html', context)
 
 def question_detail(request, question_id):
     exam_year = request.session.get('exam_year', None)
