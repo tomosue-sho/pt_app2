@@ -309,14 +309,16 @@ def add_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.get_or_create(user=request.user, question=question)
     
-    return redirect('pt_kokushi:quiz_questions', question_id=question_id)
+    referer_url = request.META.get('HTTP_REFERER', 'pt_kokushi:top')
+    return HttpResponseRedirect(referer_url)
 
 # ブックマークを削除する関数
 def remove_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.filter(user=request.user, question=question).delete()
     
-    return redirect('pt_kokushi:quiz_questions')
+    referer_url = request.META.get('HTTP_REFERER', 'quiz_question/bookmarks/')
+    return HttpResponseRedirect(referer_url)
 
 def bookmark_list(request):
     # ユーザーに紐付いたブックマークを取得し、年度と分野で注文
@@ -339,6 +341,7 @@ def bookmark_list(request):
         bookmarks_by_field[field_name].append(bookmark.question)
     
     context = {
+        'bookmarks': user_bookmarks,
         'bookmarks_by_year': bookmarks_by_year,
         'bookmarks_by_field': bookmarks_by_field,
     }
