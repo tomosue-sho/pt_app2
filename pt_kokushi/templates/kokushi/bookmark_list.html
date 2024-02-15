@@ -1,6 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .group-card-container {
+        border: 1px solid #dee2e6; /* 薄いグレーの枠線 */
+        border-radius: 5px; /* 角丸 */
+        background-color: #f8f9fa; /* より薄いグレーの背景色 */
+        margin-bottom: 20px; /* 下の要素との間隔 */
+        padding: 15px; /* 内側の余白 */
+    }
+    .card-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-content {
+        flex-grow: 1;
+    }
+    .card-actions {
+        margin-left: 20px;
+    }
+    .btn-outline-danger {
+        white-space: nowrap;
+    }
+    .card-title a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.2s ease-in-out;
+    }
+    .card-title a:hover {
+        text-decoration: underline;
+    }
+</style>
 <div class="container mt-4">
     <div class="mb-3">
         <a href="?mode=year" class="btn btn-primary">年度ごとに表示</a>
@@ -8,27 +42,33 @@
     </div>
     <div class="row">
         {% for group, bookmarks in bookmarks_grouped.items %}
-            <div class="col-12 mb-2">
-                <h3>{{ group }}</h3>
+        <div class="col-12 mb-4">
+            <div class="group-card-container">
+                <!-- 表示モードに応じてヘッダーを変更 -->
+                <h3>{% if mode == 'year' %}{{ group }}年度{% else %}{{ group }}{% endif %}</h3>
                 {% for bookmark in bookmarks %}
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}" class="stretched-link">
-                                    [{{ bookmark.question.exam.year }}年度] 問題{{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
-                                </a>
-                            </h5>
-                            <h6 class="card-subtitle mb-2 text-muted">分野: <span class="badge bg-secondary">{{ bookmark.question.field.name }}</span></h6>
-                            <form action="{% url 'pt_kokushi:remove_bookmark' bookmark.question.id %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm">ブックマーク解除</button>
-                            </form>
-                        </div>
+                <div class="card-custom">
+                    <div class="card-content">
+                        <h5 class="card-title">
+                            <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}">
+                                [{{ bookmark.question.exam.year }}年度] 問題{{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
+                            </a>
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">分野: {{ bookmark.question.field.name }}</h6>
                     </div>
+                    <div class="card-actions">
+                        <form action="{% url 'pt_kokushi:remove_bookmark' bookmark.question.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm">ブックマーク解除</button>
+                        </form>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
+        </div>
         {% endfor %}
     </div>
     <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary mt-4">トップへ戻る</a></p>
 </div>
+
 {% endblock %}
