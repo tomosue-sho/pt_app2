@@ -152,7 +152,7 @@
 //試験時間のカウントダウン用
 document.addEventListener('DOMContentLoaded', function() {
     var endTime = new Date("{{ quiz_session.end_time|date:'c' }}").getTime();
-    console.log(endTime); // この時点で`endTime`は定義されているため、コンソールにログ出力できます。
+    console.log(endTime);
     console.log("{{ quiz_session.end_time|date:'c' }}")
     var timer = setInterval(function() {
         var now = new Date().getTime();

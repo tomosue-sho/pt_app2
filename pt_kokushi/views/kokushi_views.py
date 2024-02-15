@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse,JsonResponse
 from django.urls import reverse
 from django.utils.timezone import now,timedelta
 from django.http import HttpResponseRedirect
@@ -10,6 +11,8 @@ from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
+import json
+
 
 # 試験回選択用
 def exam_selection_view(request):
@@ -308,7 +311,6 @@ def exit_quiz(request):
 def add_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.get_or_create(user=request.user, question=question)
-    
     referer_url = request.META.get('HTTP_REFERER', 'pt_kokushi:top')
     return HttpResponseRedirect(referer_url)
 
@@ -316,34 +318,28 @@ def add_bookmark(request, question_id):
 def remove_bookmark(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     Bookmark.objects.filter(user=request.user, question=question).delete()
-    
     referer_url = request.META.get('HTTP_REFERER', 'quiz_question/bookmarks/')
     return HttpResponseRedirect(referer_url)
 
 def bookmark_list(request):
-    # ユーザーに紐付いたブックマークを取得し、年度と分野で注文
-    user_bookmarks = Bookmark.objects.filter(user=request.user).select_related('question__exam', 'question__field').order_by('question__exam__year', 'question__field__name')
-    
-    # 年度ごとにブックマークをまとめる
-    bookmarks_by_year = {}
-    for bookmark in user_bookmarks:
-        year = bookmark.question.exam.year
-        if year not in bookmarks_by_year:
-            bookmarks_by_year[year] = []
-        bookmarks_by_year[year].append(bookmark.question)  # ブックマークされた問題の情報を追加
+    mode = request.GET.get('mode', 'year')  # クエリパラメータから表示モードを取得
 
-    # 分野ごとにブックマークをまとめる
-    bookmarks_by_field = {}
-    for bookmark in user_bookmarks:
-        field_name = bookmark.question.field.name
-        if field_name not in bookmarks_by_field:
-            bookmarks_by_field[field_name] = []
-        bookmarks_by_field[field_name].append(bookmark.question)
-    
+    user_bookmarks = Bookmark.objects.filter(user=request.user).select_related('question__exam', 'question__field').order_by('question__exam__year', 'question__field__name')
+
+    # 年度ごとまたは分野ごとにブックマークをまとめる
+    bookmarks_grouped = {}
+    if mode == 'year':
+        for bookmark in user_bookmarks:
+            year = bookmark.question.exam.year
+            bookmarks_grouped.setdefault(year, []).append(bookmark)
+    elif mode == 'field':
+        for bookmark in user_bookmarks:
+            field_name = bookmark.question.field.name
+            bookmarks_grouped.setdefault(field_name, []).append(bookmark)
+
     context = {
-        'bookmarks': user_bookmarks,
-        'bookmarks_by_year': bookmarks_by_year,
-        'bookmarks_by_field': bookmarks_by_field,
+        'bookmarks_grouped': bookmarks_grouped,
+        'mode': mode,  # 表示モードをコンテキストに追加
     }
     return render(request, 'kokushi/bookmark_list.html', context)
 
@@ -366,3 +362,13 @@ def question_detail(request, question_id):
     
     # テンプレートをレンダリング
     return render(request, 'kokushi/question_detail.html', context)
+
+#ブックマークでの正誤判定
+@csrf_exempt
+def check_answer(request, question_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        selected_choice_id = data.get('choice_id')
+        correct_choice = Choice.objects.filter(question_id=question_id, is_correct=True).first()
+        is_correct = str(correct_choice.id) == selected_choice_id
+        return JsonResponse({'is_correct': is_correct})

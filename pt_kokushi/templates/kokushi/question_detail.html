@@ -63,50 +63,110 @@
         background-color: #ffc107; /* より鮮やかな黄色 */
         color: black;
     }
+
+    /* CSSファイルまたは<style>タグ内 */
+        .result-correct {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .result-incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        
 </style>
-<h2>ブックマーク一覧</h2>
 
-  <h3>年度ごとのブックマーク</h3>
-  {% for year, bookmarks in bookmarks_by_year.items %}
-      <h4>{{ year }}年度</h4>
-      {% for bookmark in bookmarks %}
-          <p>{{ bookmark.question }}</p>
-      {% endfor %}
-   {% endfor %}
-
-  <h3>分野ごとのブックマーク</h3>
-  {% for field_name, bookmarks in bookmarks_by_field.items %}
-     <h4>{{ field_name }}</h4>
-      {% for bookmark in bookmarks %}
-          <p>{{ bookmark.question }}</p>
-     {% endfor %}
-  {% endfor %}
-
-
-     <div id="answer" style="display:none;">
-        <p><strong>解答：</strong>{{ question.answer_text }}</p>
-    </div>
-    <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
-
-<!-- ブックマークボタン -->
 <div class="container mt-3">
-{% if is_bookmarked %}
-<form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit"  class="btn btn-warning">ブックマークを削除</button>
-</form>
-{% else %}
-<form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-outline-secondary">ブックマークに追加</button>
-</form>
-{% endif %}
+    <h2>第{{ exam.year }}回 国試問題</h2>
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
+            {% if question.question_image %}
+                <img src="{{ question.question_image.url }}" class="img-fluid mb-3" alt="問題画像">
+            {% endif %}
+            <!-- 選択肢のリスト表示 -->
+            <div id="choices">
+                {% for choice in question.choices.all %}
+                    <div>
+                        <input type="radio" id="choice_{{ choice.id }}" name="choices" value="{{ choice.id }}" class="choice-input">
+                        <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <button id="check-answer-btn" class="btn btn-primary mt-2" data-question-id="{{ question.id }}" data-check-answer-url="{% url 'pt_kokushi:check_answer' question.id %}">正解か確認する</button>
+            <div id="result" style="display:none;"></div>
+            <br>
+            <div id="answer" style="display:none;">
+                <p><strong>解説：</strong>{{ question.answer_text }}</p>
+            </div>
+            <button id="show-answer-btn" class="btn btn-info mt-2">解説を表示</button>
+        </div>
+    </div>
+</div>
+<div>
+    {% if request.user.is_authenticated %}
+        <div class="mt-3">
+            {% if is_bookmarked %}
+                <form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">ブックマーク済み</button>
+                </form>
+            {% else %}
+                <form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-secondary">この問題をブックマークに追加</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
 
 <p><a href="{% url 'pt_kokushi:bookmark_list' %}" class="btn btn-secondary">リストへ戻る</a></p>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップへ戻る</a></p>
 </div>
-
 <script>
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        
+        checkAnswerBtn.addEventListener('click', function() {
+            const questionId = checkAnswerBtn.dataset.questionId;
+            const selectedChoiceId = document.querySelector('input[name="choices"]:checked').value;
+            const checkAnswerUrl = checkAnswerBtn.dataset.checkAnswerUrl;
+            
+            fetch(checkAnswerUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ choice_id: selectedChoiceId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                // 以前のクラスをクリア
+                resultDiv.className = '';
+                // 正解か不正解かに応じてクラスを適用
+                if (data.is_correct) {
+                    resultDiv.textContent = "正解です！";
+                    resultDiv.classList.add("result-correct");
+                } else {
+                    resultDiv.textContent = "不正解です。";
+                    resultDiv.classList.add("result-incorrect");
+                }
+                resultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    
     document.addEventListener('DOMContentLoaded', function() {
         const showAnswerBtn = document.getElementById('show-answer-btn');
         const answerDiv = document.getElementById('answer');
@@ -115,10 +175,10 @@
             // 解答が現在非表示なら表示し、表示されているなら非表示にする
             if (answerDiv.style.display === "none") {
                 answerDiv.style.display = "block";
-                showAnswerBtn.textContent = "解答を隠す"; // ボタンのテキストを変更
+                showAnswerBtn.textContent = "解説を隠す"; // ボタンのテキストを変更
             } else {
                 answerDiv.style.display = "none";
-                showAnswerBtn.textContent = "解答を表示"; // ボタンのテキストを変更
+                showAnswerBtn.textContent = "解説を表示"; // ボタンのテキストを変更
             }
         });
     });
