@@ -152,6 +152,24 @@ def finish_quiz_view(request):
     # 終了後のページにリダイレクト
     return redirect('pt_kokushi:kokushi_results')
 
+#問題一覧表用
+def quiz_question_list(request):
+    
+    # 午前の問題を取得
+    questions_am = QuizQuestion.objects.filter(time='午前').order_by('question_number')
+    # 午後の問題を取得
+    questions_pm = QuizQuestion.objects.filter(time='午後').order_by('question_number')
+    # ユーザーの回答を取得
+    user_answers = QuizUserAnswer.objects.filter(user=request.user).values_list('question_id', flat=True)
+    
+    context = {
+        'questions_am': questions_am,
+        'questions_pm': questions_pm,
+        'user_answers': user_answers,
+    }
+    return render(request, 'kokushi/quiz_question_list.html', context)
+
+
 
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
@@ -213,14 +231,16 @@ def submit_quiz_answers(request, question_id):
         if selected_correctly:
             # スコアを更新するロジックをここに追加
             pass
-
+        request.session['last_question_id'] = question_id
         # 次の問題へのリダイレクトまたは結果ページへのリダイレクトを行う
         next_question = QuizQuestion.objects.filter(id__gt=question_id).order_by('id').first()
         if next_question:
-            return redirect('pt_kokushi:quiz_questions', question_id=next_question.id)
+            return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
         else:
             return redirect('pt_kokushi:kokushi_results')
 
+
+#成績計算-----------------------------------------------------
 @login_required
 def kokushi_results_view(request):
     user = request.user
@@ -309,34 +329,36 @@ def restart_kokushi_quiz_view(request):
     # 必要に応じてセッション情報のリセットも行う
     # request.session.pop('key', None)
 
-    return redirect('pt_kokushi:quiz_questions_with_id', question_id=1)
+    return redirect('pt_kokushi:quiz_questions_detail', question_id=1)
 
 #前回の続きから用
 def continue_quiz_view(request):
-    user = request.user
-    if not user.is_authenticated:
-        return redirect('login')
-
-    # ユーザーの最後の進行状態を取得
-    last_answer = QuizUserAnswer.objects.filter(user=user).order_by('-id').first()
-    if last_answer:
-        next_question_id = last_answer.question.id + 1
-        return redirect('pt_kokushi:quiz_questions_view', question_id=next_question_id)
+    last_question_id = request.session.get('last_question_id', None)
+    if last_question_id is not None:
+        # 最後に解答した質問のIDがある場合、次の質問を探す
+        next_question = QuizQuestion.objects.filter(id__gt=last_question_id).order_by('id').first()
+        if next_question:
+            # 次の質問が存在する場合、その質問のページにリダイレクト
+            return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
+        else:
+            # 次の質問が存在しない場合（最後の質問に回答済み）、クイズ結果ページなどにリダイレクト
+            return redirect('pt_kokushi:kokushi_results')
     else:
-        # 進行状態がなければ、最初の問題から開始
-        return redirect('pt_kokushi:quiz_questions_view', question_id=1)
-    
+        # セッションに最後の質問のIDがない場合、クイズの最初の質問から開始
+        first_question = QuizQuestion.objects.order_by('id').first()
+        if first_question:
+            return redirect('pt_kokushi:quiz_questions_detail', question_id=first_question.id)
+        else:
+            # 質問が一つもない場合は別のページにリダイレクト（エラーページなど）
+            return redirect('pt_kokushi:error_page')  # 適切なリダイレクト先に変更してください
+
 def exit_quiz(request):
     # セッションから最後に解答した質問のIDを取得
     last_question_id = request.session.get('last_question_id', None)
     
     if last_question_id is not None:
-        # 最後に解答した質問のIDがある場合、適切な処理を行う
-        # 例: ユーザーをクイズの結果ページやトップページにリダイレクトする
         return redirect('pt_kokushi:top')
     else:
-        # 最後に解答した質問のIDがない場合の処理
-        # 例: エラーメッセージを表示する、またはクイズのトップページにリダイレクトする
         return redirect('pt_kokushi:timer')
 
 #ブックマーク機能のためのviews.pyーーーーーーーーーーーーーーーーーーーーーーーーーーーーー

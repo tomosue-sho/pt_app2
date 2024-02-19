@@ -1,0 +1,219 @@
+{% load custom_filters %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+   
+      
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    
+    <!-- Your custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+</head>
+<style>
+    .questionsTable {
+        border-collapse: collapse;
+    }
+    .questionsTable, .questionsTable th, .questionsTable td {
+        border: 1px solid #ddd;
+    }
+    .questionsTable th, .questionsTable td {
+        padding: 8px;
+        text-align: left;
+    }
+    .questionsTable tr:nth-child(even) {
+        background-color: #FFF;
+    }
+    #questionsTableAM th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    #questionsTablePM th {
+        background-color: #2196F3; /* 青系の色 */
+        color: white;
+    }
+    #questionsTable tbody tr:hover, #questionsTableAM tbody tr:hover {
+        background-color: #FFCCFF; /* ホバー時の背景色 */
+        color: #000; /* ホバー時のテキスト色 */
+        font-weight: bold;
+        cursor: pointer;
+        border: 1px solid #000; /* ホバー時の境界線 */
+    }
+    
+    #questionsTablePM tr:nth-child(even) {
+        background-color: #e3f2fd; /* より薄い青系の色 */
+    }
+    #questionsTable tbody tr:hover, #questionsTablePM tbody tr:hover {
+        background-color: #FFCCFF; /* ホバー時の背景色 */
+        color: #000; /* ホバー時のテキスト色 */
+        font-weight: bold;
+        cursor: pointer;
+        border: 1px solid #000; /* ホバー時の境界線 */
+    }
+    #questionsTable thead th, #questionsTableAM thead th {
+        text-shadow: 2px 2px 4px #000000; /* X軸オフセット, Y軸オフセット, ブラーの半径, 色 */
+    }
+    
+    #questionsTable thead th, #questionsTablePM thead th {
+        text-shadow: 2px 2px 4px #000000; /* X軸オフセット, Y軸オフセット, ブラーの半径, 色 */
+    }
+    #exam_title {
+        background-color: #f8f8f8;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background-image: linear-gradient(to right, #4CAF50 , #81C784);
+        color: white;
+        text-align: center;
+    }
+    
+    h2 {
+        font-size: 24px;
+        color: #555;
+        padding: 10px 0;
+        text-align: left;
+        border-bottom: 2px solid #4CAF50;
+    }
+    
+</style>
+
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="margin-bottom: 1rem;">
+        <div class="container-fluid">
+            <a href="{% url 'pt_kokushi:post_list' %}" class="navbar-brand" >理学療法国試対策アプリ</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:my_page' %}"><p class= "username-nav">ようこそ <span class="navbar-text"> {{ user.nickname }} </span>さん</p></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:top' %}">トップ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:my_page' %}">マイページ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログアウト</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if questions_am %}
+    <h2 id = "exam_title">{{ questions_am.0.exam.year }}年度</h2>
+    {% endif %}
+
+
+    <h2>午前の問題</h2>
+    <table id="questionsTableAM" class="display questionsTable">
+        <colgroup>
+            <col span="1" style="background-color:#EFEFEF;"> <!-- 問題番号のカラム -->
+            <col span="1" style="background-color:#DFDFDF;"> <!-- 分野のカラム -->
+            <col span="1" style="background-color:#CFCFCF;"> <!-- 年度のカラム -->
+            <col span="1" style="background-color:#BFBFBF;"> <!-- 午前/午後のカラム -->
+        </colgroup>
+        <thead>
+            <tr>
+                <th>問題番号</th>
+                <th>分野</th>
+                <th>午前/午後</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for question in questions_am %}
+            <tr data-href="{% url 'pt_kokushi:quiz_questions_detail' question.id %}">
+                <td>{{ question.question_number }}</td>
+                <td>{{ question.field }}</td>
+                <td>{{ question.time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>午後の問題</h2>
+    <table id="questionsTablePM" class="display questionsTable">
+        <colgroup>
+            <!-- colgroup定義 -->
+        </colgroup>
+        <thead>
+            <tr>
+                <th>問題番号</th>
+                <th>分野</th>
+                <th>午前/午後</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for question in questions_pm %}
+            <tr data-href="{% url 'pt_kokushi:quiz_questions_detail' question.id %}">
+                <td>{{ question.question_number }}</td>
+                <td>{{ question.field }}</td>
+                <td>{{ question.time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    
+    
+</body>
+<script>
+    $(document).ready( function () {
+        $('#questionsTable').DataTable({
+            "paging": true, // ページング機能を有効にする
+            "ordering": true, // カラムヘッダーでのソート機能を有効にする
+            "info": true, // テーブルの情報表示を有効にする
+            "searching": true // 検索機能を有効にする
+        });
+    });
+
+    $(document).ready(function() {
+        // 午前のテーブルの行がクリックされたとき
+        $("#questionsTableAM tbody tr").click(function() {
+            window.location = $(this).data("href");
+        }).hover(
+            function() {
+                $(this).css('cursor','pointer');
+            }, 
+            function() {
+                $(this).css('cursor','auto');
+            }
+        );
+    
+        // 午後のテーブルの行がクリックされたとき
+        $("#questionsTablePM tbody tr").click(function() {
+            window.location = $(this).data("href");
+        }).hover(
+            function() {
+                $(this).css('cursor','pointer');
+            }, 
+            function() {
+                $(this).css('cursor','auto');
+            }
+        );
+    });
+    
+</script>
+

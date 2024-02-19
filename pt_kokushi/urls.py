@@ -18,7 +18,7 @@ from pt_kokushi.views.quiz_views import reset_quiz_session_for_sub2field,quiz_pa
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
-from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page
+from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list
 
 app_name = 'pt_kokushi'
 
@@ -71,11 +71,9 @@ urlpatterns = [
     path('select_sub2field_template/<int:subfield_id>/', select_sub2field_template, name='select_sub2field_template'),
     path('reset-quiz-count/', reset_quiz_count, name='reset_quiz_count'),
     path('top/', exam_selection_view, name='top'),#国試年度選択用
-    path('timer/', time_setting_view, name='timer'),#国試試験時間
-    path('quiz_questions/', quiz_questions_view, name='quiz_questions'),
-    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions'),#国試問題出題ページ
-    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_by_id'),
-    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_with_id'),
+    path('timer/', time_setting_view, name='timer'),#国試試験時間,
+    path('quiz_questions/', quiz_questions_view, name='quiz_questions'),  # 質問一覧または最初の質問
+    path('quiz_questions/<int:question_id>/', quiz_questions_view, name='quiz_questions_detail'),  # 特定の質問ID
     path('quiz/<int:question_id>/submit_quiz/', submit_quiz_answers, name='submit_quiz_answers'),
     path('quiz_questions/continue/', continue_quiz_view, name='continue_quiz'),#前回の続きから
     path('quiz_questions/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す
@@ -88,6 +86,7 @@ urlpatterns = [
     path('quiz_question/check_answer/<int:question_id>/', check_answer, name='check_answer'),
     path('start-quiz/', start_kokushi_quiz, name='start_quiz'),  # クイズを開始するためのURL
     path('quiz/',quiz_page, name='quiz_page'),  # クイズページのURL
+    path('quiz_questions/list/', quiz_question_list, name='quiz_question_list'),  # 問題一覧ページへのURL
 ]
 
 if settings.DEBUG:
