@@ -243,7 +243,7 @@ p#countTimer span {
 /* マウスオーバー時のスタイル */
 .btn:hover {
     transform: scale(0.98); /* 少し縮小させる */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* 影を追加 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.33); /* 影を追加 */
 }
 
 /* アクティブ（クリックされた時）のスタイル */

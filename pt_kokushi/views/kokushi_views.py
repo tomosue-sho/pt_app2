@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse,JsonResponse
 from django.urls import reverse
-from django.utils.timezone import now,timedelta
+from django.utils.timezone import now,timedelta,datetime
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
@@ -75,6 +75,39 @@ def time_setting_view(request):
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
     else:
         return render(request, 'kokushi/timer.html')
+
+    
+def start_kokushi_quiz(request):
+    # クイズ開始時刻を現在時刻とする
+    start_time = datetime.now()
+    # タイマーを30分に設定
+    end_time = start_time + timedelta(minutes=30)
+    # 開始時刻と終了時刻をセッションに保存
+    request.session['start_time'] = start_time.strftime('%Y-%m-%d %H:%M:%S')
+    request.session['end_time'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
+    # クイズページにリダイレクト
+    return redirect('quiz_page')
+
+def quiz_page(request):
+    # セッションから終了時刻を取得
+    end_time_str = request.session.get('end_time')
+    if end_time_str:
+        end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%M:%S')
+        # 現在時刻を取得
+        now = datetime.now()
+        # 残り時間を計算（秒単位）
+        remaining_seconds = int((end_time - now).total_seconds())
+        remaining_seconds = max(remaining_seconds, 0) # 残り時間が負にならないように
+    else:
+        remaining_seconds = 0 # 終了時刻がない場合、残り時間を0とする
+
+    context = {
+        'remaining_seconds': remaining_seconds,
+        # 他のコンテキスト変数...
+    }
+    return render(request, 'quiz_page.html', context)
+
+    
 
 def quiz_questions_view(request, question_id=None):
     # セッションから試験年度を取得
