@@ -127,6 +127,12 @@
     </nav>
 <div id="timer-placeholder" style="height: 50px;"></div>
 
+<div class="alert alert-warning" role="alert">
+    {% for message in messages %}
+        {{ message }}
+    {% endfor %}
+</div>
+
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
     <div id="timer"></div>

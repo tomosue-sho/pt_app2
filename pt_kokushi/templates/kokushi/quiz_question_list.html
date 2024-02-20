@@ -92,6 +92,13 @@
         text-align: left;
         border-bottom: 2px solid #4CAF50;
     }
+    .answered {
+        background-color: #d1e7dd; /* 回答済みの問題の背景色 */
+    }
+    
+    .unanswered {
+        background-color: #f8d7da; /* 未回答の問題の背景色 */
+    }
     
 </style>
 
@@ -124,10 +131,10 @@
             </div>
         </div>
     </nav>
+
     {% if questions_am %}
     <h2 id = "exam_title">{{ questions_am.0.exam.year }}年度</h2>
     {% endif %}
-
 
     <h2>午前の問題</h2>
     <table id="questionsTableAM" class="display questionsTable">
@@ -141,15 +148,15 @@
             <tr>
                 <th>問題番号</th>
                 <th>分野</th>
-                <th>午前/午後</th>
+                <th>回答状態</th>
             </tr>
         </thead>
         <tbody>
         {% for question in questions_am %}
-            <tr data-href="{% url 'pt_kokushi:quiz_questions_detail' question.id %}">
+            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}">
                 <td>{{ question.question_number }}</td>
-                <td>{{ question.field }}</td>
-                <td>{{ question.time }}</td>
+                <td>{{ question.field.name }}</td>
+                <td>{% if question.answered %}回答済み{% else %}未回答{% endif %}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -164,20 +171,23 @@
             <tr>
                 <th>問題番号</th>
                 <th>分野</th>
-                <th>午前/午後</th>
+                <th>回答状態</th>
             </tr>
         </thead>
         <tbody>
         {% for question in questions_pm %}
-            <tr data-href="{% url 'pt_kokushi:quiz_questions_detail' question.id %}">
+            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}">
                 <td>{{ question.question_number }}</td>
-                <td>{{ question.field }}</td>
-                <td>{{ question.time }}</td>
+                <td>{{ question.field.name }}</td>
+                <td>{% if question.answered %}回答済み{% else %}未回答{% endif %}</td>
             </tr>
         {% endfor %}
         </tbody>
-    
-    
+    </table>
+    <br>
+    <div>
+        <a href="{% url 'pt_kokushi:continue_quiz' %}" class="btn btn-info">戻る</a>
+    </div>
 </body>
 <script>
     $(document).ready( function () {
@@ -213,6 +223,17 @@
                 $(this).css('cursor','auto');
             }
         );
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('submit-answer-btn').addEventListener('click', function(e) {
+            // 選択肢が選択されているか確認
+            const isSelected = Array.from(document.querySelectorAll('input[name="choices"]')).some(radio => radio.checked);
+            if (!isSelected) {
+                // 選択されていない場合、アラートを表示して送信を防止
+                alert('選択肢を選んでください。');
+                e.preventDefault();
+            }
+        });
     });
     
 </script>

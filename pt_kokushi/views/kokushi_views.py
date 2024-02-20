@@ -1,10 +1,10 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from django.urls import reverse
 from django.utils.timezone import now,timedelta,datetime
-from django.http import HttpResponseRedirect
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
 from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark
@@ -32,10 +32,21 @@ def your_view_function(request):
 #国試タイマー
 def time_setting_view(request):
     if request.method == 'POST':
+        user = request.user
+
+        # 以前のクイズの回答を削除
+        QuizUserAnswer.objects.filter(user=user).delete()
+
+        # 不要なセッション情報をクリア
+        if 'last_question_id' in request.session:
+            del request.session['last_question_id']
+
+        # フォームから時間制限と試験年度を取得
         time_limit = request.POST.get('time_limit')
         custom_time_limit = request.POST.get('custom_time_limit')
         exam_year = request.POST.get('exam_year')
-        
+
+        # 試験年度に基づいて試験オブジェクトを取得
         exam = None
         if exam_year:
             try:
@@ -43,40 +54,24 @@ def time_setting_view(request):
             except Exam.DoesNotExist:
                 return render(request, 'kokushi/timer.html', {'error': '指定された試験が存在しません。'})
 
-        # 時間の設定
+        # タイマー設定
         time_limit_seconds = int(time_limit) * 60 if time_limit else int(custom_time_limit) * 60
         end_time = now() + timedelta(seconds=time_limit_seconds)
 
-        # 既存のセッションを検索
-        existing_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).first()
+        # 新しいセッションを作成または更新
+        KokushiQuizSession.objects.update_or_create(
+            user=user,
+            exam=exam,
+            defaults={'start_time': now(), 'end_time': end_time}
+        )
 
-        if existing_session:
-            # 既存のセッションがある場合、終了時刻を更新
-            existing_session.end_time = end_time
-            existing_session.save()
-        else:
-            # 既存のセッションがない場合、新しいセッションを作成
-            KokushiQuizSession.objects.create(
-                user=request.user,
-                exam=exam,
-                start_time=now(),
-                end_time=end_time
-            )
+        # 新しいセッション情報をセッションに保存
+        request.session['exam_year'] = exam_year
 
-        if exam:
-            questions = QuizQuestion.objects.filter(exam__year=exam_year)
-            for question in questions:
-                QuizUserAnswer.objects.update_or_create(
-                    user=request.user,
-                    question=question,
-                    defaults={'start_time': now()}
-                )
-        
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
     else:
         return render(request, 'kokushi/timer.html')
 
-    
 def start_kokushi_quiz(request):
     # クイズ開始時刻を現在時刻とする
     start_time = datetime.now()
@@ -154,14 +149,20 @@ def finish_quiz_view(request):
 
 #問題一覧表用
 def quiz_question_list(request):
-    
-    # 午前の問題を取得
-    questions_am = QuizQuestion.objects.filter(time='午前').order_by('question_number')
-    # 午後の問題を取得
-    questions_pm = QuizQuestion.objects.filter(time='午後').order_by('question_number')
-    # ユーザーの回答を取得
+    # 試験年度をセッションから取得する例（必要に応じて実装を追加）
+    exam_year = request.session.get('exam_year', None)
+
+    # 条件に基づいて問題をフィルタリング（ここではシンプルに時間帯でフィルタリング）
+    questions_am = QuizQuestion.objects.filter(time='午前', exam__year=exam_year).order_by('question_number')
+    questions_pm = QuizQuestion.objects.filter(time='午後', exam__year=exam_year).order_by('question_number')
     user_answers = QuizUserAnswer.objects.filter(user=request.user).values_list('question_id', flat=True)
-    
+
+    # 各問題に対する回答状態を追加
+    # 午前と午後の問題を一緒に処理する
+    all_questions = list(questions_am) + list(questions_pm)
+    for question in all_questions:
+        question.answered = question.id in user_answers
+
     context = {
         'questions_am': questions_am,
         'questions_pm': questions_pm,
@@ -170,76 +171,66 @@ def quiz_question_list(request):
     return render(request, 'kokushi/quiz_question_list.html', context)
 
 
-
-
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
-def start_quiz_question(request, question_id):
-    # 問題の取得
-    question = get_object_or_404(QuizQuestion, pk=question_id)
-    # QuizUserAnswer インスタンスを作成または更新
-    quiz_user_answer, created = QuizUserAnswer.objects.update_or_create(
-        user=request.user,
-        question=question,
-        defaults={'start_time': now()}  # start_time を現在時刻に設定
-    )
-    # 問題ページにリダイレクト
-    return redirect('quiz_question_view', question_id=question_id)
-
-
 def submit_quiz_answers(request, question_id):
     if request.method == 'POST':
         user = request.user
         current_question = get_object_or_404(QuizQuestion, pk=question_id)
         selected_choice_ids = request.POST.getlist(f'question_{question_id}')
 
-        # セッションから試験年度を取得
-        exam_year = request.session.get('exam_year', None)  # ここでexam_yearを定義
+        if not selected_choice_ids:
+            # 選択肢が選ばれていない場合、エラーメッセージを表示して質問ページにリダイレクト
+            messages.error(request, '選択肢を選んでください。')
+            return redirect('pt_kokushi:quiz_questions_detail', question_id=question_id)
 
-        # QuizUserAnswer インスタンスを取得または作成し、終了時刻を更新
+        # 以下の処理は選択肢が選ばれている場合のみ実行されます
+        # セッションから試験年度を取得
+        exam_year = request.session.get('exam_year', None)
+
+        # QuizUserAnswer インスタンスを取得または作成
         quiz_user_answer, created = QuizUserAnswer.objects.get_or_create(
             user=user,
             question=current_question,
-            defaults={'start_time': now()}  # ここは必要に応じて調整してください
+            defaults={'start_time': now()}
         )
-        quiz_user_answer.end_time = now()  # 回答終了時刻を更新
+        quiz_user_answer.end_time = now()
         quiz_user_answer.save()
 
-        # 最後の問題に回答したかどうかをチェック
-        if exam_year:
-            total_questions = QuizQuestion.objects.filter(exam__year=exam_year).count()
-            answered_questions = QuizUserAnswer.objects.filter(user=user, question__exam__year=exam_year).count()
-
-            if total_questions == answered_questions:
-                # 全問題に回答した場合、試験セッションの終了時刻を更新
-                quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
-                if quiz_session:  # quiz_sessionが存在する場合のみ更新
-                    quiz_session.end_time = now()
-                    quiz_session.save()
-                    
         # 選択した選択肢をクリアし、新たに選択された選択肢を追加
         quiz_user_answer.selected_choices.clear()
         for choice_id in selected_choice_ids:
             selected_choice = get_object_or_404(Choice, pk=choice_id)
             quiz_user_answer.selected_choices.add(selected_choice)
-            
-        # 正解の選択肢を取得
+
+        # 正解の選択肢を取得し、判定
         correct_choices = current_question.choices.filter(is_correct=True)
         correct_choice_ids = set(correct_choices.values_list('id', flat=True))
         selected_correctly = correct_choice_ids == set(map(int, selected_choice_ids))
 
-        if selected_correctly:
-            # スコアを更新するロジックをここに追加
-            pass
+        # 以下は正しく回答した場合の処理（必要に応じて）
+
         request.session['last_question_id'] = question_id
+
         # 次の問題へのリダイレクトまたは結果ページへのリダイレクトを行う
         next_question = QuizQuestion.objects.filter(id__gt=question_id).order_by('id').first()
         if next_question:
             return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
         else:
+            # 全問題に回答したかどうかをチェック
+            if exam_year:
+                total_questions = QuizQuestion.objects.filter(exam__year=exam_year).count()
+                answered_questions = QuizUserAnswer.objects.filter(user=user, question__exam__year=exam_year).count()
+
+                if total_questions == answered_questions:
+                    # 全問題に回答した場合、試験セッションの終了時刻を更新
+                    quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
+                    if quiz_session:
+                        quiz_session.end_time = now()
+                        quiz_session.save()
+            
             return redirect('pt_kokushi:kokushi_results')
-
-
+          
 #成績計算-----------------------------------------------------
 @login_required
 def kokushi_results_view(request):
