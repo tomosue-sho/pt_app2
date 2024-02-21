@@ -98,7 +98,6 @@ def quiz_page(request):
 
     context = {
         'remaining_seconds': remaining_seconds,
-        # 他のコンテキスト変数...
     }
     return render(request, 'quiz_page.html', context)
 
@@ -125,12 +124,25 @@ def quiz_questions_view(request, question_id=None):
         question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
     else:
         question = QuizQuestion.objects.filter(exam=exam).first()
+        
+    if question_id is None:
+        # ここで、例えば最初の質問のIDを取得するか、エラーページにリダイレクトするなどの処理を行う
+        first_question = QuizQuestion.objects.order_by('id').first()
+        if first_question:
+            return redirect('pt_kokushi:quiz_questions_detail', question_id=first_question.id)
+        else:
+            # 適切なエラーメッセージを表示するか、エラーページにリダイレクト
+            return redirect('pt_kokuhsi:quiz_questions')
+        
+    previous_question = QuizQuestion.objects.filter(id__lt=question_id).order_by('-id').first()
     
     context = {
         'exam': exam,
         'question': question,
         'time_limit': time_limit,
         'quiz_session': quiz_session,
+        'has_previous_question': previous_question is not None,
+        'previous_question_id': previous_question.id if previous_question else None,
     }
     return render(request, 'kokushi/quiz_questions.html', context)
 

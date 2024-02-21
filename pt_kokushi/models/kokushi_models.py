@@ -43,7 +43,19 @@ class QuizQuestion(models.Model):
 
     def __str__(self):
         return f"{self.exam.year}年 {self.time} {self.question_number}問" 
+    
+    def get_previous_question(self):
+        """現在の問題の直前の問題を取得する"""
+        previous_question = QuizQuestion.objects.filter(
+            exam=self.exam,
+            question_number__lt=self.question_number
+        ).order_by('-question_number').first()
+        return previous_question
 
+    def has_previous(self):
+        """直前の問題が存在するかどうかをチェックする"""
+        return bool(self.get_previous_question())
+    
     class Meta:
         verbose_name = "国試「問題作成」"
         verbose_name_plural = "国試「問題作成」"
