@@ -21,9 +21,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
+from pt_kokushi.views.studychart_views import studychart_view,save_study_log,study_date,study_log_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views_org.TopView.as_view(), name="top"),
     path('login_app/', include('pt_kokushi.urls')),
+    path('login_app/studychart/', include([
+        path('studychart/', studychart_view, name='studychart'),#学習チャート
+        path('save_study_log/', save_study_log, name='save_study_log'),#学習チャート記録用
+        path('study_date/', study_date, name='study_date'),  #学習チャートの日付選択用
+        path('study-log-data/', study_log_data, name='study_log_data')
+        ])),
 ]
+

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<h1>学習チャート</h1>
 <canvas id="studyLogChart"></canvas>
 
 <form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
@@ -17,54 +17,75 @@
         <label for="studyContent">学習内容</label>
         <textarea class="form-control" id="studyContent" name="study_content" rows="3" required></textarea>
     </div>
+    <br>
     <button type="submit" class="btn btn-primary">記録する</button>
 </form>
+{% if weekly_total %}
+<div>週間学習時間: {{ weekly_total }}時間</div>
+{% endif %}
+<div>月間学習時間: {{ monthly_total }}時間</div>
+<div>年間学習時間: {{ yearly_total }}時間</div>
+<div>トータル学習時間: {{ total_study_time }}時間</div>
+
+
 <script>
     var ctx = document.getElementById('studyLogChart').getContext('2d');
     var studyLogChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['月', '火', '水', '木', '金', '土', '日'], // 横軸を曜日表示に変更
+            labels: [], 
             datasets: [{
                 label: '学習時間（時間）',
-                data: [1.5, 2, 2.5, 3, 1, 4, 3.5], // 学習時間のデータ（時間単位）
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
+                data: [], // 初期状態ではデータも空にしておきます
+                backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                borderColor: 'rgba(255, 50, 0, 1)',
+                borderWidth: 3
             }]
         },
         options: {
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 12, // Y軸の最大値を12に設定
-                    ticks: {
-                        stepSize: 1, // 1単位ごとにメモリを表示
-                        // ラベルをカスタマイズして整数の時間表示にする
-                        callback: function(value, index, values) {
-                            return value + '時間';
-                        }
-                    }
+                    
                 }
             }
         }
-        
     });
     
-    document.addEventListener('DOMContentLoaded', function() {
-        var today = new Date().toISOString().split('T')[0];  // 現在の日付を 'YYYY-MM-DD' 形式で取得
-        document.getElementById('studyDate').value = today;  // 入力フィールドに設定
-    });
-
-    fetch('/api/study-log-data/')  // APIのURLに置き換える
+    // データのフェッチとチャートの更新
+    fetch('/login_app/studychart/study-log-data/') // APIのURLに置き換える
     .then(response => response.json())
     .then(data => {
-        // チャートのデータを更新
-        studyLogChart.data.labels = data.map(log => log.study_date);  // 学習日をラベルに設定
-        studyLogChart.data.datasets[0].data = data.map(log => log.study_duration);  // 学習時間をデータに設定
-        studyLogChart.update();  // チャートを更新
+        // 表示期間の開始日と終了日を設定（例：最新の1週間）
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7); // 最新の1週間
+    
+        const dateMap = {};
+        
+        // 開始日から終了日までの全日付でループ
+        for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
+            const dateString = date.toISOString().split('T')[0];
+            dateMap[dateString] = 0; // 初期値として0を設定
+        }
+    
+        // データをループして日付ごとに学習時間を集計
+        data.forEach(log => {
+            if(dateMap.hasOwnProperty(log.study_date)){
+                dateMap[log.study_date] += log.study_duration / 60; // 学習時間を時間単位で加算
+            }
+        });
+    
+        // 集計したデータをチャートのデータソースとして使用
+        studyLogChart.data.labels = Object.keys(dateMap);
+        studyLogChart.data.datasets[0].data = Object.values(dateMap);
+    
+        // チャートを更新
+        studyLogChart.update();
     })
     .catch(error => console.error('Error fetching data:', error));
+
+
 </script>
     
 

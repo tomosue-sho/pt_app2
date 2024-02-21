@@ -4,6 +4,8 @@ from django.urls import reverse
 from pt_kokushi.models.studychart_models import StudyLog
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from django.db.models import Sum
+from django.utils.timezone import now, timedelta
 
 def studychart_view(request):
     # ここでデータを準備する（例: 学習ログのデータ）
@@ -44,3 +46,37 @@ def study_log_data(request):
     logs = StudyLog.objects.filter(user=request.user).order_by('study_date')
     data = list(logs.values('study_date', 'study_duration'))
     return JsonResponse(data, safe=False)
+
+#学習時間の合計の計算
+def study_summary_view(request):
+    today = now()
+    start_of_week = today - timedelta(days=today.weekday())  # 今週の月曜日
+    start_of_month = today.replace(day=1)  # 今月の初日
+    start_of_year = today.replace(month=1, day=1)  # 今年の初日
+
+    weekly_total = StudyLog.objects.filter(
+        user=request.user,
+        study_date__range=[start_of_week, today]
+    ).aggregate(total=Sum('study_duration'))['total'] or 0
+
+    monthly_total = StudyLog.objects.filter(
+        user=request.user,
+        study_date__range=[start_of_month, today]
+    ).aggregate(total=Sum('study_duration'))['total'] or 0
+
+    yearly_total = StudyLog.objects.filter(
+        user=request.user,
+        study_date__range=[start_of_year, today]
+    ).aggregate(total=Sum('study_duration'))['total'] or 0
+
+    total_study_time = StudyLog.objects.filter(
+        user=request.user
+    ).aggregate(total=Sum('study_duration'))['total'] or 0
+
+    context = {
+        'weekly_total': weekly_total / 60,  # 分を時間に変換
+        'monthly_total': monthly_total / 60,  # 分を時間に変換
+        'yearly_total': yearly_total / 60,  # 分を時間に変換
+        'total_study_time': total_study_time / 60,  # 分を時間に変換
+    }
+    return render(request, 'login_app/studychart.html', context)

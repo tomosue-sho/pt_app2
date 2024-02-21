@@ -12,4 +12,5 @@ class StudyLog(models.Model):
     # 他のフィールド...
 
     def __str__(self):
-        return f"{self.user.username} - {self.study_date} - {self.study_duration}分"
+        return f"{self.user.email} - {self.study_date} - {self.study_duration}分"
+

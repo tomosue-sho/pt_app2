@@ -5,3 +5,4 @@ from .timetable_admin import*
 from .todo_admin import*
 from .admin_org import*
 from .quiz_admin import*
+from .studychart_admin import*

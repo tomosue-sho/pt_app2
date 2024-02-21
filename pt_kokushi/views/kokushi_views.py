@@ -101,8 +101,6 @@ def quiz_page(request):
     }
     return render(request, 'quiz_page.html', context)
 
-    
-
 def quiz_questions_view(request, question_id=None):
     # セッションから試験年度を取得
     exam_year = request.session.get('exam_year', None)
