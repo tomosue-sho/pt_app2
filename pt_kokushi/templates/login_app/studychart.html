@@ -1,32 +1,31 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load django_bootstrap5 %}
+{% load widget_tweaks %}
 <h1>学習チャート</h1>
 <canvas id="studyLogChart"></canvas>
 
-<form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
+<form method="post">
     {% csrf_token %}
-    <div class="form-group">
-        <label for="studyDate">学習日</label>
-        <input type="date" class="form-control" id="studyDate" name="study_date" required value="{{ today }}">
+    <div class="mb-3">
+        <label for="study_date" class="form-label">学習日</label>
+        {{ form.study_date|add_class:"form-control" }}
     </div>
-    <div class="form-group">
-        <label for="studyDuration">学習時間（分）</label>
-        <input type="number" class="form-control" id="studyDuration" name="study_duration" required>
+    <div class="mb-3">
+        <label for="study_duration" class="form-label">学習時間（分）</label>
+        {{ form.study_duration|add_class:"form-control" }}
     </div>
-    <div class="form-group">
-        <label for="studyContent">学習内容</label>
-        <textarea class="form-control" id="studyContent" name="study_content" rows="3" required></textarea>
+    <div class="mb-3">
+        <label for="study_content" class="form-label">学習内容</label>
+        {{ form.study_content|add_class:"form-control" }} 
     </div>
-    <br>
-    <button type="submit" class="btn btn-primary">記録する</button>
+    <button type="submit" class="btn btn-primary">送信</button>
 </form>
-{% if weekly_total %}
-<div>週間学習時間: {{ weekly_total }}時間</div>
-{% endif %}
-<div>月間学習時間: {{ monthly_total }}時間</div>
-<div>年間学習時間: {{ yearly_total }}時間</div>
-<div>トータル学習時間: {{ total_study_time }}時間</div>
 
+<p>週間学習時間: {{ weekly_total }}時間</p>
+<div>月間学習時間: {{ monthly_total|default:"0" }}時間</div>
+<div>年間学習時間: {{ yearly_total|default:"0" }}時間</div>
+<div>トータル学習時間: {{ total_study_time|default:"0" }}時間</div>
 
 <script>
     var ctx = document.getElementById('studyLogChart').getContext('2d');

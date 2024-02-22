@@ -9,8 +9,7 @@ class StudyLog(models.Model):
     )
     study_date = models.DateField(verbose_name="学習日")
     study_duration = models.IntegerField(verbose_name="学習時間（分）")
-    # 他のフィールド...
+    study_content = models.TextField(verbose_name="学習内容", default='') 
 
     def __str__(self):
         return f"{self.user.email} - {self.study_date} - {self.study_duration}分"
-
