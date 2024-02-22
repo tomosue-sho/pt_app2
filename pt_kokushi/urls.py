@@ -15,7 +15,7 @@ from pt_kokushi.views.quiz_views import quiz,initialize_quiz,quiz_page,quiz_resu
 from pt_kokushi.views.quiz_views import submit_answer,select_subfield,select_sub2field,select_sub2field_template
 from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view
 from pt_kokushi.views.quiz_views import reset_quiz_session_for_sub2field,quiz_page_for_sub2field
-from pt_kokushi.views.studychart_views import save_study_log,study_log_data,studychart,study_time_ranking_view
+from pt_kokushi.views.studychart_views import save_study_log,study_log_data,studychart
 from pt_kokushi.views.studychart_views import study_stats_view,study_content
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
@@ -64,7 +64,6 @@ urlpatterns = [
     path('study-log-data/', study_log_data, name='study_log_data'),#API用の学習チャート関数
     path('study-stats/', study_stats_view, name='study-stats'),
     path('study_content/',study_content, name='study_content'),
-    path('study-time-ranking/', study_time_ranking_view, name='study-time-ranking'),#学習ランキング用
     path('quiz/results/', quiz_results, name='quiz_results'),
     path('select_field/', select_field, name='select_field'),
     path('select_subfield/<int:field_id>/', select_subfield, name='select_subfield'),

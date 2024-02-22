@@ -103,30 +103,34 @@
         <table id="totalStudyTimeTable" class="table">
             <thead>
                 <tr>
-                    <th>ユーザー名</th>
+                    <th>順位</th>
+                    <th>ニックネーム</th>
+                    <th>総学習時間</th>
                     <th>週間学習時間</th>
                     <th>月間学習時間</th>
                     <th>年間学習時間</th>
-                    <th>トータル学習時間</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user_time in user_study_time_ranking %}
-                <div class="ranking-item">
-                    <div class="ranking-header">{{ forloop.counter }}位</div>
-                    <div class="ranking-name">{{ user_time.user__nickname }}</div>
-                    <div class="ranking-time">{{ user_time.total_time }} 時間</div>
-                 </div>
-                {% endfor %}
+                <tr>
+                    <td>{{ forloop.counter }}位</td>
+                    <td>{{ user.user__nickname }}</td>
+                    <td>{{ user.total_time }} 時間</td>
+                    <td>{{ user.weekly_total }} 時間</td>
+                    <td>{{ user.monthly_total }} 時間</td>
+                    <td>{{ user.yearly_total }} 時間</td>
+                </tr>
             </tbody>
         </table>
         </div>
         </div>
     </div>
+    {{ user_study_time|safe }}
+
 <div>
-        {% for log in page_obj %}
+    
             <p>{{ log.study_content }}</p> <!-- ここを修正しました -->
-        {% endfor %}
+
         
 <div class="pagination">
     <span class="step-links">

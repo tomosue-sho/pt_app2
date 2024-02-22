@@ -91,47 +91,43 @@ def study_stats_view(request):
     if request.method == 'POST':
         form = StudyLogForm(request.POST)
         if form.is_valid():
-            # フォームのデータが有効な場合は、保存するなどの処理を行う
             form.save()
-            return redirect('適切なリダイレクト先')
+            return redirect('pt_kokushi:studychart')
     else:
         form = StudyLogForm()
 
-    # ここで学習時間の集計を行う
-    user = request.user  # 現在のユーザーを取得
+    user = request.user
     today = timezone.now().date()
     start_of_week = today - timedelta(days=today.weekday())
     start_of_month = today.replace(day=1)
     start_of_year = today.replace(month=1, day=1)
 
-    weekly_total = StudyLog.objects.filter(
-        user=user,
-        study_date__range=[start_of_week, today]
-    ).aggregate(total=Sum('study_duration'))['total'] or 0
+    # 個人の学習時間集計
+    weekly_total, monthly_total, yearly_total, total_study_time = ... # 既存の集計ロジック
 
-    monthly_total = StudyLog.objects.filter(
-        user=user,
-        study_date__range=[start_of_month, today]
-    ).aggregate(total=Sum('study_duration'))['total'] or 0
-
-    yearly_total = StudyLog.objects.filter(
-        user=user,
-        study_date__range=[start_of_year, today]
-    ).aggregate(total=Sum('study_duration'))['total'] or 0
-
-    total_study_time = StudyLog.objects.filter(
-        user=user
-    ).aggregate(total=Sum('study_duration'))['total'] or 0
+    # ユーザー全体のランキングデータ集計
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_month = today.replace(day=1)
+    start_of_year = today.replace(month=1, day=1)
+    user_study_time = StudyLog.objects.values('user__nickname')\
+        .annotate(
+            total_time=Sum('study_duration'),
+            weekly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_week)),
+            monthly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_month)),
+            yearly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_year))
+        ).order_by('-total_time')
 
     context = {
         'form': form,
-        'weekly_total': weekly_total / 60,  # 分を時間に変換
+        'weekly_total': weekly_total / 60,
         'monthly_total': monthly_total / 60,
         'yearly_total': yearly_total / 60,
         'total_study_time': total_study_time / 60,
+        'user_study_time': user_study_time,  # ランキングデータをコンテキストに追加
     }
 
-    return render(request, '適切なテンプレートパス', context)
+    return render(request, 'login_app/studychart.html', context)
+
 
 #学習記録の表示用
 def study_content(request):
@@ -142,23 +138,3 @@ def study_content(request):
     page_obj = paginator.get_page(page_number)  # 対応するページのオブジェクトを取得
 
     return render(request, 'login_app/studychart.html', {'page_obj': page_obj})
-
-#ランキング用
-def study_time_ranking_view(request):
-    today = timezone.now()
-    start_of_week = today - timedelta(days=today.weekday())  # 今週の始まり
-    start_of_month = today.replace(day=1)  # 今月の始まり
-    start_of_year = today.replace(month=1, day=1)  # 今年の始まり
-
-    # ユーザーごとのトータル学習時間を集計
-    user_study_time = StudyLog.objects.values('user__username')\
-        .annotate(
-            total_time=Sum('study_duration'),
-            weekly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_week)),
-            monthly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_month)),
-            yearly_total=Sum('study_duration', filter=Q(study_date__gte=start_of_year))
-        ).order_by('-total_time')
-
-    # ランキングデータをテンプレートに渡す
-    context = {'user_study_time': user_study_time}
-    return render(request, 'login_app/studychart.html', context)
