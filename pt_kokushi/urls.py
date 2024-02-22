@@ -15,8 +15,8 @@ from pt_kokushi.views.quiz_views import quiz,initialize_quiz,quiz_page,quiz_resu
 from pt_kokushi.views.quiz_views import submit_answer,select_subfield,select_sub2field,select_sub2field_template
 from pt_kokushi.views.quiz_views import reset_quiz_count,all_users_quiz_results,weekly_ranking_view
 from pt_kokushi.views.quiz_views import reset_quiz_session_for_sub2field,quiz_page_for_sub2field
-from pt_kokushi.views.studychart_views import studychart_view,save_study_log,study_log_data,study_summary_view
-from pt_kokushi.views.studychart_views import study_stats_view
+from pt_kokushi.views.studychart_views import save_study_log,study_log_data,studychart,study_time_ranking_view
+from pt_kokushi.views.studychart_views import study_stats_view,study_content
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
@@ -59,11 +59,12 @@ urlpatterns = [
     path('timetable/', timetable_list, name='timetable_list'),#時間割
     path('timetable/delete/<int:timetable_id>/', delete_timetable, name='delete_timetable'),#時間割
     path('timetable/update/<int:timetable_id>/', update_timetable, name='update_timetable'),#時間割
-    path('studychart/', studychart_view, name='studychart'),#学習チャート
+    path('studychart/', studychart, name='studychart'),
     path('save_study_log/', save_study_log, name='save_study_log'),#学習チャート記録用
     path('study-log-data/', study_log_data, name='study_log_data'),#API用の学習チャート関数
-    path('study-summary/', study_summary_view, name='study_summary'),#学習集計用
     path('study-stats/', study_stats_view, name='study-stats'),
+    path('study_content/',study_content, name='study_content'),
+    path('study-time-ranking/', study_time_ranking_view, name='study-time-ranking'),#学習ランキング用
     path('quiz/results/', quiz_results, name='quiz_results'),
     path('select_field/', select_field, name='select_field'),
     path('select_subfield/<int:field_id>/', select_subfield, name='select_subfield'),

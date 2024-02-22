@@ -2,30 +2,150 @@
 {% block content %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
+<style>
+    #studyTimeTable th, #studyTimeTable td {
+        padding: 10px; /* セルのパディングを増やす */
+        text-align: center; /* テキストを中央揃えにする */
+    }
+    #studyTimeTable th {
+        background-color: #4CAF50; /* ヘッダーの背景色を変更 */
+        color: black; /* ヘッダーのテキスト色を白に変更 */
+    }
+    #studyTimeTable td {
+        background-color: #f2f2f2; /* セルの背景色を薄いグレーに変更 */
+    }
+    #totalStudyTimeTable th, #totalStudyTimeTable td {
+        padding: 10px; /* セルのパディングを増やす */
+        text-align: center; /* テキストを中央揃えにする */
+    }
+    #totalStudyTimeTable th {
+        background-color: #0099FF; /* ヘッダーの背景色を変更 */
+        color: black; /* ヘッダーのテキスト色を変更 */
+    }
+    #totalStudyTimeTable td {
+        background-color: #f2f2f2; /* セルの背景色を薄いグレーに変更 */
+    }
+    .content-wrapper {
+        display: flex; /* 子要素を横並びにする */
+        justify-content: space-around; /* 子要素の間に適切な間隔を設定 */
+    }
+    
+    .content-wrapper .form-section, .content-wrapper .time-sections {
+        margin: 10px; /* 見た目を整えるためのマージン */
+        padding: 20px; /* 各セクションの内側にスペースを追加 */
+    }
+    
+    .content-wrapper .time-sections {
+        display: flex;
+        flex-direction: column; /* 子要素を縦並びにする */
+    }
+    .time-sections {
+        display: flex;
+        flex-direction: column; /* 子要素を縦並びに配置 */
+    }
+    
+    .individual-section, .total-section {
+        display: block; /* これらのセクションをブロック要素として扱う */
+    }
+    
+    
+</style>
+
 <h1>学習チャート</h1>
 <canvas id="studyLogChart"></canvas>
+<div class="content-wrapper">
+    <div class="form-section">
+        <form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="study_date" class="form-label">学習日</label>
+                {{ form.study_date|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="study_duration" class="form-label">学習時間（分）</label>
+                {{ form.study_duration|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="study_content" class="form-label">学習内容</label>
+                {{ form.study_content|add_class:"form-control" }} 
+            </div>
+            <button type="submit" class="btn btn-primary">送信</button>
+        </form>
+    </div>
+    <div class="time-sections">
+        <div class="individual-section">
+        <h2>{{ user.nickname }}さんの学習情報</h2>
+        <div class="individual-time">
+            <table id="studyTimeTable" class="table">
+            <thead>
+                <tr>
+                    <th>週間学習時間</th>
+                    <th>月間学習時間</th>
+                    <th>年間学習時間</th>
+                    <th>トータル学習時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td>{{ weekly_total|default:"0" }} 時間</td>
+                    <td>{{ monthly_total|default:"0" }} 時間</td>
+                    <td>{{ yearly_total|default:"0" }} 時間</td>
+                    <td>{{ total_study_time|default:"0" }} 時間</td>
+                 </tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+<!-- ユーザー別学習時間のテーブル -->
+        <div class="total-time">
+        <div class="total-section">
+        <h2>ユーザー全体のランキング</h2>
+        <table id="totalStudyTimeTable" class="table">
+            <thead>
+                <tr>
+                    <th>ユーザー名</th>
+                    <th>週間学習時間</th>
+                    <th>月間学習時間</th>
+                    <th>年間学習時間</th>
+                    <th>トータル学習時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_time in user_study_time_ranking %}
+                <div class="ranking-item">
+                    <div class="ranking-header">{{ forloop.counter }}位</div>
+                    <div class="ranking-name">{{ user_time.user__nickname }}</div>
+                    <div class="ranking-time">{{ user_time.total_time }} 時間</div>
+                 </div>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        </div>
+    </div>
+<div>
+        {% for log in page_obj %}
+            <p>{{ log.study_content }}</p> <!-- ここを修正しました -->
+        {% endfor %}
+        
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; 最初</a>
+            <a href="?page={{ page_obj.previous_page_number }}">前</a>
+        {% endif %}
 
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="study_date" class="form-label">学習日</label>
-        {{ form.study_date|add_class:"form-control" }}
-    </div>
-    <div class="mb-3">
-        <label for="study_duration" class="form-label">学習時間（分）</label>
-        {{ form.study_duration|add_class:"form-control" }}
-    </div>
-    <div class="mb-3">
-        <label for="study_content" class="form-label">学習内容</label>
-        {{ form.study_content|add_class:"form-control" }} 
-    </div>
-    <button type="submit" class="btn btn-primary">送信</button>
-</form>
+        <span class="current">
+            ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}.
+        </span>
 
-<p>週間学習時間: {{ weekly_total }}時間</p>
-<div>月間学習時間: {{ monthly_total|default:"0" }}時間</div>
-<div>年間学習時間: {{ yearly_total|default:"0" }}時間</div>
-<div>トータル学習時間: {{ total_study_time|default:"0" }}時間</div>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">次</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
 
 <script>
     var ctx = document.getElementById('studyLogChart').getContext('2d');

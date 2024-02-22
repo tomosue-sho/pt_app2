@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
-from pt_kokushi.views.studychart_views import studychart_view,save_study_log,study_log_data,study_summary_view
+from pt_kokushi.views.studychart_views import save_study_log,study_log_data,study_content,study_stats_view,study_time_ranking_view
 
 app_name = 'pt_kokushi'
 
@@ -30,10 +30,11 @@ urlpatterns = [
     path('',views_org.TopView.as_view(), name="top"),
     path('login_app/', include('pt_kokushi.urls')),
     path('login_app/studychart/', include([
-        path('studychart/', studychart_view, name='studychart'),#学習チャート
         path('save_study_log/', save_study_log, name='save_study_log'),#学習チャート記録用
         path('study-log-data/', study_log_data, name='study_log_data'),
-        path('study-summary/', study_summary_view, name='study_summary'),#学習集計用                                 
+        path('study-stats/', study_stats_view, name='study-stats'),
+        path('study_content/',study_content, name='study_content'),
+        path('study-time-ranking/', study_time_ranking_view, name='study-time-ranking'),             
         ])),
 ]
 
