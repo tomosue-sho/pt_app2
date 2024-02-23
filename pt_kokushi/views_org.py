@@ -15,24 +15,39 @@ from django.contrib.auth import login ,logout
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
+from django.urls import reverse
 from datetime import date, datetime ,timedelta
 from .helpers import calculate_login_streak
 from pt_kokushi.models.LoginHistory_models import LoginHistory
+from pt_kokushi.models.kokushi_models import Exam
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
 
 class TopView(TemplateView):
     template_name = "top.html"
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Examモデルから全年度を取得
+        context['years'] = Exam.objects.all().order_by('-year').values_list('year', flat=True)
+        
         if self.request.user.is_authenticated:
             # ログインユーザーの連続ログイン日数を計算
             login_streak = calculate_login_streak(self.request.user)
             # コンテキストに連続ログイン日数を追加
             context['login_streak'] = login_streak
+        
         return context
+
+    def post(self, request, *args, **kwargs):
+        exam_year = request.POST.get('exam_year')
+        if exam_year:
+            request.session['exam_year'] = int(exam_year)
+            return redirect(reverse('pt_kokushi:timer'))
+        else:
+            # 何らかのエラーメッセージをセットするか、適切にハンドル
+            return super().get(request, *args, **kwargs)
 
 #ユーザーアカウント登録
 def signup_view(request):

@@ -25,7 +25,7 @@ from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_qu
 app_name = 'pt_kokushi'
 
 urlpatterns = [
-    path('top_view/', views_org.TopView.as_view(), name='top_view'),
+    path('top/', views_org.TopView.as_view(), name='top_view'),
     path('signup/', views_org.signup_view, name='signup'),
     path('login/', views_org.login_view, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

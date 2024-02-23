@@ -74,7 +74,7 @@
     </div>
     <div id="national-examination" style="text-align: center;"  >
         {% for year in years %}
-        <form method="post" action="{% url 'pt_kokushi:top' %}" style="display: inline-block; margin: 5px;">
+        <form method="post" action="{% url 'pt_kokushi:top_view' %}" style="display: inline-block; margin: 5px;">
             {% csrf_token %}
             <input type="hidden" name="exam_year" value="{{ year }}">
             <button type="submit" class="button national-year {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}" id="{{ year }}-year">

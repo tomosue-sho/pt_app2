@@ -12,7 +12,7 @@ from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquer
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
 import json
-
+#/Users/tomosue_shou/pt_project2/pt_kokushi/models/kokushi_models.py
 
 # 試験回選択用
 def exam_selection_view(request):
@@ -22,7 +22,7 @@ def exam_selection_view(request):
         request.session['exam_year'] = int(exam_year)
         return HttpResponseRedirect(reverse('pt_kokushi:timer'))
     else:
-        return render(request, 'top.html', {'years': years})
+        return render(request, 'top_view', {'years': years})
 
 #試験年度のforループ用
 def your_view_function(request):
