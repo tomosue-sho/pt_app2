@@ -2,6 +2,8 @@
 {% block content %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
+{% load custom_charts %}
+
 <style>
     #studyTimeTable th, #studyTimeTable td {
         padding: 10px; /* セルのパディングを増やす */
@@ -47,56 +49,40 @@
     .individual-section, .total-section {
         display: block; /* これらのセクションをブロック要素として扱う */
     }
-    
+    .form-section {
+        display: block;
+    }
     
 </style>
-
 <h1>学習チャート</h1>
+<a href="{% url 'pt_kokushi:study_log_form' %}" class="btn btn-primary">学習ログを記録する</a>
+
 <canvas id="studyLogChart"></canvas>
 <div class="content-wrapper">
-    <div class="form-section">
-        <form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="study_date" class="form-label">学習日</label>
-                {{ form.study_date|add_class:"form-control" }}
+        <div class="time-sections">
+            <div class="individual-section">
+            <h2>{{ user.nickname }}さんの学習情報</h2>
+            <div class="individual-time">
+                <table id="studyTimeTable" class="table">
+                <thead>
+                    <tr>
+                        <th>週間学習時間</th>
+                        <th>月間学習時間</th>
+                        <th>年間学習時間</th>
+                        <th>トータル学習時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     <tr>
+                        <td>{{ weekly_total|default:"0" }} 時間</td>
+                        <td>{{ monthly_total|default:"0" }} 時間</td>
+                        <td>{{ yearly_total|default:"0" }} 時間</td>
+                        <td>{{ total_study_time|default:"0" }} 時間</td>
+                     </tr>
+                </tbody>
+                </table>
             </div>
-            <div class="mb-3">
-                <label for="study_duration" class="form-label">学習時間（分）</label>
-                {{ form.study_duration|add_class:"form-control" }}
-            </div>
-            <div class="mb-3">
-                <label for="study_content" class="form-label">学習内容</label>
-                {{ form.study_content|add_class:"form-control" }} 
-            </div>
-            <button type="submit" class="btn btn-primary">送信</button>
-        </form>
-    </div>
-    <div class="time-sections">
-        <div class="individual-section">
-        <h2>{{ user.nickname }}さんの学習情報</h2>
-        <div class="individual-time">
-            <table id="studyTimeTable" class="table">
-            <thead>
-                <tr>
-                    <th>週間学習時間</th>
-                    <th>月間学習時間</th>
-                    <th>年間学習時間</th>
-                    <th>トータル学習時間</th>
-                </tr>
-            </thead>
-            <tbody>
-                 <tr>
-                    <td>{{ weekly_total|default:"0" }} 時間</td>
-                    <td>{{ monthly_total|default:"0" }} 時間</td>
-                    <td>{{ yearly_total|default:"0" }} 時間</td>
-                    <td>{{ total_study_time|default:"0" }} 時間</td>
-                 </tr>
-            </tbody>
-            </table>
         </div>
-        </div>
-<!-- ユーザー別学習時間のテーブル -->
         <div class="total-time">
         <div class="total-section">
         <h2>ユーザー全体のランキング</h2>
@@ -105,21 +91,23 @@
                 <tr>
                     <th>順位</th>
                     <th>ニックネーム</th>
-                    <th>総学習時間</th>
                     <th>週間学習時間</th>
                     <th>月間学習時間</th>
                     <th>年間学習時間</th>
+                    <th>総学習時間</th>
                 </tr>
             </thead>
             <tbody>
+                {% for user in total_study_time_for_all_users %}
                 <tr>
                     <td>{{ forloop.counter }}位</td>
                     <td>{{ user.user__nickname }}</td>
-                    <td>{{ user.total_time }} 時間</td>
-                    <td>{{ user.weekly_total }} 時間</td>
-                    <td>{{ user.monthly_total }} 時間</td>
-                    <td>{{ user.yearly_total }} 時間</td>
+                    <td>{{ user.weekly_total|divide_by_60 }} 時間</td>
+                    <td>{{ user.monthly_total|divide_by_60 }} 時間</td>
+                    <td>{{ user.yearly_total|divide_by_60 }} 時間</td>
+                    <td>{{ user.total_time|divide_by_60 }} 時間</td> 
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
         </div>
@@ -128,10 +116,13 @@
     {{ user_study_time|safe }}
 
 <div>
-    
-            <p>{{ log.study_content }}</p> <!-- ここを修正しました -->
+    {% for log in page_obj %}
+    <div>
+        <p>{{ log.study_date }}: {{ log.study_content }}</p>
+    </div>
+    {% endfor %}
+</div>
 
-        
 <div class="pagination">
     <span class="step-links">
         {% if page_obj.has_previous %}

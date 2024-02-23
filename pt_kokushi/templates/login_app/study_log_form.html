@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load django_bootstrap5 %}
+{% load widget_tweaks %}
+
+<div class="form-section">
+    <form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="study_date" class="form-label">学習日</label>
+            {{ form.study_date|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="study_duration" class="form-label">学習時間（分）</label>
+            {{ form.study_duration|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="study_content" class="form-label">学習内容</label>
+            {{ form.study_content|add_class:"form-control" }} 
+        </div>
+        <button type="submit" class="btn btn-primary">送信</button>
+    </form>
+</div>
+
+{% endblock %}
