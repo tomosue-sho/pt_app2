@@ -34,6 +34,11 @@
      <br>
      <h3 id="timer"></h3>
  </div>
+ <div>
+    {% if user.is_authenticated %}
+    <p>連続ログイン日数: {{ login_streak }}日</p>
+    {% endif %}
+ </div>
  <br>
  <script>
     function updateTimer() {

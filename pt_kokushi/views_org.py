@@ -15,16 +15,25 @@ from django.contrib.auth import login ,logout
 from django.contrib.auth import authenticate, login as auth_login, get_user_model
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
-from datetime import date, datetime
-
+from datetime import date, datetime ,timedelta
+from .helpers import calculate_login_streak
+from pt_kokushi.models.LoginHistory_models import LoginHistory
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
 
 class TopView(TemplateView):
-    
     template_name = "top.html"
-    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            # ログインユーザーの連続ログイン日数を計算
+            login_streak = calculate_login_streak(self.request.user)
+            # コンテキストに連続ログイン日数を追加
+            context['login_streak'] = login_streak
+        return context
+
 #ユーザーアカウント登録
 def signup_view(request):
     
