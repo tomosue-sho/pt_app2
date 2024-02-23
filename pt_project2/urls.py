@@ -36,4 +36,3 @@ urlpatterns = [
             path('study-log-form/', study_log_form, name='study_log_form'),     
         ])),
 ]
-

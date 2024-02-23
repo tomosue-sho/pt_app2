@@ -52,6 +52,44 @@
     .form-section {
         display: block;
     }
+    .study-logs {
+        margin: 20px 0;
+    }
+    
+    .study-log {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .step-links {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn {
+        background-color: #007bff;
+        color: white;
+        padding: 5px 10px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    
+    .btn:hover {
+        background-color: #0056b3;
+    }
+    
+    .current {
+        padding: 5px 10px;
+    }
+    
     
 </style>
 <h1>学習チャート</h1>
@@ -114,34 +152,33 @@
         </div>
     </div>
     {{ user_study_time|safe }}
-
-<div>
-    {% for log in page_obj %}
-    <div>
-        <p>{{ log.study_date }}: {{ log.study_content }}</p>
+</div>
+    <div class="study-logs">
+        <h2>学習ログ</h2>
+        {% for log in page_obj %}
+        <div class="study-log">
+            <p><strong>{{ log.study_date }}:</strong> {{ log.study_content }}</p>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; 最初</a>
-            <a href="?page={{ page_obj.previous_page_number }}">前</a>
-        {% endif %}
-
-        <span class="current">
-            ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}.
+    
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a class="btn" href="?page=1">&laquo; 最初</a>
+                <a class="btn" href="?page={{ page_obj.previous_page_number }}">前</a>
+            {% endif %}
+    
+            <span class="current">
+                ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}.
+            </span>
+    
+            {% if page_obj.has_next %}
+                <a class="btn" href="?page={{ page_obj.next_page_number }}">次</a>
+                <a class="btn" href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+            {% endif %}
         </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">次</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
-        {% endif %}
-    </span>
-</div>
-</div>
-
+    </div>
 <script>
     var ctx = document.getElementById('studyLogChart').getContext('2d');
     var studyLogChart = new Chart(ctx, {

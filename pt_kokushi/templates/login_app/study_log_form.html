@@ -4,7 +4,7 @@
 {% load widget_tweaks %}
 
 <div class="form-section">
-    <form method="post" action="{% url 'pt_kokushi:save_study_log' %}">
+    <form method="post" action="{% url 'pt_kokushi:studychart' %}">
         {% csrf_token %}
         <div class="mb-3">
             <label for="study_date" class="form-label">学習日</label>

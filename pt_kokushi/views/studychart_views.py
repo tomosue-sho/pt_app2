@@ -37,6 +37,21 @@ def studychart(request):
     yearly_total = calculate_yearly_total(request.user)
     total_study_time = calculate_total_study_time(request.user)
     
+    today = datetime.today()
+    start_week = today - timedelta(days=today.weekday())
+    end_week = start_week + timedelta(days=6)
+    start_month = today.replace(day=1)
+    end_month = (start_month + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+    start_year = today.replace(day=1, month=1)
+    end_year = today.replace(day=31, month=12)
+
+    total_study_time_for_all_users = User.objects.annotate(
+        weekly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_week, end_week])),
+        monthly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_month, end_month])),
+        yearly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_year, end_year])),
+        total_time=Sum('studylog__study_duration')
+    ).order_by('-total_time')
+    
     total_study_time_for_all_users = calculate_total_study_time_for_all_users()
     study_logs = StudyLog.objects.filter(user=request.user).order_by('-study_date') 
     
@@ -180,7 +195,7 @@ def study_log_form(request):
             study_log = form.save(commit=False)
             study_log.user = request.user
             study_log.save()
-            return redirect('pt_kokushi:stuydychart')  # 成功時のリダイレクト先
+            return redirect('pt_kokushi:studychart')
     else:
         form = StudyLogForm()
 
