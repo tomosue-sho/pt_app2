@@ -1,31 +1,126 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .excel-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    
+    .excel-table th,
+    .excel-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    
+    .excel-table th {
+        background-color: #f2f2f2;
+        color: black;
+    }
+    
+    .excel-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .excel-table tr:hover {
+        background-color: #ddd;
+    }
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        flex-basis: 30%;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        background-color: #f2f8ff;
+    }
+    .progress {
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        font-weight: bold;
+        transition: width 0.6s ease;
+    }
+    
+    /* 60%以上の場合の色 */
+    .progress-bar {
+        background-color: #4CAF50; /* 緑色 */
+    }
+    
+    /* 60%未満の場合の色 */
+    .progress-bar-under60 {
+        background-color: #FF5722; /* 赤色 */
+    }
+    
+</style>    
 <h2>第{{ exam.year }}回 国試問題 成績結果</h2>
 
-<!-- 「あなたの正答率」の表示を修正 -->
-<h3>{{ user.nickname }}さんの正答率: {{ all_user_accuracy }}%</h3> 
-<h3>全ユーザーの平均正答率: {{ all_user_accuracy }}%</h3>
+<div class="stats-container">
+    <div class="stat-card">
+        <h4>{{ user.nickname }}さんの正答率</h4>
+        <div class="progress">
+            <div class="progress-bar 
+                {% if user_accuracy >= 60 %}
+                    bg-success
+                {% else %}
+                    bg-danger
+                {% endif %}" 
+                role="progressbar" 
+                style="width: {{ user_accuracy }}%;" 
+                aria-valuenow="{{ user_accuracy }}" 
+                aria-valuemin="0" 
+                aria-valuemax="100">
+                {{ user_accuracy|floatformat:1 }}%
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <h4>全ユーザーの平均正答率</h4>
+        <p>{{ all_user_average_accuracy|floatformat:1 }}%</p>
+    </div>
+    <div class="stat-card">
+        <h4>全ユーザーの正答率の中央値</h4>
+        <p>{{ all_user_median_accuracy|floatformat:1 }}%</p>
+    </div>
+</div>
 
-<h4>{{ user.nickname }}さんの分野ごとの正答率</h4>
-<table>
-    {% for field in field_accuracy %}
-    <tr>
-        <td>{{ field.question__field__name }}</td>
-        <td>{{ field.accuracy }}%</td>
-    </tr>
-    {% endfor %}
+
+<table class="excel-table" height="50">
+    <thead>
+        <tr>
+            <th>午前/午後</th>
+            <th>問題番号</th>
+            <th>分野</th>
+            <th>正答判定</th>
+            <th>この問題の正答率</th>
+            <th>全ユーザーの正答率</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions_with_accuracy %}
+        <tr>
+            <td>{{ question.session }}</td>
+            <td>{{ question.number }}</td>
+            <td>{{ question.field }}</td>
+            <td>{{ question.is_correct }}</td>
+            <td>{{ question.user_accuracy }}%</td>
+            <td>{{ question.all_user_accuracy }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>    
 </table>
 
-<h4>全ユーザーの分野ごとの正答率</h4>
-<table>
-    {% for field in field_accuracy_all %}
-    <tr>
-        <td>{{ field.question__field__name }}</td>
-        <td>{{ field.accuracy }}%</td>
-    </tr>
-    {% endfor %}
-</table>
 <br>
 <h4>解答時間</h4>
 <table>
@@ -40,4 +135,39 @@
 
 <br>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['{{ user.nickname }}'], // ユーザーのニックネームを表示
+            datasets: [{
+                label: '正答率 (%)',
+                data: [{{ user_accuracy }}], // ユーザーの正答率を表示
+                backgroundColor: [
+                    '{{ user_accuracy }}' >= 60 ? 'blue' : 'red' // 60%以上で青、未満で赤
+                ],
+                borderColor: [
+                    '{{ user_accuracy }}' >= 60 ? 'darkblue' : 'darkred' // 枠線の色
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Y軸をインデックス軸に設定して横向きグラフにする
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100 // X軸の最大値を100%に設定
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // 凡例を非表示に設定
+                }
+            }
+        }
+    });
+    
+</script>
 {% endblock %}

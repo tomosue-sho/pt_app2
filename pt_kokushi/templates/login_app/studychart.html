@@ -74,7 +74,7 @@
         gap: 10px;
     }
     
-    .btn {
+    .btn_page {
         background-color: #007bff;
         color: white;
         padding: 5px 10px;
@@ -92,8 +92,16 @@
     
     
 </style>
-<h1>学習チャート</h1>
-<a href="{% url 'pt_kokushi:study_log_form' %}" class="btn btn-primary">学習ログを記録する</a>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
+    <h1 style="margin: 0;">学習チャート</h1>
+    <a href="{% url 'pt_kokushi:study_log_form' %}" class="btn btn-primary" style="font-size: 20px; padding: 10px 20px; border-radius: 10px; border: 3px solid black">学習ログを記録する</a>
+    {% if user.is_authenticated %}
+    <div style="background-color: #388E3C; color: white; padding: 5px 10px; border-radius: 5px; font-size: 18px; display: inline-flex; align-items: center;">
+        <i class="fas fa-fire" style="color: red; margin-right: 5px; font-size: 18px;"></i>
+        <span>連続ログイン日数: {{ login_streak }}日</span>
+    </div>
+    {% endif %}
+</div>
 
 <canvas id="studyLogChart"></canvas>
 <div class="content-wrapper">
@@ -165,8 +173,8 @@
     <div class="pagination">
         <span class="step-links">
             {% if page_obj.has_previous %}
-                <a class="btn" href="?page=1">&laquo; 最初</a>
-                <a class="btn" href="?page={{ page_obj.previous_page_number }}">前</a>
+                <a class="btn btn_page" href="?page=1">&laquo; 最初</a>
+                <a class="btn btn_page" href="?page={{ page_obj.previous_page_number }}">前</a>
             {% endif %}
     
             <span class="current">
@@ -174,8 +182,8 @@
             </span>
     
             {% if page_obj.has_next %}
-                <a class="btn" href="?page={{ page_obj.next_page_number }}">次</a>
-                <a class="btn" href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+                <a class="btn btn_page" href="?page={{ page_obj.next_page_number }}">次</a>
+                <a class="btn btn_page" href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
             {% endif %}
         </span>
     </div>

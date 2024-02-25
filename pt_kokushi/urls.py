@@ -20,8 +20,7 @@ from pt_kokushi.views.studychart_views import study_content
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
-from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list
-
+from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list,calculate_questions_accuracy
 app_name = 'pt_kokushi'
 
 urlpatterns = [
@@ -94,6 +93,7 @@ urlpatterns = [
     path('start-quiz/', start_kokushi_quiz, name='start_quiz'),  # クイズを開始するためのURL
     path('quiz/',quiz_page, name='quiz_page'),  # クイズページのURL
     path('quiz_questions/list/', quiz_question_list, name='quiz_question_list'),  # 問題一覧ページへのURL
+    path('calculate_questions_accuracy/',calculate_questions_accuracy, name='calculate_questions_accuracy'),
 ]
 
 if settings.DEBUG:

@@ -56,6 +56,9 @@ class QuizQuestion(models.Model):
         """直前の問題が存在するかどうかをチェックする"""
         return bool(self.get_previous_question())
     
+    def correct_choices_count(self):
+        return self.choices.filter(is_correct=True).count()
+    
     class Meta:
         verbose_name = "国試「問題作成」"
         verbose_name_plural = "国試「問題作成」"
@@ -82,6 +85,12 @@ class QuizUserAnswer(models.Model):
         # すべての選択した選択肢が正解で、正解の選択肢をすべて選んでいるかをチェック
         correct_choices = self.question.choices.filter(is_correct=True)
         return set(self.selected_choices.all()) == set(correct_choices)
+    
+    def is_correct(self):
+        correct_choices = self.question.choices.filter(is_correct=True)
+        selected_correct_choices = self.selected_choices.filter(is_correct=True)
+        # 選択された正解の選択肢が正しい選択肢すべてであり、かつ、選択された選択肢の数が正解の選択肢の数と一致するかチェック
+        return set(selected_correct_choices) == set(correct_choices) and selected_correct_choices.count() == self.question.correct_choices_count()
     
 class KokushiQuizSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")

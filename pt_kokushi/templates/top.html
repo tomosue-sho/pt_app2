@@ -27,6 +27,13 @@
      <div class = "title">
         <h1 id = "title_top">理学療法国試対策アプリ</h1>
      </div>
+     {% if user.is_authenticated %}
+     <div style="display: inline-flex; align-items: center; background-color: #4CAF50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 20px;">
+         <i class="fas fa-fire" style="color: red;"></i> <!-- Font Awesomeの火のアイコン -->
+         <span>連続ログイン日数: {{ login_streak }}日</span>
+     </div>
+     {% endif %}
+     
  </div>
  <div id = "timelimit-view" name="year_number">
      <p class="atdays">国試まであと</p>
@@ -34,11 +41,7 @@
      <br>
      <h3 id="timer"></h3>
  </div>
- <div>
-    {% if user.is_authenticated %}
-    <p>連続ログイン日数: {{ login_streak }}日</p>
-    {% endif %}
- </div>
+
  <br>
  <script>
     function updateTimer() {

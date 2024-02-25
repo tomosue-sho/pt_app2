@@ -10,6 +10,8 @@ from django.utils.timezone import now, timedelta
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
+from ..helpers import calculate_login_streak
+from pt_kokushi.models.LoginHistory_models import LoginHistory
 
 User = get_user_model()
 
@@ -58,6 +60,9 @@ def studychart(request):
     paginator = Paginator(study_logs, 5)  # 1ページあたりの表示数を5に設定
     page_number = request.GET.get('page')  # URLからページ番号を取得
     page_obj = paginator.get_page(page_number)  # ページオブジェクトを取得
+    
+        # 連続ログイン日数を計算
+    login_streak = calculate_login_streak(request.user)
 
     # テンプレートに渡すコンテキストを作成
     context = {
@@ -68,6 +73,7 @@ def studychart(request):
         'total_study_time_for_all_users': total_study_time_for_all_users, 
         'study_logs': study_logs,
         'page_obj': page_obj,
+        'login_streak': login_streak,
     }
 
     return render(request, 'login_app/studychart.html', context)
