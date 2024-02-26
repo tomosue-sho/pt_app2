@@ -288,7 +288,21 @@ def kokushi_results_view(request):
         user_accuracy = (user_correct_answers_count / total_user_answers_count) * 100
     else:
         user_accuracy = 0
- 
+        
+    # 3点問題のユーザー正答率の計算
+    total_3_point_questions = QuizQuestion.objects.filter(exam=exam, point=3).count()
+    user_correct_3_point_answers = QuizUserAnswer.objects.filter(
+        user=user, question__exam=exam, question__point=3, selected_choices__is_correct=True
+    ).count()
+    user_3_point_accuracy = (user_correct_3_point_answers / total_3_point_questions * 100) if total_3_point_questions else 0
+
+    # 1点問題のユーザー正答率の計算
+    total_1_point_questions = QuizQuestion.objects.filter(exam=exam, point=1).count()
+    user_correct_1_point_answers = QuizUserAnswer.objects.filter(
+        user=user, question__exam=exam, question__point=1, selected_choices__is_correct=True
+    ).count()
+    user_1_point_accuracy = (user_correct_1_point_answers / total_1_point_questions * 100) if total_1_point_questions else 0
+
     # 特定の試験におけるユーザーと全ユーザーの正答率を計算
     questions_with_accuracy = calculate_questions_accuracy(user, exam) if exam else []
 
@@ -359,6 +373,8 @@ def kokushi_results_view(request):
         'all_user_accuracy':all_user_accuracy,
         'user_accuracy': user_accuracy,
         'all_user_median_accuracy': all_user_median_accuracy,
+        'user_3_point_accuracy': user_3_point_accuracy,
+        'user_1_point_accuracy': user_1_point_accuracy,
     }
     
     return render(request, 'kokushi/kokushi_results.html', context)

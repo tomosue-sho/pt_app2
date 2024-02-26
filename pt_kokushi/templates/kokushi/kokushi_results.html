@@ -3,11 +3,12 @@
 {% block content %}
 <style>
     .excel-table {
-        border-collapse: collapse;
-        width: 100%;
+        margin: auto; /* テーブルを中央に配置 */
         font-family: "Segoe UI", Arial, sans-serif;
     }
-    
+    .stats-container, .excel-table-container{
+        margin-bottom: 20px; /* 間隔 */
+    }
     .excel-table th,
     .excel-table td {
         border: 1px solid #ddd;
@@ -19,28 +20,49 @@
         background-color: #f2f2f2;
         color: black;
     }
-    
+
     .excel-table tr:nth-child(even) {
         background-color: #f9f9f9;
+    }
+    .excel-table tr:nth-child(odd) {
+        background-color: white;
     }
     
     .excel-table tr:hover {
         background-color: #ddd;
     }
-    .stats-container {
+ 
+    .horizontal-container {
         display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
+        flex-direction: row; /* 横並び */
+        justify-content: space-around; /* 均等配置 */
+        align-items: flex-start; /* 上端揃え */
+        flex-wrap: nowrap; /* 折り返しなし */
     }
     
+    .stats-container {
+        flex: 1; /* 幅を狭く取る */
+        min-width: 150px; /* 最小幅を設定 */
+    }
+    
+    .excel-table-container {
+        flex: 2; /* 幅を広く取る */
+        min-width: 300px; /* 最小幅を設定 */
+        margin: 10px; /* カード間のマージン */
+        padding: 20px; /* 内側の余白 */
+        background-color: #FFFFEE;
+        border-radius: 8px;
+    }
+
     .stat-card {
-        flex-basis: 30%;
-        text-align: center;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        flex: 1; /* 各カードが均等にスペースを取るように */
+        margin: 10px; /* カード間のマージン */
+        padding: 20px; /* 内側の余白 */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 影の追加 */
         border-radius: 8px;
         background-color: #f2f8ff;
     }
+    
     .progress {
         background-color: #f5f5f5;
         border-radius: 5px;
@@ -64,39 +86,81 @@
     
 </style>    
 <h2>第{{ exam.year }}回 国試問題 成績結果</h2>
-
-<div class="stats-container">
+<div class="horizontal-container">
+    <div class="stats-container">
     <div class="stat-card">
         <h4>{{ user.nickname }}さんの正答率</h4>
-        <div class="progress">
-            <div class="progress-bar 
-                {% if user_accuracy >= 60 %}
-                    bg-success
-                {% else %}
-                    bg-danger
-                {% endif %}" 
-                role="progressbar" 
-                style="width: {{ user_accuracy }}%;" 
-                aria-valuenow="{{ user_accuracy }}" 
-                aria-valuemin="0" 
-                aria-valuemax="100">
-                {{ user_accuracy|floatformat:1 }}%
+        <!-- 全体の正答率 -->
+        <div>
+            <h5>全体の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar
+                    {% if user_accuracy >= 60 %}
+                        bg-success
+                    {% else %}
+                        bg-danger
+                    {% endif %}" 
+                    role="progressbar" 
+                    style="width: {{ user_accuracy }}%;" 
+                    aria-valuenow="{{ user_accuracy }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_accuracy|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+        <!-- 3点問題の正答率 -->
+        <div>
+            <h5>3点問題の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" 
+                    style="width: {{ user_3_point_accuracy }}%;" 
+                    aria-valuenow="{{ user_3_point_accuracy }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_3_point_accuracy|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+        <!-- 1点問題の正答率 -->
+        <div>
+            <h5>1点問題の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" 
+                    style="width: {{ user_1_point_accuracy }}%;" 
+                    aria-valuenow="{{ user_1_point_accuracy }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_1_point_accuracy|floatformat:1 }}%
+                </div>
             </div>
         </div>
     </div>
+             <div class="stat-card">
+                 <h4>全ユーザーの平均正答率</h4>
+                 <p>{{ all_user_average_accuracy|floatformat:1 }}%</p>
+             </div>
+             <div class="stat-card">
+                 <h4>全ユーザーの正答率の中央値</h4>
+                 <p>{{ all_user_median_accuracy|floatformat:1 }}%</p>
+             </div>
     
-    <div class="stat-card">
-        <h4>全ユーザーの平均正答率</h4>
-        <p>{{ all_user_average_accuracy|floatformat:1 }}%</p>
+            <div class="stat-card">
+                <h4>今回の解答時間</h4>
+                <table>
+                {% if quiz_session %}
+                <p>開始時刻: {{ quiz_session.start_time }}</p>
+                <p>終了時刻: {{ quiz_session.end_time }}</p>
+                {% if quiz_session.start_time and quiz_session.end_time %}
+                <p>合計試験時間: {{ quiz_session.end_time|timesince:quiz_session.start_time }}</p>
+                {% endif %}
+                {% endif %}
+                </table>
+            </div>
     </div>
-    <div class="stat-card">
-        <h4>全ユーザーの正答率の中央値</h4>
-        <p>{{ all_user_median_accuracy|floatformat:1 }}%</p>
-    </div>
-</div>
 
-
-<table class="excel-table" height="50">
+  <div class="excel-table-container">
+  <table class="excel-table" height="50">
     <thead>
         <tr>
             <th>午前/午後</th>
@@ -119,20 +183,9 @@
         </tr>
         {% endfor %}
     </tbody>    
-</table>
-
-<br>
-<h4>解答時間</h4>
-<table>
-    {% if quiz_session %}
-    <p>開始時刻: {{ quiz_session.start_time }}</p>
-    <p>終了時刻: {{ quiz_session.end_time }}</p>
-    {% if quiz_session.start_time and quiz_session.end_time %}
-        <p>合計試験時間: {{ quiz_session.end_time|timesince:quiz_session.start_time }}</p>
-    {% endif %}
-{% endif %}
-</table>
-
+    </table>
+  </div>
+</div>
 <br>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
 <script>

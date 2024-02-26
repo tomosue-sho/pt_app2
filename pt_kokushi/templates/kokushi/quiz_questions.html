@@ -77,7 +77,19 @@
     #timer-placeholder {
         height: 50px; /* タイマーの高さに応じて調整 */
     }
-
+    .timer-container {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000; /* 必要に応じて調整 */
+        display: flex;
+        align-items: center;
+        gap: 10px; /* ボタンとタイマーの間隔 */
+    }
     .btn-danger-subtle {
         background-color: #f8d7da; /* Bootstrapの $danger 色を薄くしたもの */
         color: #721c24; /* Bootstrapの $danger 色の濃いもの */
@@ -128,7 +140,8 @@
             </div>
         </div>
     </nav>
-<div id="timer-placeholder" style="height: 50px;"></div>
+    <div id="timer"></div>
+</div>
 
 <div class="alert alert-warning" role="alert">
     {% for message in messages %}
@@ -138,7 +151,7 @@
 
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
-    <div id="timer"></div>
+
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:submit_quiz_answers' question.id %}" method="post">
@@ -197,9 +210,12 @@
         <a href="{% url 'pt_kokushi:restart_kokushi_quiz' %}" class="btn btn-warning mb-2">最初から解き直す</a>
     </div>
     <div>
+        <a href="{% url 'pt_kokushi:kokushi_results' %}" class="btn btn-warning">ここでやめる</a>
+    </div>
+    <div>
         <form action="{% url 'pt_kokushi:exit_quiz' %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-warning">途中で抜ける</button>
+            <button type="submit" class="btn btn-warning">一旦抜ける</button>
         </form>
     </div>
 </div>

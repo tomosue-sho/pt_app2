@@ -92,6 +92,15 @@ class QuizUserAnswer(models.Model):
         # 選択された正解の選択肢が正しい選択肢すべてであり、かつ、選択された選択肢の数が正解の選択肢の数と一致するかチェック
         return set(selected_correct_choices) == set(correct_choices) and selected_correct_choices.count() == self.question.correct_choices_count()
     
+    #３点問題と１点問題の正答率計算
+    def correct_answer_rate(self):
+        total_answers = QuizUserAnswer.objects.filter(question=self).count()
+        correct_answers = QuizUserAnswer.objects.filter(question=self, is_correct=True).count()
+        if total_answers > 0:
+            return (correct_answers / total_answers) * 100
+        else:
+            return 0
+        
 class KokushiQuizSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="試験")
