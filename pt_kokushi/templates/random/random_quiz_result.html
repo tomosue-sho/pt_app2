@@ -1,22 +1,35 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
-{% bootstrap_css %}
-{% load static %}
 {% block content %}
 <style>
     tr[data-url]:hover {
         cursor: pointer;
-        background-color: #f5f5f5; /* 背景色を変更し、!importantで優先度を上げる */
+        background-color: #f5f5f5;
+        color: white;
     }
-    
+     td:hover{
+        background-color:#f5f5f5;
+     }
+     .card-subtitle{
+        font-weight:bold;
+     }
+    .card-text{
+        font-weight:bold;
+    }
 </style>
 
 <div class="quiz-results">
-    <h2>クイズ結果</h2>
-    <p>正答率: {{ accuracy|floatformat:2 }}%</p>
-    <p>正解数: {{ correct_count }} / {{ total_questions }}</p>
-
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">ランダム問題結果</h2>
+                <p class="card-subtitle mb-2 ">正答率: <span class="badge bg-success">{{ accuracy|floatformat:2 }}%</span></p>
+                <p class="card-text">正解数: <span class="badge bg-primary">{{ correct_count }} / {{ total_questions }}</span></p>
+            </div>
+        </div>
+    </div>
+    
     <table class="table">
         <thead>
             <tr>
@@ -50,7 +63,7 @@
             });
         });
     });
-    </script>
+</script>
     
 {% endblock %}
 

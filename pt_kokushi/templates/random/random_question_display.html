@@ -1,28 +1,95 @@
 {% extends 'base.html' %}
-
+{% load bookmark_tags %}
 {% block content %}
+<style>
+    .choice-label {
+        display: block;
+        padding: 10px;
+        margin-bottom: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+        cursor: pointer;
+    }
+    
+    .choice-label:hover {
+        background-color: #e9ecef;
+    }
+    
+    .choice-input {
+        display: none;
+    }
+    
+    .choice-input:checked + .choice-label {
+        background-color: #cae0f4;
+        border-color: #b8daff;
+    }
+
+    .card {
+        /* カードのカスタムスタイル */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつける */
+        border: none; /* 枠線を消す */
+    }
+    
+    .card-body {
+        /* カードボディのカスタムスタイル */
+    }
+    
+    .card-text {
+        /* カードテキストのカスタムスタイル */
+        font-size: 1.1em; /* フォントサイズを大きく */
+    }
+
+    #timer {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000; /* 必要に応じて調整 */
+    }
+
+    #timer-placeholder {
+        height: 50px; /* タイマーの高さに応じて調整 */
+    }
+
+    .btn-danger-subtle {
+        background-color: #f8d7da; /* Bootstrapの $danger 色を薄くしたもの */
+        color: #721c24; /* Bootstrapの $danger 色の濃いもの */
+        border-color: #f5c6cb; /* Bootstrapの $danger 色をさらに薄くしたもの */
+    }
+    .btn-danger-subtle:hover {
+        background-color: #f5c6cb; /* ホバー時は少し明るく */
+        border-color: #f1b0b7;
+    }
+    
+    /* ブックマーク済みボタンのマウスオーバー時 */
+    .btn-warning:hover {
+        background-color: #ffc107; /* より鮮やかな黄色 */
+        color: black;
+    }
+</style>
+<body>
+
 <div class="alert alert-warning" role="alert">
     {% for message in messages %}
         {{ message }}
     {% endfor %}
 </div>
-
 <div class="container mt-3">
-    <h2>ランダム問題</h2>
-    <div id="timer"></div>
-
-    <!-- 問題を表示 -->
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:submit_random_quiz_answers' question.id %}" method="post">
                 {% csrf_token %}
-                
                 <!-- 問題文の表示 -->
-                <p class="card-text"><strong>{{ question.question_number }}: {{ question.question_text }}</strong></p>
+                
+                <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
                     <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
                 {% endif %}
-                
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
                 <div>
@@ -30,11 +97,95 @@
                     <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
                 </div>
                 {% endfor %}
-                
-                <button type="submit" class="btn btn-primary">次へ</button>
+                <button type="submit" class="btn btn-primary">次の問題へ</button>
             </form>
+            <br>
+            <div id="answer" style="display:none;">
+                <p><strong>解答：</strong>{{ question.answer_text }}</p>
+            </div>
+            <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
         </div>
     </div>
 </div>
+
+<div class="container mt-3 d-flex justify-content-around">
+    {% if request.user.is_authenticated %}
+        {% if question|is_bookmarked:request.user %}
+            <div>
+                <form action="{% url 'pt_kokushi:remove_bookmark' question.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger-subtle">ブックマーク済み</button>
+                </form>
+            </div>
+        {% else %}
+            <div>
+                <form action="{% url 'pt_kokushi:add_bookmark' question.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-secondary">この問題をブックマークに追加</button>
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+</body>
+<script>
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        
+        checkAnswerBtn.addEventListener('click', function() {
+            const questionId = checkAnswerBtn.dataset.questionId;
+            const selectedChoiceId = document.querySelector('input[name="choices"]:checked').value;
+            const checkAnswerUrl = checkAnswerBtn.dataset.checkAnswerUrl;
+            
+            fetch(checkAnswerUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ choice_id: selectedChoiceId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                // 以前のクラスをクリア
+                resultDiv.className = '';
+                // 正解か不正解かに応じてクラスを適用
+                if (data.is_correct) {
+                    resultDiv.textContent = "正解です！";
+                    resultDiv.classList.add("result-correct");
+                } else {
+                    resultDiv.textContent = "不正解です。";
+                    resultDiv.classList.add("result-incorrect");
+                }
+                resultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const answerDiv = document.getElementById('answer');
+    
+        showAnswerBtn.addEventListener('click', function() {
+            // 解答が現在非表示なら表示し、表示されているなら非表示にする
+            if (answerDiv.style.display === "none") {
+                answerDiv.style.display = "block";
+                showAnswerBtn.textContent = "解説を隠す"; // ボタンのテキストを変更
+            } else {
+                answerDiv.style.display = "none";
+                showAnswerBtn.textContent = "解説を表示"; // ボタンのテキストを変更
+            }
+        });
+    });
+</script>
+
 {% endblock %}
 
