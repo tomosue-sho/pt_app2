@@ -120,3 +120,57 @@ def calculate_median(values_list):
         return sorted_list[index]
     else:
         return (sorted_list[index] + sorted_list[index + 1]) / 2.0
+    
+#ランダム問題用
+def calculate_random_quiz_results(user, question_ids):
+    results = []
+    correct_count = 0
+
+    for question_id in question_ids:
+        question = QuizQuestion.objects.get(id=question_id)
+        selected_choices = QuizUserAnswer.objects.filter(
+            user=user, question=question
+        ).values_list('selected_choices', flat=True)
+
+        correct_choices = question.choices.filter(is_correct=True).values_list('id', flat=True)
+        is_correct = set(selected_choices) == set(correct_choices)
+        if is_correct:
+            correct_count += 1
+
+        results.append({
+            'question': question,
+            'is_correct': is_correct,
+            'selected_choices': selected_choices,
+            'correct_choices': correct_choices,
+        })
+
+    accuracy = (correct_count / len(question_ids)) * 100 if question_ids else 0
+
+    return {
+        'results': results,
+        'accuracy': accuracy,
+        'correct_count': correct_count,
+        'total_questions': len(question_ids),
+    }
+    
+    
+def calculate_random_questions_accuracy(user, question_ids):
+    questions_with_accuracy = []
+    for question_id in question_ids:
+        question = QuizQuestion.objects.get(id=question_id)
+        user_answers = QuizUserAnswer.objects.filter(user=user, question=question)
+        correct_answers = user_answers.filter(selected_choices__is_correct=True).count()
+        total_answers = user_answers.count()
+
+        user_accuracy = (correct_answers / total_answers * 100) if total_answers else 0
+        questions_with_accuracy.append({
+            'session': question.time,
+            'number': question.question_number,
+            'field': question.field.name,
+            'user_accuracy': user_accuracy,
+            'is_correct': correct_answers == question.correct_choices_count()
+        })
+
+    return questions_with_accuracy
+
+

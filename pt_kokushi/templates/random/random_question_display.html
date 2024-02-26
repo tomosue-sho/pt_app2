@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="alert alert-warning" role="alert">
+    {% for message in messages %}
+        {{ message }}
+    {% endfor %}
+</div>
+
+<div class="container mt-3">
+    <h2>ランダム問題</h2>
+    <div id="timer"></div>
+
+    <!-- 問題を表示 -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form action="{% url 'pt_kokushi:submit_random_quiz_answers' question.id %}" method="post">
+                {% csrf_token %}
+                
+                <!-- 問題文の表示 -->
+                <p class="card-text"><strong>{{ question.question_number }}: {{ question.question_text }}</strong></p>
+                {% if question.question_image %}
+                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+                {% endif %}
+                
+                <!-- 選択肢の表示 -->
+                {% for choice in question.choices.all %}
+                <div>
+                    <input type="checkbox" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" class="choice-input">
+                    <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary">次へ</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

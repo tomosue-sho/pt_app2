@@ -15,7 +15,7 @@ from django.utils.duration import duration_string
 from ..helpers import calculate_questions_accuracy,calculate_field_accuracy,calculate_field_accuracy_all
 from ..helpers import calculate_median,calculate_all_user_average_accuracy
 import json
-#/Users/tomosue_shou/pt_project2/pt_kokushi/models/kokushi_models.py
+
 
 # 試験回選択用
 def exam_selection_view(request):

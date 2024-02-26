@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .form-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .form-container h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    select, button {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+<div class="form-container">
+    <h2>問題数を選択</h2>
+    <form action="{% url 'pt_kokushi:random_quiz' %}" method="post">
+        {% csrf_token %}
+        <label for="num_questions">問題数:</label>
+        <select name="num_questions" id="num_questions">
+            {% for number in question_numbers %}
+            <option value="{{ number }}">{{ number }}問</option>
+            {% endfor %}
+        </select>
+        <button type="submit">開始</button>
+    </form>
+    <br>
+    <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">戻る</a></p>
+</div>
+{% endblock %}

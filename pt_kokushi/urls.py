@@ -21,6 +21,9 @@ from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
 from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list,calculate_questions_accuracy
+from pt_kokushi.views.random_views import random_question_display, random_quiz,submit_random_quiz_answers,quiz_question_detail
+from pt_kokushi.views.random_views import random_quiz_result
+
 app_name = 'pt_kokushi'
 
 urlpatterns = [
@@ -84,7 +87,7 @@ urlpatterns = [
     path('quiz_questions/continue/', continue_quiz_view, name='continue_quiz'),#前回の続きから
     path('quiz_questions/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す
     path('quiz_question/exit/', exit_quiz, name='exit_quiz'),
-    path('quiz_question/kokushi_results/', kokushi_results_view, name='kokushi_results'),
+    path('quiz_question/kokushi_results/', kokushi_results_view, name='kokushi_results'),#国試成績
     path('quiz_question/<int:question_id>/add_bookmark/', add_bookmark, name='add_bookmark'),
     path('quiz_question/<int:question_id>/remove_bookmark/', remove_bookmark, name='remove_bookmark'),
     path('quiz_question/bookmarks/', bookmark_list, name='bookmark_list'),
@@ -94,6 +97,12 @@ urlpatterns = [
     path('quiz/',quiz_page, name='quiz_page'),  # クイズページのURL
     path('quiz_questions/list/', quiz_question_list, name='quiz_question_list'),  # 問題一覧ページへのURL
     path('calculate_questions_accuracy/',calculate_questions_accuracy, name='calculate_questions_accuracy'),
+    path('random/quiz/', random_quiz, name='random_quiz'),
+    path('random/question/', random_question_display, name='random_question_display'),#ランダム問題表示
+    path('random/quiz/', random_quiz, name='random_choice'),#ランダム問題選択
+    path('random/submit/<int:question_id>/', submit_random_quiz_answers, name='submit_random_quiz_answers'),
+    path('random/result/', random_quiz_result, name='random_quiz_result'), #ランダム成績表
+    path('quiz/question/<int:question_id>/', quiz_question_detail, name='quiz_question_detail'),
 ]
 
 if settings.DEBUG:

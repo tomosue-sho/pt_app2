@@ -67,11 +67,11 @@
 
  <div = id = "side-quest">
     <div id = "side-bar">
-        <p class = "button-001" id = "grade">成績</p>
+        <a class = "button-001" id = "grade" href="{% url 'pt_kokushi:studychart' %}">学習チャート</a>
         <p class = "button-001" id = "category">分野ごと</p>
         <p class = "button-001" id = "year">年度ごと</p>
         <a href="{% url 'pt_kokushi:bookmark_list' %}" class="button-001" id="bookmark">ブックマーク問題</a>
-        <p class = "button-001" id = "random">ランダム問題</p>
+        <a href="{% url 'pt_kokushi:random_choice' %}" class="button-001" id="bookmark">ランダム問題</a>
         <p class = "button-001" iD = "three-q">3点問題のみ</p>
         <a class = "button-001" is = "study-mode" href="{% url 'pt_kokushi:select_field' %}"><p>基礎学習</p></a>
     </div>

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>問題詳細</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">問題 {{ question.id }}</h5>
+            <p class="card-text">{{ question.question_text }}</p>
+            {% if question.question_image %}
+            <img src="{{ question.question_image.url }}" class="img-fluid" alt="問題画像">
+            {% endif %}
+            <ul class="list-group list-group-flush">
+                {% for choice in question.choices.all %}
+                <li class="list-group-item">
+                    {% if choice.is_correct %}
+                    <strong>{{ choice.choice_text }} (正解)</strong>
+                    {% else %}
+                    {{ choice.choice_text }}
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <a href="{% url 'pt_kokushi:random_quiz' %}" class="btn btn-primary mt-3">最初から挑戦</a>
+    <a href="{% url 'pt_kokushi:random_quiz_result' %}" class="btn btn-info mt-3">成績ページに戻る</a>
+</div>
+{% endblock %}
