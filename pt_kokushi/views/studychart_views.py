@@ -32,13 +32,20 @@ def calculate_total_study_time_for_all_users():
 
     return user_study_time
 
+@login_required
 def studychart(request):
-    # 週間、月間、年間、トータルの学習時間を計算
-    weekly_total = calculate_weekly_total(request.user)
-    monthly_total = calculate_monthly_total(request.user)
-    yearly_total = calculate_yearly_total(request.user)
-    total_study_time = calculate_total_study_time(request.user)
-    
+    if request.method == 'POST':
+        # POSTリクエストの場合、フォームのデータを処理
+        form = StudyLogForm(request.POST)
+        if form.is_valid():
+            study_log = form.save(commit=False)
+            study_log.user = request.user
+            study_log.save()
+            return redirect('pt_kokushi:studychart')  # フォーム送信後は同じページにリダイレクト
+    else:
+        form = StudyLogForm()  # GETリクエストの場合、空のフォームを表示
+
+    # ここからは`studychart`関数の元のコードを続けます
     today = datetime.today()
     start_week = today - timedelta(days=today.weekday())
     end_week = start_week + timedelta(days=6)
@@ -47,33 +54,31 @@ def studychart(request):
     start_year = today.replace(day=1, month=1)
     end_year = today.replace(day=31, month=12)
 
-    total_study_time_for_all_users = User.objects.annotate(
-        weekly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_week, end_week])),
-        monthly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_month, end_month])),
-        yearly_total=Sum('studylog__study_duration', filter=Q(studylog__study_date__range=[start_year, end_year])),
-        total_time=Sum('studylog__study_duration')
-    ).order_by('-total_time')
-    
-    total_study_time_for_all_users = calculate_total_study_time_for_all_users()
-    study_logs = StudyLog.objects.filter(user=request.user).order_by('-study_date') 
-    
-    paginator = Paginator(study_logs, 5)  # 1ページあたりの表示数を5に設定
-    page_number = request.GET.get('page')  # URLからページ番号を取得
-    page_obj = paginator.get_page(page_number)  # ページオブジェクトを取得
-    
-        # 連続ログイン日数を計算
-    login_streak = calculate_login_streak(request.user)
+    # 学習ログ
+    study_logs = StudyLog.objects.filter(user=request.user).order_by('-study_date')
+    paginator = Paginator(study_logs, 5)  # ページネーターの設定
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    # テンプレートに渡すコンテキストを作成
+    # 学習時間の集計
+    weekly_total = calculate_weekly_total(request.user)
+    monthly_total = calculate_monthly_total(request.user)
+    yearly_total = calculate_yearly_total(request.user)
+    total_study_time = calculate_total_study_time(request.user)
+
+    # 全ユーザーの集計
+    total_study_time_for_all_users = calculate_total_study_time_for_all_users()
+
+    # コンテキストとして辞書を作成
     context = {
+        'form': form,
         'weekly_total': weekly_total / 60,  # 分を時間に変換
-        'monthly_total': monthly_total / 60,  # 分を時間に変換
-        'yearly_total': yearly_total / 60,  # 分を時間に変換
-        'total_study_time': total_study_time / 60,  # 分を時間に変換
-        'total_study_time_for_all_users': total_study_time_for_all_users, 
+        'monthly_total': monthly_total / 60,
+        'yearly_total': yearly_total / 60,
+        'total_study_time': total_study_time / 60,
+        'total_study_time_for_all_users': total_study_time_for_all_users,
         'study_logs': study_logs,
         'page_obj': page_obj,
-        'login_streak': login_streak,
     }
 
     return render(request, 'login_app/studychart.html', context)
