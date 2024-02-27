@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <form action="{% url 'pt_kokushi:practical_choice' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="yearSelect">年度を選択してください</label>
+            <select name="year" id="yearSelect" class="form-control">
+                <option value="random">ランダム</option>
+                {% for year in years %}
+                <option value="{{ year }}">{{ year }}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div class="form-group">
+            <label>問題数を選択してください</label>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-outline-primary">
+                    <input type="radio" name="questionCount" id="five" value="5"> 5問
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" name="questionCount" id="ten" value="10"> 10問
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" name="questionCount" id="fifteen" value="15"> 15問
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" name="questionCount" id="twenty" value="20"> 20問
+                </label>
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">問題を開始</button>
+    </form>
+</div>
+{% endblock %}
