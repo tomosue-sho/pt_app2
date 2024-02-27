@@ -111,7 +111,7 @@
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
                 <div>
-                    <input type="checkbox" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" class="choice-input">
+                    <input type="checkbox" id="choice_{{ choice.id }}" name="choices" value="{{ choice.id }}" class="choice-input">
                     <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
                 </div>
                 {% endfor %}

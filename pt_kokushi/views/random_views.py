@@ -127,4 +127,3 @@ def quiz_question_detail(request, question_id):
         'question': question,
     }
     return render(request, 'random/quiz_question_detail.html', context)
-
