@@ -23,7 +23,8 @@ from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark
 from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list,calculate_questions_accuracy
 from pt_kokushi.views.random_views import random_question_display, random_quiz,submit_random_quiz_answers,quiz_question_detail
 from pt_kokushi.views.random_views import random_quiz_result
-from pt_kokushi.views.parctical_views import PracticalChoiceView,PracticalQuizView,toggle_bookmark,practical_quiz_result
+from pt_kokushi.views.practical_views import PracticalChoiceView,PracticalQuizView,toggle_bookmark,practical_quiz_result
+from pt_kokushi.views.practical_views import clear_quiz_session
 
 app_name = 'pt_kokushi'
 
@@ -107,6 +108,7 @@ urlpatterns = [
     path('practical/choice/', PracticalChoiceView.as_view(), name='practical_choice'),#3点問題選択
     path('practical/quiz/<int:question_id>/', PracticalQuizView.as_view(), name='practical_quiz'),#３点問題の問題表示
     path('practical-quiz-result/', practical_quiz_result, name='practical_quiz_result'),#3点問題成績用
+    path('clear-quiz-session/', clear_quiz_session, name='clear_quiz_session'),
     path('toggle_bookmark/', toggle_bookmark, name='toggle_bookmark'),
 ]
 

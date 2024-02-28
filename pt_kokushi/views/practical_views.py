@@ -7,6 +7,7 @@ from django.utils.timezone import now
 from django.views.generic import CreateView
 from django.views.decorators.http import require_POST
 from pt_kokushi.models.kokushi_models import QuizQuestion, Exam, Choice,QuizUserAnswer,KokushiQuizSession,Bookmark
+from ..helpers import calculate_practical_quiz_results
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,6 +19,14 @@ class PracticalChoiceView(View):
         return render(request, 'practical/practical_choice.html', {'years': years})
 
     def post(self, request, *args, **kwargs):
+         # セッションからクイズ関連の情報をクリア
+        if 'question_ids' in request.session:
+            del request.session['question_ids']
+        if 'current_question_index' in request.session:
+            del request.session['current_question_index']
+            
+        QuizUserAnswer.objects.filter(user=request.user).delete()
+        
         year = request.POST.get('year')
         question_count = int(request.POST.get('questionCount', 10))
 
@@ -31,6 +40,7 @@ class PracticalChoiceView(View):
         question_ids = [question.id for question in questions]
         request.session['question_ids'] = question_ids
         request.session['current_question_index'] = 0
+        
 
         if question_ids:
             first_question_id = question_ids[0]
@@ -62,20 +72,12 @@ class PracticalQuizView(LoginRequiredMixin, View):
         question_ids = request.session.get('question_ids', [])
         current_index = question_ids.index(question_id) + 1
 
-        # 正誤判定（仮実装、実際のロジックに応じて調整が必要）
-        if quiz_user_answer.is_correct():  # is_correctメソッドは適切に実装する
-            messages.success(request, "正解です！")
-        else:
-            messages.error(request, "不正解です。")
-
         # 次の問題があればそのページにリダイレクト、そうでなければ結果ページへ
         if current_index < len(question_ids):
             next_question_id = question_ids[current_index]
             return redirect(reverse('pt_kokushi:practical_quiz', kwargs={'question_id': next_question_id}))
         else:
-            # セッションからクイズ関連の情報をクリア
-            del request.session['question_ids']
-            del request.session['current_question_index']
+
             return redirect('pt_kokushi:practical_quiz_result')
     
     def get(self, request, *args, **kwargs):
@@ -96,42 +98,27 @@ class PracticalQuizView(LoginRequiredMixin, View):
 @login_required
 def practical_quiz_result(request):
     user = request.user
-    question_ids = request.session.get('practical_questions_ids', [])
-
-    results = []
-    correct_count = 0
-    for question_id in question_ids:
-        question = QuizQuestion.objects.get(id=question_id)
-        correct_choices = question.choices.filter(is_correct=True)
-        correct_answer_texts = [choice.choice_text for choice in correct_choices]
-
-        # ユーザーの回答を取得
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
-
-        # 正誤判定
-        is_correct = user_answer and user_answer.is_correct()
-        if is_correct:
-            correct_count += 1
-
-        results.append({
-            'question': question,
-            'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]) if user_answer else None,
-            'correct_answer': ', '.join(correct_answer_texts),
-            'is_correct': is_correct,
-        })
-
-    total_questions = len(question_ids)
-    accuracy = (correct_count / total_questions) * 100 if total_questions else 0
-
+    
+    results, accuracy, correct_count, total_questions = calculate_practical_quiz_results(user)
+    
     context = {
         'results': results,
-        'total_questions': total_questions,
-        'correct_count': correct_count,
         'accuracy': accuracy,
+        'correct_count': correct_count,
+        'total_questions': total_questions,
     }
-
-    # 成績ページのテンプレートに変更
+    
     return render(request, 'practical/practical_quiz_result.html', context)
+
+def clear_quiz_session(request):
+    # セッションからクイズ関連の情報をクリア
+    if 'question_ids' in request.session:
+        del request.session['question_ids']
+    if 'current_question_index' in request.session:
+        del request.session['current_question_index']
+
+    # クイズの開始ページまたはトップページにリダイレクトする
+    return redirect('pt_kokushi:top')
 
 @require_POST
 def toggle_bookmark(request):

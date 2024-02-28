@@ -17,7 +17,6 @@
         font-weight:bold;
     }
 </style>
-
 <div class="quiz-results">
     <div class="container mt-4">
         <div class="card">
@@ -43,7 +42,7 @@
             {% for result in results %}
             <tr class="{{ result.is_correct|yesno:'table-success,table-danger' }}">
                 <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ result.question.question_text|truncatechars:50 }}</td>
+                <td>{{ result.question|truncatechars:10 }}</td>
                 <td>{{ result.user_answer|default:"回答なし" }}</td>
                 <td>{{ result.correct_answer }}</td>
                 <td>{{ result.is_correct|yesno:"正解,不正解" }}</td>
@@ -54,6 +53,13 @@
     
 
     <a href="{% url 'pt_kokushi:practical_choice' %}" class="btn btn-primary">もう一度挑戦</a>
-</div>
 
+    <a href="{% url 'pt_kokushi:clear_quiz_session' %}" class="btn btn-primary">終了</a>
+</div>
+<script>
+    window.onbeforeunload = function() {
+        navigator.sendBeacon('/pt_kokushi:clear_quiz_session/');
+    };
+    </script>
+    
 {% endblock %}

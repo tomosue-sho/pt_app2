@@ -11,6 +11,13 @@ from django.contrib.auth import get_user_model
 CustomUser = get_user_model()
 
 def random_quiz(request):
+    # セッションデータのクリア
+    request.session.pop('random_questions_ids', None)
+    request.session.pop('current_question_index', None)
+    
+    # ユーザーの古い回答データをクリア
+    QuizUserAnswer.objects.filter(user=request.user).delete()
+    
     question_numbers = list(range(5, 101, 5))
     if request.method == "POST":
         num_questions = int(request.POST.get('num_questions', 10))
@@ -44,13 +51,15 @@ def submit_random_quiz_answers(request, question_id):
         question_ids = request.session.get('random_questions_ids', [])
         current_index = request.session.get('current_question_index', 0)
         
+        # 全問題終了時のリダイレクト先
         if current_index >= len(question_ids):
-            return redirect('pt_kokushi:random_quiz_result')  # 全問題終了時のリダイレクト先
+            return redirect('pt_kokushi:random_quiz_result')
         
         current_question_id = question_ids[current_index]
         current_question = get_object_or_404(QuizQuestion, pk=current_question_id)
         selected_choice_ids = request.POST.getlist(f'question_{current_question_id}')
         
+        # 選択肢が選択されていない場合のエラーメッセージ
         if not selected_choice_ids:
             messages.error(request, '選択肢を選んでください。')
             return redirect('pt_kokushi:random_question_display')
@@ -62,21 +71,20 @@ def submit_random_quiz_answers(request, question_id):
             defaults={'start_time': now()}
         )
         quiz_user_answer.end_time = now()
-        quiz_user_answer.save()
-
         quiz_user_answer.selected_choices.clear()
         for choice_id in selected_choice_ids:
             selected_choice = get_object_or_404(Choice, pk=choice_id)
             quiz_user_answer.selected_choices.add(selected_choice)
+        quiz_user_answer.save()
         
         # 次の問題へのインデックスを更新
         request.session['current_question_index'] = current_index + 1
         
-        # 次の問題があればそのページにリダイレクト、そうでなければ結果ページへ
+        # 次の問題へリダイレクト、全問題終了後は結果ページへ
         if current_index + 1 < len(question_ids):
             return redirect('pt_kokushi:random_question_display')
         else:
-            return redirect('pt_kokushi:random_quiz_result')  # 全問題終了後のリダイレクト先
+            return redirect('pt_kokushi:random_quiz_result')
 
     # POST以外のリクエストの場合はクイズ選択ページにリダイレクト
     return redirect('pt_kokushi:random_quiz')
@@ -86,29 +94,8 @@ def random_quiz_result(request):
     user = request.user
     question_ids = request.session.get('random_questions_ids', [])
 
-    results = []
-    correct_count = 0
-    for question_id in question_ids:
-        question = QuizQuestion.objects.get(id=question_id)
-        correct_choices = question.choices.filter(is_correct=True)
-        correct_answer_texts = [choice.choice_text for choice in correct_choices]
-
-        # user_answerはユーザーの回答を取得するロジックを想定
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
-
-        is_correct = user_answer and user_answer.is_correct()
-        if is_correct:
-            correct_count += 1
-
-        results.append({
-            'question': question,
-            'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]) if user_answer else None,  # ユーザーの選択した選択肢のテキスト
-            'correct_answer': ', '.join(correct_answer_texts),  # 正解の選択肢のテキスト
-            'is_correct': is_correct,
-        })
-
-    total_questions = len(question_ids)
-    accuracy = (correct_count / total_questions) * 100 if total_questions else 0
+    # calculate_random_quiz_results 関数を使用して結果を計算
+    results, accuracy, correct_count, total_questions = calculate_random_quiz_results(user, question_ids)
 
     context = {
         'results': results,
@@ -124,6 +111,7 @@ def random_quiz_result(request):
 def quiz_question_detail(request, question_id):
     question = get_object_or_404(QuizQuestion, pk=question_id)
     context = {
+        'question_id': question.id, 
         'question': question,
     }
     return render(request, 'random/quiz_question_detail.html', context)

@@ -125,35 +125,45 @@ def calculate_median(values_list):
 def calculate_random_quiz_results(user, question_ids):
     results = []
     correct_count = 0
+    total_questions = len(question_ids)
 
     for question_id in question_ids:
         question = QuizQuestion.objects.get(id=question_id)
-        selected_choices = QuizUserAnswer.objects.filter(
-            user=user, question=question
-        ).values_list('selected_choices', flat=True)
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
 
-        correct_choices = question.choices.filter(is_correct=True).values_list('id', flat=True)
-        is_correct = set(selected_choices) == set(correct_choices)
-        if is_correct:
-            correct_count += 1
+        if user_answer:
+            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
+            correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
+            
+            incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
+            all_correct_choices_selected = user_selected_choice_ids.issuperset(correct_choice_ids)
+            
+            is_correct = user_selected_choice_ids == correct_choice_ids
+            
+            if is_correct:
+                correct_count += 1
 
-        results.append({
-            'question': question,
-            'is_correct': is_correct,
-            'selected_choices': selected_choices,
-            'correct_choices': correct_choices,
-        })
+            results.append({
+                 'question_id': question.id,  # 質問のIDを追加
+                 'question_text': question.question_text,  # 質問テキスト
+                 'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]) if user_answer else "未回答",
+                 'correct_answer': ', '.join([choice.choice_text for choice in question.choices.filter(is_correct=True)]),
+                 'is_correct': is_correct,
+            })
 
-    accuracy = (correct_count / len(question_ids)) * 100 if question_ids else 0
+        else:
+            results.append({
+                'question_id': question.id,  # 質問のIDを追加
+                'question_text': question.question_text,  # 質問テキスト
+                'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]) if user_answer else "未回答",
+                'correct_answer': ', '.join([choice.choice_text for choice in question.choices.filter(is_correct=True)]),
+                'is_correct': is_correct,
+            })
 
-    return {
-        'results': results,
-        'accuracy': accuracy,
-        'correct_count': correct_count,
-        'total_questions': len(question_ids),
-    }
-    
-    
+    accuracy = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+
+    return results, accuracy, correct_count, total_questions
+
 def calculate_random_questions_accuracy(user, question_ids):
     questions_with_accuracy = []
     for question_id in question_ids:
@@ -173,4 +183,52 @@ def calculate_random_questions_accuracy(user, question_ids):
 
     return questions_with_accuracy
 
+#3点問題用
+def calculate_practical_quiz_results(user):
+    answered_questions = QuizUserAnswer.objects.filter(user=user).values_list('question', flat=True).distinct()
+    results = []
+    correct_count = 0
+    total_questions = len(answered_questions)
+    
+    for question_id in answered_questions:
+        question = QuizQuestion.objects.get(id=question_id)
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
 
+        # 正解の選択肢のIDのセット
+        correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
+        # correct_choice_ids から Choice オブジェクトを取得
+        correct_choices = Choice.objects.filter(id__in=correct_choice_ids)
+        # Choice オブジェクトから choice_text を取り出して結合
+        correct_answer_texts = ', '.join([choice.choice_text for choice in correct_choices])
+
+        if user_answer:
+            # ユーザーが選んだ選択肢のIDのセット
+            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
+            
+            # 不正解の選択肢が含まれているかをチェック
+            incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
+            # 正解の選択肢を全て選んでいるかをチェック
+            all_correct_choices_selected = user_selected_choice_ids == correct_choice_ids
+            
+            # 正解判定
+            is_correct = all_correct_choices_selected and not incorrect_choice_selected
+            
+            if is_correct:
+                correct_count += 1
+                
+            results.append({
+                'question': question.question_text,
+                'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]),
+                'correct_answer': correct_answer_texts,
+                'is_correct': is_correct,
+            })
+        else:
+            results.append({
+                'question': question.question_text,
+                'user_answer': "未回答",
+                'correct_answer': correct_answer_texts,
+                'is_correct': False,
+            })
+    
+    accuracy = (correct_count / total_questions) * 100 if total_questions else 0
+    return results, accuracy, correct_count, total_questions

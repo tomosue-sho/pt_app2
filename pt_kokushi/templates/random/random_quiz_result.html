@@ -42,7 +42,7 @@
         </thead>
         <tbody>
             {% for result in results %}
-            <tr class="{{ result.is_correct|yesno:'table-success,table-danger' }}" data-url="{% url 'pt_kokushi:quiz_question_detail' result.question.id %}">
+            <tr class="{{ result.is_correct|yesno:'table-success,table-danger' }}" data-url="{% url 'pt_kokushi:quiz_question_detail' result.question_id %}">
                 <th scope="row">{{ forloop.counter }}</th>
                 <td>{{ result.question.question_text|truncatechars:10 }}</td>
                 <td>{{ result.user_answer|default:"回答なし" }}</td>
