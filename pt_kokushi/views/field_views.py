@@ -71,7 +71,22 @@ def field_quiz_answer(request, field_id, question_id):
         messages.error(request, "不正なアクセスです。")
         return redirect('pt_kokushi:field_quiz', field_id=field_id)
     
+@login_required
+def field_quiz_result(request, field_id):
+    user = request.user
     
+    # 分野ごとのクイズ結果を計算する関数。この関数の実装は示されていません。
+    results, accuracy, correct_count, total_questions = calculate_field_quiz_results(user, field_id)
+    
+    context = {
+        'results': results,
+        'accuracy': accuracy,
+        'correct_count': correct_count,
+        'total_questions': total_questions,
+    }
+    
+    return render(request, 'field/field_quiz_result.html', context)
+
 @require_POST
 def toggle_bookmark(request):
     question_id = request.POST.get('question_id')

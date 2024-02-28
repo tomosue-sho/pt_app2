@@ -42,7 +42,7 @@
             {% for result in results %}
             <tr class="{{ result.is_correct|yesno:'table-success,table-danger' }}">
                 <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ result.question|truncatechars:10 }}</td>
+                <td>{{ result.question_text|truncatechars:10 }}</td>
                 <td>{{ result.user_answer|default:"回答なし" }}</td>
                 <td>{{ result.correct_answer }}</td>
                 <td>{{ result.is_correct|yesno:"正解,不正解" }}</td>
