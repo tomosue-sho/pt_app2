@@ -93,38 +93,36 @@
         {{ message }}
     {% endfor %}
 </div>
-
-<div class="container mt-3">
-    <h2>第{{ exam.year }}回 国試問題</h2>
-
-    <div class="card mb-3">
-        <div class="card-body">
-            <form action="{% url 'pt_kokushi:field_quiz_answer' field.id question.id %}" method="post">
-                {% csrf_token %}
-                <!-- 問題文の表示 -->
-                <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
-                {% if question.question_image %}
-                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
-                {% endif %}
-                <!-- 選択肢の表示 -->
-                {% for choice in question.choices.all %}
-                <div>
-                    <input type="checkbox" id="choice_{{ choice.id }}" name="choices" value="{{ choice.id }}" class="choice-input">
-                    <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
-                </div>
-                {% endfor %}
-                {% if has_previous_question %}
-                <a href="{% url 'pt_kokushi:quiz_questions_detail' previous_question_id %}" class="btn btn-secondary">前の問題へ</a>
-                {% endif %}
-                <button type="submit" class="btn btn-primary">次の問題へ</button>
-            </form>
-            <br>
-            <div id="answer" style="display:none;">
-                <p><strong>解答：</strong>{{ question.answer_text }}</p>
+<h2>第{{ exam.year }}回 「{{ field.name }}」の国試問題</h2>
+<div class="card mb-3">
+    
+    <div class="card-body">
+        <form action="{% url 'pt_kokushi:field_quiz_answer' field_id=field.id question_id=question.id %}" method="post">
+            {% csrf_token %}
+            <!-- 問題文の表示 -->
+            <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
+            {% if question.question_image %}
+                <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+            {% endif %}
+            <!-- 選択肢の表示 -->
+            {% for choice in question.choices.all %}
+            <div>
+                <input type="checkbox" id="choice_{{ choice.id }}" name="choices" value="{{ choice.id }}" class="choice-input">
+                <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
             </div>
-            <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
+            {% endfor %}
+            {% if has_previous_question %}
+            <a href="{% url 'pt_kokushi:quiz_questions_detail' previous_question_id %}" class="btn btn-secondary">前の問題へ</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">次の問題へ</button>
+        </form>
+        <br>
+        <div id="answer" style="display:none;">
+            <p><strong>解答：</strong>{{ question.answer_text }}</p>
         </div>
+        <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
     </div>
+</div>
 </div>
 <div class="container mt-3 d-flex justify-content-around">
     {% if request.user.is_authenticated %}

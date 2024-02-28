@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    tr[data-url]:hover {
+        cursor: pointer;
+        background-color: #f5f5f5;
+        color: white;
+    }
+     td:hover{
+        background-color:#f5f5f5;
+     }
+     .card-subtitle{
+        font-weight:bold;
+     }
+    .card-text{
+        font-weight:bold;
+    }
+</style>
+<div class="quiz-results">
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">3点問題成績ページ</h2>
+                <p class="card-subtitle mb-2">正答率: <span class="badge bg-success">{{ accuracy|floatformat:2 }}%</span></p>
+                <p class="card-text">正解数: <span class="badge bg-primary">{{ correct_count }} / {{ total_questions }}</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">問題番号</th>
+                <th scope="col">問題文（抜粋）</th>
+                <th scope="col">あなたの選択</th>
+                <th scope="col">正解</th>
+                <th scope="col">結果</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr class="{{ result.is_correct|yesno:'table-success,table-danger' }}">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ result.question|truncatechars:10 }}</td>
+                <td>{{ result.user_answer|default:"回答なし" }}</td>
+                <td>{{ result.correct_answer }}</td>
+                <td>{{ result.is_correct|yesno:"正解,不正解" }}</td>
+            </tr>
+            {% endfor %}            
+        </tbody>
+    </table>
+    
+
+    <a href="{% url 'pt_kokushi:practical_choice' %}" class="btn btn-primary">もう一度挑戦</a>
+
+    <a href="{% url 'pt_kokushi:clear_quiz_session' %}" class="btn btn-primary">終了</a>
+</div>
+<script>
+    window.onbeforeunload = function() {
+        navigator.sendBeacon('/pt_kokushi:clear_quiz_session/');
+    };
+    </script>
+    
+{% endblock %}
