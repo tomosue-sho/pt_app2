@@ -36,13 +36,19 @@ def random_question_display(request):
         return redirect('pt_kokushi:random_quiz_result')
 
     question = QuizQuestion.objects.get(id=question_ids[current_index])
+    exam = question.exam
+    
     if request.method == "POST":
         # ユーザーの回答を処理
         # 成功したら、次の問題へ
         request.session['current_question_index'] = current_index + 1
         return redirect('random_question_display')
 
-    return render(request, 'random/random_question_display.html', {'question': question})
+    context = {
+        'question': question,
+        'exam': exam,  # コンテキストにexamを追加
+    }
+    return render(request, 'random/random_question_display.html', context)
 
 @login_required
 def submit_random_quiz_answers(request, question_id):

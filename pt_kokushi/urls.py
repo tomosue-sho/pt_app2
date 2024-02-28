@@ -25,6 +25,7 @@ from pt_kokushi.views.random_views import random_question_display, random_quiz,s
 from pt_kokushi.views.random_views import random_quiz_result
 from pt_kokushi.views.practical_views import PracticalChoiceView,PracticalQuizView,toggle_bookmark,practical_quiz_result
 from pt_kokushi.views.practical_views import clear_quiz_session
+from pt_kokushi.views.field_views import field_choice,field_quiz,field_quiz_answer
 
 app_name = 'pt_kokushi'
 
@@ -110,6 +111,9 @@ urlpatterns = [
     path('practical-quiz-result/', practical_quiz_result, name='practical_quiz_result'),#3点問題成績用
     path('clear-quiz-session/', clear_quiz_session, name='clear_quiz_session'),
     path('toggle_bookmark/', toggle_bookmark, name='toggle_bookmark'),
+    path('field_choice/', field_choice, name='field_choice'),#分野選択
+    path('field_quiz/<int:field_id>/', field_quiz, name='field_quiz'),#分野ごとの問題
+    path('field_quiz/<int:field_id>/<int:question_id>/answer/', field_quiz_answer, name='field_quiz_answer'),
 ]
 
 if settings.DEBUG:

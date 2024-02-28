@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-3">
+    <h2>分野選択</h2>
+    <form action="{% url 'pt_kokushi:field_choice' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="fieldSelect">分野を選択してください</label>
+            <select name="field" id="fieldSelect" class="form-control">
+                {% for field in fields %}
+                <option value="{{ field.id }}">{{ field.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">問題を開始</button>
+    </form>
+</div>
+{% endblock %}

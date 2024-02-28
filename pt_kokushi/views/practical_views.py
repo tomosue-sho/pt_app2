@@ -33,15 +33,16 @@ class PracticalChoiceView(View):
         if year == 'random':
             year_ids = Exam.objects.values_list('id', flat=True)
             year_id = random.choice(list(year_ids))
-            questions = QuizQuestion.objects.filter(exam_id=year_id).order_by('?')[:question_count]
+        # 配点が3点の問題のみを選択するようにフィルタリング条件を追加
+            questions = QuizQuestion.objects.filter(exam_id=year_id, point=3).order_by('?')[:question_count]
         else:
-            questions = QuizQuestion.objects.filter(exam__year=year).order_by('?')[:question_count]
+        # 同様に、配点が3点の問題のみを選択
+            questions = QuizQuestion.objects.filter(exam__year=year, point=3).order_by('?')[:question_count]
 
         question_ids = [question.id for question in questions]
         request.session['question_ids'] = question_ids
         request.session['current_question_index'] = 0
         
-
         if question_ids:
             first_question_id = question_ids[0]
             return redirect('pt_kokushi:practical_quiz', question_id=first_question_id)
@@ -83,15 +84,13 @@ class PracticalQuizView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         question_id = kwargs.get('question_id')
         question = get_object_or_404(QuizQuestion, pk=question_id)
-        choices = question.choices.all()  # QuestionモデルとChoiceモデルがリレーションを持っていると仮定
-
-        # ユーザーが以前にこの問題に対して選択した回答を取得するロジックをここに追加（オプション）
-        # user_answers = QuizUserAnswer.objects.filter(user=request.user, question=question)
-
+        choices = question.choices.all()
+        exam = question.exam
+        
         context = {
             'question': question,
             'choices': choices,
-            # 'user_answers': user_answers,  # ユーザーの回答をテンプレートに渡す場合
+            'exam': exam,
         }
         return render(request, 'practical/practical_quiz.html', context)
     

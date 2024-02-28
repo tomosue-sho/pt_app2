@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
-{% load bookmark_tags %}
 {% block content %}
+{% load custom_filters %}
+{% load static %}
+
 <style>
     .choice-label {
         display: block;
@@ -55,7 +57,19 @@
     #timer-placeholder {
         height: 50px; /* タイマーの高さに応じて調整 */
     }
-
+    .timer-container {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000; /* 必要に応じて調整 */
+        display: flex;
+        align-items: center;
+        gap: 10px; /* ボタンとタイマーの間隔 */
+    }
     .btn-danger-subtle {
         background-color: #f8d7da; /* Bootstrapの $danger 色を薄くしたもの */
         color: #721c24; /* Bootstrapの $danger 色の濃いもの */
@@ -72,21 +86,22 @@
         color: black;
     }
 </style>
-<body>
+
 
 <div class="alert alert-warning" role="alert">
     {% for message in messages %}
         {{ message }}
     {% endfor %}
 </div>
+
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
+
     <div class="card mb-3">
         <div class="card-body">
-            <form action="{% url 'pt_kokushi:submit_random_quiz_answers' question.id %}" method="post">
+            <form action="{% url 'pt_kokushi:field_quiz_answer' field.id question.id %}" method="post">
                 {% csrf_token %}
                 <!-- 問題文の表示 -->
-                
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
                     <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
@@ -94,10 +109,13 @@
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
                 <div>
-                    <input type="checkbox" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" class="choice-input">
+                    <input type="checkbox" id="choice_{{ choice.id }}" name="choices" value="{{ choice.id }}" class="choice-input">
                     <label for="choice_{{ choice.id }}" class="choice-label">{{ choice.choice_text }}</label>
                 </div>
                 {% endfor %}
+                {% if has_previous_question %}
+                <a href="{% url 'pt_kokushi:quiz_questions_detail' previous_question_id %}" class="btn btn-secondary">前の問題へ</a>
+                {% endif %}
                 <button type="submit" class="btn btn-primary">次の問題へ</button>
             </form>
             <br>
@@ -108,7 +126,6 @@
         </div>
     </div>
 </div>
-
 <div class="container mt-3 d-flex justify-content-around">
     {% if request.user.is_authenticated %}
         {% if question|is_bookmarked:request.user %}
@@ -128,49 +145,70 @@
         {% endif %}
     {% endif %}
 </div>
-</body>
-<script>
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const checkAnswerBtn = document.getElementById('check-answer-btn');
-        
-        checkAnswerBtn.addEventListener('click', function() {
-            const questionId = checkAnswerBtn.dataset.questionId;
-            const selectedChoiceId = document.querySelector('input[name="choices"]:checked').value;
-            const checkAnswerUrl = checkAnswerBtn.dataset.checkAnswerUrl;
-            
-            fetch(checkAnswerUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ choice_id: selectedChoiceId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultDiv = document.getElementById('result');
-                // 以前のクラスをクリア
-                resultDiv.className = '';
-                // 正解か不正解かに応じてクラスを適用
-                if (data.is_correct) {
-                    resultDiv.textContent = "正解です！";
-                    resultDiv.classList.add("result-correct");
-                } else {
-                    resultDiv.textContent = "不正解です。";
-                    resultDiv.classList.add("result-incorrect");
+        const choices = document.querySelectorAll('.choice-input');
+        choices.forEach(choice => {
+            choice.addEventListener('change', function() {
+                if(this.checked) {
+                // ここにチェックされたときの処理を書く
+                    console.log(this.value + 'が選択されました');
                 }
-                resultDiv.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+           });
+        });
+    });
+
+    //試験時間のカウントダウン用
+    document.addEventListener('DOMContentLoaded', function() {
+        var timer;
+        var isTimerRunning = false; // タイマーの状態を追跡
+        var endTime = new Date("{{ quiz_session.end_time|date:'c' }}").getTime();
+        var pausedTime;
+    
+        function updateTimer() {
+            var now = new Date().getTime();
+            var distance = endTime - now;
+    
+            // 残り時間の計算と表示
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+            document.getElementById("timer").innerHTML = hours + "時間 " + minutes + "分 " + seconds + "秒";
+    
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById("timer").innerHTML = "時間切れ";
+                isTimerRunning = false;
+            }
+        }
+    
+        // タイマーの初期起動
+        timer = setInterval(updateTimer, 1000);
+        isTimerRunning = true; // タイマーが走っている状態にする
+    
+        document.getElementById("toggleTimerBtn").addEventListener('click', function() {
+            if (isTimerRunning) {
+                // タイマーを止める
+                clearInterval(timer);
+                this.textContent = "タイマー再開";
+                isTimerRunning = false;
+                pausedTime = new Date().getTime();
+            } else {
+                // タイマーを再開
+                var now = new Date().getTime();
+                var pausedDuration = now - pausedTime;
+                endTime += pausedDuration;
+                timer = setInterval(updateTimer, 1000);
+                this.textContent = "タイマーを止める";
+                isTimerRunning = true;
+            }
         });
     });
     
-    
+    //解答表示切り替え用
     document.addEventListener('DOMContentLoaded', function() {
         const showAnswerBtn = document.getElementById('show-answer-btn');
         const answerDiv = document.getElementById('answer');
@@ -179,14 +217,13 @@
             // 解答が現在非表示なら表示し、表示されているなら非表示にする
             if (answerDiv.style.display === "none") {
                 answerDiv.style.display = "block";
-                showAnswerBtn.textContent = "解説を隠す"; // ボタンのテキストを変更
+                showAnswerBtn.textContent = "解答を隠す"; // ボタンのテキストを変更
             } else {
                 answerDiv.style.display = "none";
-                showAnswerBtn.textContent = "解説を表示"; // ボタンのテキストを変更
+                showAnswerBtn.textContent = "解答を表示"; // ボタンのテキストを変更
             }
         });
     });
+
 </script>
-
 {% endblock %}
-

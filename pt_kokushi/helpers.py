@@ -232,3 +232,54 @@ def calculate_practical_quiz_results(user):
     
     accuracy = (correct_count / total_questions) * 100 if total_questions else 0
     return results, accuracy, correct_count, total_questions
+
+#分野用の計算
+def calculate_field_quiz_results(user, field_id):
+    # 特定の分野に関連する問題のIDを取得
+    question_ids = QuizQuestion.objects.filter(field_id=field_id).values_list('id', flat=True)
+    results = []
+    correct_count = 0
+    total_questions = len(question_ids)
+
+    for question_id in question_ids:
+        question = QuizQuestion.objects.get(id=question_id)
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
+
+        if user_answer:
+            # ユーザーが選んだ選択肢のIDのセット
+            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
+            # 正解の選択肢のIDのセット
+            correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
+            
+            # 不正解の選択肢が含まれているかどうか、および全ての正解が選ばれているかをチェック
+            incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
+            all_correct_choices_selected = user_selected_choice_ids == correct_choice_ids
+            
+            # 正解判定
+            is_correct = all_correct_choices_selected and not incorrect_choice_selected
+            
+            if is_correct:
+                correct_count += 1
+            
+            # 結果リストへの追加
+            results.append({
+                'question_id': question.id,
+                'question_text': question.question_text,
+                'user_answer': ', '.join([choice.choice_text for choice in user_answer.selected_choices.all()]) if user_answer else "未回答",
+                'correct_answer': ', '.join([choice.choice_text for choice in question.choices.filter(is_correct=True)]),
+                'is_correct': is_correct,
+            })
+        else:
+            # ユーザーが回答していない場合
+            results.append({
+                'question_id': question.id,
+                'question_text': question.question_text,
+                'user_answer': "未回答",
+                'correct_answer': ', '.join([choice.choice_text for choice in question.choices.filter(is_correct=True)]),
+                'is_correct': False,
+            })
+
+    # 正確性の計算
+    accuracy = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+
+    return results, accuracy, correct_count, total_questions
