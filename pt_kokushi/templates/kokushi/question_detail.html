@@ -128,7 +128,6 @@
 
 <div class="container mt-3">
     <h2>第{{ exam.year }}回 国試問題</h2>
-    <div id="timer"></div>
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:submit_quiz_answers' question.id %}" method="post">
@@ -153,6 +152,9 @@
             </div>
             <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
         </div>
+    </div>
+    <div>
+        <a href="{% url 'pt_kokushi:bookmark_list' %}" class="btn btn-primary">戻る</a>
     </div>
 </div>
 
@@ -234,4 +236,3 @@
         });
     });
 </script>
-{% endblock %}

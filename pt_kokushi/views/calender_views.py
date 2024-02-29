@@ -15,7 +15,7 @@ def create_event(request):
             return redirect('pt_kokushi:my_page')  # 適切なリダイレクト先に変更
     else:
         form = EventForm()
-    return render(request, 'login_app/create_event.html', {'form': form})
+    return render(request, 'calender/create_event.html', {'form': form})
 
 
 def calendar_events(request):
@@ -51,4 +51,4 @@ def update_event(request, event_id):
         'form': form,
         'event': event  # この行を追加
     }
-    return render(request, 'login_app/update_event.html', context)
+    return render(request, 'calender/update_event.html', context)

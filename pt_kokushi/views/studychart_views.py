@@ -82,7 +82,7 @@ def studychart(request):
         'login_streak':login_streak
     }
 
-    return render(request, 'login_app/studychart.html', context)
+    return render(request, 'studychart/studychart.html', context)
 
 @login_required
 def save_study_log(request):
@@ -112,7 +112,7 @@ def save_study_log(request):
     }
 
     # フォーム、学習統計、ランキングデータをテンプレートに渡す
-    return render(request, 'login_app/studychart.html', context)
+    return render(request, 'studychart/studychart.html', context)
 
 @login_required
 def study_log_data(request):
@@ -197,7 +197,7 @@ def study_content(request):
     page_number = request.GET.get('page')  # URLからページ番号を取得
     page_obj = paginator.get_page(page_number)  # 対応するページのオブジェクトを取得
 
-    return render(request, 'login_app/studychart.html', {'page_obj': page_obj})
+    return render(request, 'studychart/studychart.html', {'page_obj': page_obj})
 
 #フォーム用
 @login_required
@@ -212,4 +212,4 @@ def study_log_form(request):
     else:
         form = StudyLogForm()
 
-    return render(request, 'login_app/study_log_form.html', {'form': form})
+    return render(request, 'studychart/study_log_form.html', {'form': form})

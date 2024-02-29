@@ -12,7 +12,7 @@ def create_timetable(request):
             return redirect('pt_kokushi:timetable_list')
     else:
         form = TimeTableForm()
-    return render(request, 'login_app/create_timetable.html', {'form': form})
+    return render(request, 'timetable/create_timetable.html', {'form': form})
 
 def timetable_list(request):
     timetables = TimeTable.objects.all()
@@ -30,7 +30,7 @@ def timetable_list(request):
     }
 
 
-    return render(request, 'login_app/timetable_list.html', {
+    return render(request, 'timetable/timetable_list.html', {
         'timetable_data': timetable_data,
         'days': days,
         'time_slots': time_slots,
@@ -52,4 +52,4 @@ def update_timetable(request, timetable_id):
             return redirect('pt_kokushi:timetable_list')
     else:
         form = TimeTableForm(instance=timetable)
-    return render(request, 'login_app/edit_timetable.html', {'form': form, 'timetable': timetable})
+    return render(request, 'timetable/edit_timetable.html', {'form': form, 'timetable': timetable})
