@@ -178,8 +178,8 @@
             <td>{{ question.number }}</td>
             <td>{{ question.field }}</td>
             <td>{{ question.is_correct }}</td>
-            <td>{{ question.user_accuracy }}%</td>
-            <td>{{ question.all_user_accuracy }}%</td>
+            <td>{{ question.user_accuracy|floatformat:"1" }}%</td>
+            <td>{{ question.all_user_accuracy|floatformat:"1" }}%</td>
         </tr>
         {% endfor %}
     </tbody>    

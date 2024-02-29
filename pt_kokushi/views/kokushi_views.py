@@ -14,6 +14,7 @@ from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
 from ..helpers import calculate_questions_accuracy,calculate_field_accuracy,calculate_field_accuracy_all
 from ..helpers import calculate_median,calculate_all_user_average_accuracy
+from ..helpers import calculate_user_accuracy,calculate_specific_point_accuracy
 import json
 
 
@@ -27,18 +28,13 @@ def exam_selection_view(request):
     else:
         return render(request, 'top_view', {'years': years})
 
-#試験年度のforループ用
-def your_view_function(request):
-    years = list(range(49, 59))  # Python 3ではrangeをlistに変換する必要がある
-    return render(request, 'top.html', {'years': years})
-
 #国試タイマー
 def time_setting_view(request):
     if request.method == 'POST':
         user = request.user
 
         # 以前のクイズの回答を削除
-        QuizUserAnswer.objects.filter(user=user).delete()
+        #QuizUserAnswer.objects.filter(user=user).delete()
 
         # 不要なセッション情報をクリア
         if 'last_question_id' in request.session:
@@ -198,19 +194,21 @@ def submit_quiz_answers(request, question_id):
 
         exam_year = request.session.get('exam_year', None)
 
-        quiz_user_answer, created = QuizUserAnswer.objects.get_or_create(
+        # 既存のQuizUserAnswerインスタンスを検索して取得するのではなく、新しいインスタンスを常に作成します。
+        quiz_user_answer = QuizUserAnswer.objects.create(
             user=user,
             question=current_question,
-            defaults={'start_time': now()}
+            start_time=now()
         )
+        # end_timeを設定して保存
         quiz_user_answer.end_time = now()
         quiz_user_answer.save()
 
-        quiz_user_answer.selected_choices.clear()
+        # 新しい選択肢を追加（以前の選択をクリアする必要はありません）
         for choice_id in selected_choice_ids:
             selected_choice = get_object_or_404(Choice, pk=choice_id)
             quiz_user_answer.selected_choices.add(selected_choice)
-            
+         
         # ここでのスコア計算やフィードバックの即時表示は行わない
         # 正解の選択肢IDセットとユーザーの選択肢IDセットを比較
         correct_choice_ids = set(current_question.choices.filter(is_correct=True).values_list('id', flat=True))
@@ -243,140 +241,40 @@ def kokushi_results_view(request):
     exam_year = request.session.get('exam_year', None)
     exam = get_object_or_404(Exam, year=exam_year) if exam_year else None
 
-    # 全体の質問数をその試験に限定
-    total_questions = QuizQuestion.objects.filter(exam=exam).count() if exam else 0
+    if not exam:
+        # 適切なエラーハンドリングやリダイレクトを行う
+        return redirect('適切なURL')
+
+    # 分野ごとの正答率、質問ごとの正答率などを計算
+    questions_with_accuracy = calculate_questions_accuracy(user, exam)
     
+    # 全ユーザーの平均正答率を計算
+    all_user_average_accuracy = calculate_all_user_average_accuracy(exam)
+    
+    # 全ユーザーの正答率の中央値を計算
+    all_user_accuracies_list = [q['all_user_accuracy'] for q in questions_with_accuracy]
+    all_user_median_accuracy = calculate_median(all_user_accuracies_list)
+    
+    # ユーザーの全体の正答率を計算（これは既存のコードまたは新たなヘルパー関数を利用）
+    user_accuracy = calculate_user_accuracy(user, exam)
+
+    # 3点問題と1点問題の正答率を計算
+    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3)
+    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1)
+
     quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).order_by('-start_time').first()
-    
-    question_id = 1  # 例として、具体的なIDをここに設定
-    question = QuizQuestion.objects.get(id=question_id)
 
-    # user_answersのクエリを最適化
-    user_answers = QuizUserAnswer.objects.filter(user=user, question__exam=exam).select_related('question').annotate(
-        answer_duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
-    )
-    
-    correct_answers_count = 0
-    for user_answer in user_answers:
-        if user_answer.is_correct():  # `is_correct` メソッドを使ってチェック
-            correct_answers_count += 1
-
-    # 解答時間のフォーマットと集計
-    formatted_answers = [
-        {
-            'question_number': answer.question.question_number,
-            'answer_time': duration_string(answer.answer_duration),
-            'start_time': answer.start_time.strftime("%Y-%m-%d %H:%M:%S") if answer.start_time else '未開始',
-            'end_time': answer.end_time.strftime("%Y-%m-%d %H:%M:%S") if answer.end_time else '未完了'
-        } for answer in user_answers if answer.end_time
-    ]
-    # 分野ごとの正答率を計算
-    field_accuracy = calculate_field_accuracy(user, exam)
-    field_accuracy_all = calculate_field_accuracy_all(exam)
-    
-    user_correct_answers_count = QuizUserAnswer.objects.filter(
-    user=user, question__exam=exam, selected_choices__is_correct=True
-    ).count()
-
-    # ユーザーが回答した質問の総数
-    total_user_answers_count = QuizUserAnswer.objects.filter(
-        user=user, question__exam=exam
-    ).count()
-
-    # ユーザーの正答率を計算（回答した質問がある場合のみ）
-    if total_user_answers_count > 0:
-        user_accuracy = (user_correct_answers_count / total_user_answers_count) * 100
-    else:
-        user_accuracy = 0
-        
-    # 3点問題のユーザー正答率の計算
-    total_3_point_questions = QuizQuestion.objects.filter(exam=exam, point=3).count()
-    user_correct_3_point_answers = QuizUserAnswer.objects.filter(
-        user=user, question__exam=exam, question__point=3, selected_choices__is_correct=True
-    ).count()
-    user_3_point_accuracy = (user_correct_3_point_answers / total_3_point_questions * 100) if total_3_point_questions else 0
-
-    # 1点問題のユーザー正答率の計算
-    total_1_point_questions = QuizQuestion.objects.filter(exam=exam, point=1).count()
-    user_correct_1_point_answers = QuizUserAnswer.objects.filter(
-        user=user, question__exam=exam, question__point=1, selected_choices__is_correct=True
-    ).count()
-    user_1_point_accuracy = (user_correct_1_point_answers / total_1_point_questions * 100) if total_1_point_questions else 0
-
-    # 特定の試験におけるユーザーと全ユーザーの正答率を計算
-    questions_with_accuracy = calculate_questions_accuracy(user, exam) if exam else []
-
-    # 全ユーザーの平均正答率を計算
-    if questions_with_accuracy:
-        all_user_accuracies = [q['all_user_accuracy'] for q in questions_with_accuracy]
-        overall_all_user_accuracy = sum(all_user_accuracies) / len(all_user_accuracies)
-    else:
-        overall_all_user_accuracy = 0
-        
-    # 全ユーザーの平均正答率を計算
-    all_user_average_accuracy = calculate_all_user_average_accuracy(exam) if exam else 0
-    
-    # 全ユーザーの各問題に対する正答率を計算
-    question_ids = QuizQuestion.objects.filter(exam=exam).values_list('id', flat=True) if exam else []
-    all_user_accuracy = {}
-    for question_id in question_ids:
-        total_answers = QuizUserAnswer.objects.filter(question__id=question_id).count()
-        # 正解数をカウントするための変数を初期化
-        correct_answers_count = 0
-        # 対象の問題に対するすべてのユーザーの回答を取得
-        user_answers = QuizUserAnswer.objects.filter(question__id=question_id)
-        for user_answer in user_answers:
-            if user_answer.is_correct():  # `is_correct` メソッドを使ってチェック
-                correct_answers_count += 1
-        # 正答率を計算
-        accuracy = (correct_answers_count / total_answers * 100) if total_answers else 0
-        all_user_accuracy[question_id] = accuracy
-        
-        # 全ユーザーの正答率リストを初期化
-        all_user_accuracies_list = []
-
-        # 全ユーザーの正答率をリストに追加
-        for question_id in question_ids:
-            total_answers = QuizUserAnswer.objects.filter(question__id=question_id).count()
-            correct_answers = QuizUserAnswer.objects.filter(question__id=question_id, selected_choices__is_correct=True).count()
-            if total_answers > 0:
-                accuracy = (correct_answers / total_answers) * 100
-                all_user_accuracies_list.append(accuracy)
-
-        # 中央値の計算
-        all_user_median_accuracy = calculate_median(all_user_accuracies_list)
-        
-    # 正解数をカウントする変数の初期化
-    correct_answers_count = 0
-
-    # 各ユーザー回答に対してループ
-    for user_answer in user_answers:
-    # 正解の選択肢IDセットを取得
-        correct_choice_ids = set(user_answer.question.choices.filter(is_correct=True).values_list('id', flat=True))
-    # ユーザーの選択肢IDセットを取得
-        selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
-    
-    # 正解とユーザーの選択の完全一致をチェック
-    # さらに、選択肢の数も一致することを確認
-        if correct_choice_ids == selected_choice_ids and len(correct_choice_ids) == len(selected_choice_ids):
-            correct_answers_count += 1
-        
     context = {
-        'exam': exam,
-        'quiz_session': quiz_session,
-        'formatted_answers': formatted_answers,
-        'field_accuracy': field_accuracy,
-        'field_accuracy_all': field_accuracy_all,
-        'questions_with_accuracy': questions_with_accuracy,
-        'all_user_average_accuracy': all_user_average_accuracy,
-        'overall_all_user_accuracy': overall_all_user_accuracy,
-        'all_user_accuracy':all_user_accuracy,
+        'exam':exam,
         'user_accuracy': user_accuracy,
-        'all_user_median_accuracy': all_user_median_accuracy,
         'user_3_point_accuracy': user_3_point_accuracy,
         'user_1_point_accuracy': user_1_point_accuracy,
+        'all_user_average_accuracy': all_user_average_accuracy,
+        'all_user_median_accuracy': all_user_median_accuracy,
+        'quiz_session': quiz_session,
+        'questions_with_accuracy': questions_with_accuracy,
     }
-    
+
     return render(request, 'kokushi/kokushi_results.html', context)
 
 def evaluate_multiple_choice_answer(user_answer):
@@ -404,7 +302,7 @@ def evaluate_multiple_choice_answer(user_answer):
     
     return 0
 
-#セッションクリアのための関数（時直し時とかに使う）ーーーーーーーーーーーー
+#セッションクリアのための関数（解き直し時とかに使う）ーーーーーーーーーーーー
 #最初からやり直す関数
 def restart_kokushi_quiz_view(request):
     user = request.user

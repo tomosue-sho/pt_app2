@@ -39,6 +39,17 @@ class BookmarkAdmin(admin.ModelAdmin):
 class KokushiFieldAdmin(admin.ModelAdmin):
     list_display = ('name',)  # 管理サイトのリスト表示に名前を表示
     search_fields = ('name',)  # 名前で検索できるようにする
+    
+class QuizUserAnswerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'question', 'display_selected_choices', 'start_time', 'end_time')
+    list_filter = ('user', 'question')
+    search_fields = ('user__username', 'question__question_text')
+
+    def display_selected_choices(self, obj):
+        """選択した選択肢のテキストを表示するためのメソッド"""
+        return ", ".join([choice.choice_text for choice in obj.selected_choices.all()])
+    display_selected_choices.short_description = "選択した選択肢"
 
 admin.site.register(KokushiField, KokushiFieldAdmin)  
+admin.site.register(QuizUserAnswer, QuizUserAnswerAdmin)
 #admin.site.register(QuizQuestion, QuizQuestionAdmin)
