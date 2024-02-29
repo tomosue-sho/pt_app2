@@ -20,6 +20,7 @@ from datetime import date, datetime ,timedelta
 from .helpers import calculate_login_streak
 from pt_kokushi.models.LoginHistory_models import LoginHistory
 from pt_kokushi.models.kokushi_models import Exam
+from .helpers import calculate_login_streak
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()
@@ -31,13 +32,13 @@ class TopView(TemplateView):
         context = super().get_context_data(**kwargs)
         # Examモデルから全年度を取得
         context['years'] = Exam.objects.all().order_by('-year').values_list('year', flat=True)
-        
+    
         if self.request.user.is_authenticated:
             # ログインユーザーの連続ログイン日数を計算
             login_streak = calculate_login_streak(self.request.user)
             # コンテキストに連続ログイン日数を追加
             context['login_streak'] = login_streak
-        
+    
         return context
 
     def post(self, request, *args, **kwargs):

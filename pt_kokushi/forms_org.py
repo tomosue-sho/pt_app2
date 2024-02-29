@@ -48,7 +48,7 @@ class CustomUserForm(forms.ModelForm):
     
     gender =  forms.ChoiceField(
         label = '性別',
-        widget = forms.RadioSelect,
+        widget = forms.Select,
         choices = CHOICES, 
         required = False
         )

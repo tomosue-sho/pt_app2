@@ -283,3 +283,21 @@ def calculate_field_quiz_results(user, field_id):
     accuracy = (correct_count / total_questions) * 100 if total_questions > 0 else 0
 
     return results, accuracy, correct_count, total_questions
+
+#ログイン日数の計算
+def calculate_login_streak(user):
+    login_dates = LoginHistory.objects.filter(user=user).order_by('login_date').values_list('login_date', flat=True)
+    
+    # 連続ログイン日数
+    streak = 0
+    # 前日の日付を記録する変数
+    prev_date = None
+    
+    for login_date in login_dates:
+        if prev_date is None or login_date == prev_date + timedelta(days=1):
+            streak += 1
+        elif login_date != prev_date:
+            streak = 1
+        prev_date = login_date
+    
+    return streak

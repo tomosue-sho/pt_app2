@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from ..models_org import CustomUser
+from pt_kokushi.models.LoginHistory_models import LoginHistory
 
 CustomUser = get_user_model()
 
@@ -43,7 +44,13 @@ class CustomUserAdmin(admin.ModelAdmin):
         ("Auth", {"fields": ("is_staff", "is_active","date_joined"),}),
     )
 
+@admin.register(LoginHistory)
+class LoginHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'login_date')  # ここでは'user'と'login_date'を表示しています
+    list_filter = ('login_date',)  # 必要に応じてフィルターを追加できます
+    search_fields = ('user__username',)  # ユーザー名で検索できるように設定
+    
 #モデルをAdminページで見えるようにするためにはadmin.site.registerで登録する必要がある
 #registerの第２引数にクラス名を指定する必要がある
 admin.site.register(CustomUser, CustomUserAdmin)
-
+#admin.site.register(LoginHistory, LoginHistoryAdmin)

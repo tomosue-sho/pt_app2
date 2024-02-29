@@ -45,7 +45,6 @@ def studychart(request):
     else:
         form = StudyLogForm()  # GETリクエストの場合、空のフォームを表示
 
-    # ここからは`studychart`関数の元のコードを続けます
     today = datetime.today()
     start_week = today - timedelta(days=today.weekday())
     end_week = start_week + timedelta(days=6)
@@ -54,6 +53,7 @@ def studychart(request):
     start_year = today.replace(day=1, month=1)
     end_year = today.replace(day=31, month=12)
 
+    login_streak = calculate_login_streak(request.user)
     # 学習ログ
     study_logs = StudyLog.objects.filter(user=request.user).order_by('-study_date')
     paginator = Paginator(study_logs, 5)  # ページネーターの設定
@@ -79,6 +79,7 @@ def studychart(request):
         'total_study_time_for_all_users': total_study_time_for_all_users,
         'study_logs': study_logs,
         'page_obj': page_obj,
+        'login_streak':login_streak
     }
 
     return render(request, 'login_app/studychart.html', context)
@@ -118,6 +119,7 @@ def study_log_data(request):
     # ログインユーザーに紐づくログのみを取得
     logs = StudyLog.objects.filter(user=request.user).order_by('study_date')
     data = list(logs.values('study_date', 'study_duration'))
+   
     return JsonResponse(data, safe=False)
 
 #学習時間の合計の計算--------------------------------------
