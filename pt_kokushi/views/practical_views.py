@@ -116,7 +116,6 @@ def clear_quiz_session(request):
     if 'current_question_index' in request.session:
         del request.session['current_question_index']
 
-    # クイズの開始ページまたはトップページにリダイレクトする
     return redirect('pt_kokushi:top')
 
 @require_POST

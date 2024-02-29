@@ -21,7 +21,7 @@
     <div class="container mt-4">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">3点問題成績ページ</h2>
+                <h2 class="card-title">分野別問題の成績ページ</h2>
                 <p class="card-subtitle mb-2">正答率: <span class="badge bg-success">{{ accuracy|floatformat:2 }}%</span></p>
                 <p class="card-text">正解数: <span class="badge bg-primary">{{ correct_count }} / {{ total_questions }}</span></p>
             </div>
@@ -52,7 +52,7 @@
     </table>
     
 
-    <a href="{% url 'pt_kokushi:practical_choice' %}" class="btn btn-primary">もう一度挑戦</a>
+    <a href="{% url 'pt_kokushi:field_choice' %}" class="btn btn-primary">もう一度挑戦</a>
 
     <a href="{% url 'pt_kokushi:clear_quiz_session' %}" class="btn btn-primary">終了</a>
 </div>

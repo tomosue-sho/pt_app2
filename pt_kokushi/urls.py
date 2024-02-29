@@ -112,7 +112,8 @@ urlpatterns = [
     path('clear-quiz-session/', clear_quiz_session, name='clear_quiz_session'),
     path('toggle_bookmark/', toggle_bookmark, name='toggle_bookmark'),
     path('field_choice/', field_choice, name='field_choice'),#分野選択
-    path('field_quiz/<int:field_id>/', field_quiz, name='field_quiz'),#分野ごとの問題
+    path('field_quiz/<int:field_id>/<int:question_id>/', field_quiz, name='field_quiz'),
+    path('field_quiz/<int:field_id>/', field_quiz, name='field_quiz'),  # 分野ごとの問題
     path('field_quiz/<int:field_id>/<int:question_id>/answer/', field_quiz_answer, name='field_quiz_answer'),
     path('field_quiz_result/<int:field_id>/', field_quiz_result, name='field_quiz_result'),
 

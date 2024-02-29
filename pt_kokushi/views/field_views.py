@@ -12,6 +12,10 @@ from ..helpers import calculate_field_quiz_results
 
 def field_choice(request):
     if request.method == "POST":
+        # 新しいクイズが開始される前に、セッションから質問リストをクリア
+        if 'question_ids' in request.session:
+            del request.session['question_ids']
+        
         field_id = request.POST.get('field')
         return redirect('pt_kokushi:field_quiz', field_id=field_id)
     else:
@@ -19,11 +23,25 @@ def field_choice(request):
         return render(request, 'field/field_choice.html', {'fields': fields})
 
 
-def field_quiz(request, field_id):
+def field_quiz(request, field_id, question_id=None):
     field = get_object_or_404(KokushiField, pk=field_id)
-    questions = QuizQuestion.objects.filter(field=field).order_by('?')[:10]  # 例: ランダムに10問選択
 
-    question = questions.first() if questions.exists() else None
+    # セッションから質問IDリストを取得
+    if 'question_ids' in request.session:
+        question_ids = request.session['question_ids']
+    else:
+        # セッションに質問IDリストがない場合、質問を選択してセッションに保存
+        question_ids = list(QuizQuestion.objects.filter(field=field).order_by('?').values_list('id', flat=True)[:10])
+        request.session['question_ids'] = question_ids
+
+    # question_idが指定されている場合、その質問を表示
+    if question_id:
+        questions = QuizQuestion.objects.filter(id=question_id)
+    else:
+        # 指定されていない場合、セッションに保存された最初の質問を表示
+        questions = QuizQuestion.objects.filter(id__in=question_ids)
+
+    question = questions.first()
     exam = question.exam if question else None
 
     return render(request, 'field/field_quiz.html', {
@@ -50,27 +68,31 @@ def field_quiz_answer(request, field_id, question_id):
             user_answer.selected_choices.add(choice)
         user_answer.save()
 
-        # 全ての問題に回答したかどうかをチェック
-        all_questions = QuizQuestion.objects.filter(field_id=field_id).order_by('id')
-        answered_questions = QuizUserAnswer.objects.filter(user=user, question__field_id=field_id).values_list('question_id', flat=True).distinct()
-        
-        if set(all_questions.values_list('id', flat=True)) == set(answered_questions):
-            # 全ての問題に回答した場合は成績ページへリダイレクト
-            return redirect('pt_kokushi:field_quiz_result', field_id=field_id)
+        # 回答した質問をセッションから回答済みリストに追加
+        answered_questions = request.session.get('answered_questions', [])
+        if question_id not in answered_questions:
+            answered_questions.append(question_id)
+            request.session['answered_questions'] = answered_questions
+
+        # 未回答の質問があるかチェック
+        remaining_questions = [qid for qid in request.session['question_ids'] if qid not in answered_questions]
+        if remaining_questions:
+            # 未回答の質問があれば、次の質問へ
+            next_question_id = remaining_questions[0]
+            return redirect('pt_kokushi:field_quiz', field_id=field_id, question_id=next_question_id)
         else:
-            # まだ回答していない問題がある場合は次の問題へ
-            next_question = all_questions.exclude(id__in=answered_questions).first()
-            if next_question is not None:
-                return redirect('pt_kokushi:field_quiz_question', field_id=field_id, question_id=next_question.id)
-            else:
-                # ここにエラーハンドリングを追加
-                messages.error(request, "全ての問題に回答しましたが、成績ページへのリダイレクトに失敗しました。")
-                return redirect('pt_kokushi:field_quiz_result', field_id=field_id)
+            # 全ての質問に回答した場合は成績ページへリダイレクト
+            # セッションから質問リストをクリア
+            if 'question_ids' in request.session:
+                del request.session['question_ids']
+            if 'answered_questions' in request.session:
+                del request.session['answered_questions']
+            return redirect('pt_kokushi:field_quiz_result', field_id=field_id)
     else:
         # 不正なリクエストの場合はエラーメッセージを表示
         messages.error(request, "不正なアクセスです。")
         return redirect('pt_kokushi:field_quiz', field_id=field_id)
-    
+
 @login_required
 def field_quiz_result(request, field_id):
     user = request.user
