@@ -43,27 +43,6 @@
  </div>
 
  <br>
- <script>
-    function updateTimer() {
-        fetch('{% url  'pt_kokushi:get-remaining-time' %}')
-            .then(response => response.json())
-            .then(data => {
-                const remainingSeconds = data.remaining_seconds;
-                if (remainingSeconds !== null) {
-                    const days = Math.floor(remainingSeconds / (24 * 3600));
-                    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600).toString().padStart(2, '0');
-                    const minutes = Math.floor((remainingSeconds % 3600) / 60).toString().padStart(2, '0');
-                    const seconds = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
-                    document.getElementById("timer").innerHTML = `<span class="timer-number">${days}</span>日 <span class="timer-number">${hours}</span>時間 <span class="timer-number">${minutes}</span>分 <span class="timer-number">${seconds}</span>秒`;
-                } else {
-                    document.getElementById("timer").textContent = "情報がありません";
-                }
-            });
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 60000); // 毎秒更新の時は1000 とりあえず１分にしてる
-</script>
 
  <div = id = "side-quest">
     <div id = "side-bar">
@@ -87,4 +66,31 @@
     </div>    
 </div>
 </div>
+<script>
+    let remainingSeconds = null; // サーバーから取得した残り秒数を保持
+
+    function updateTimer() {
+        // 残り秒数がnullでなければカウントダウンを更新
+        if (remainingSeconds !== null) {
+            const days = Math.floor(remainingSeconds / (24 * 3600));
+            const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((remainingSeconds % 3600) / 60).toString().padStart(2, '0');
+            const seconds = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
+            document.getElementById("timer").innerHTML = `<span class="timer-number">${days}</span>日 <span class="timer-number">${hours}</span>時間 <span class="timer-number">${minutes}</span>分 <span class="timer-number">${seconds}</span>秒`;
+            remainingSeconds--; // 残り秒数をデクリメント
+        } else {
+            document.getElementById("timer").textContent = "情報がありません";
+        }
+    }
+
+    // サーバーから特定の日付までの残り時間（秒数）を取得
+    fetch('{% url  'pt_kokushi:get-remaining-time' %}')
+        .then(response => response.json())
+        .then(data => {
+            remainingSeconds = data.remaining_seconds;
+            updateTimer(); // 初回の更新
+            setInterval(updateTimer, 1000); // 1秒ごとに更新
+        });
+</script>
+
 {% endblock %}
