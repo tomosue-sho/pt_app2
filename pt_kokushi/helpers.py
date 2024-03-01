@@ -24,12 +24,20 @@ def calculate_login_streak(user):
 
     return streak
 
+#正解不正解用
 def is_answer_correct(user_answer):
     correct_choices = set(user_answer.question.choices.filter(is_correct=True).values_list('id', flat=True))
     selected_choices = set(user_answer.selected_choices.values_list('id', flat=True))
 
     # ユーザーが選択した選択肢が正解の選択肢と完全に一致するかどうかをチェック
     return selected_choices == correct_choices and len(selected_choices) == len(correct_choices)
+
+#正解・不正解のテキストを生成用
+def get_correctness_text(user_answer):
+    if is_answer_correct(user_answer):
+        return "正解"
+    else:
+        return "不正解"
 
 #1回の試験での3点問題1点問題の計算
 def calculate_specific_point_accuracy(user, exam, point, start_time, end_time):

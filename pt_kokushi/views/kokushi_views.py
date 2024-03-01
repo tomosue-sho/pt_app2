@@ -14,7 +14,7 @@ from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
 from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy
 from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
-from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy
+from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
 import json
 
 
@@ -273,12 +273,14 @@ def kokushi_results_view(request):
     
         # 全ユーザーの正答率
         all_users_accuracy = calculate_all_users_question_accuracy(question)
-
+        
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
+        correct_text = get_correctness_text(user_answer) if user_answer else "回答なし"
         
         questions_accuracy.append({
         'question': question,
         'user_accuracy': user_accuracy,
-        #'is_correct_text': correct_text,
+        'is_correct_text': correct_text,
         'all_users_accuracy': all_users_accuracy,
         })
 
