@@ -13,7 +13,7 @@ from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,field
 from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
 from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy
-from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy
+from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
 from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy
 import json
 
@@ -267,23 +267,18 @@ def kokushi_results_view(request):
     questions_accuracy = []
     for question_id in answered_question_ids:
         question = QuizQuestion.objects.get(id=question_id)
-
-    # ここで、各問題に対して一度だけ正誤判定と正答率の計算を行う
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
-        correctness = is_answer_correct(user_answer)
-        correct_text = '正解' if correctness else '不正解'
-
-        total_answers_count = QuizUserAnswer.objects.filter(question=question).count()
-        correct_answers_count = QuizUserAnswer.objects.filter(question=question, selected_choices__is_correct=True).count()
-        user_accuracy = (correct_answers_count / total_answers_count * 100) if total_answers_count > 0 else 0
-        
-        # 全ユーザーの正答率の計算
+    
+        # 特定のユーザーの正答率
+        user_accuracy = calculate_user_question_accuracy(user, question)
+    
+        # 全ユーザーの正答率
         all_users_accuracy = calculate_all_users_question_accuracy(question)
+
         
         questions_accuracy.append({
         'question': question,
         'user_accuracy': user_accuracy,
-        'is_correct_text': correct_text,
+        #'is_correct_text': correct_text,
         'all_users_accuracy': all_users_accuracy,
         })
 

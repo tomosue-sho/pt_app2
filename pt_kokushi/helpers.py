@@ -106,26 +106,14 @@ def calculate_new_user_accuracy(user, exam, start_time, end_time):
 
 #１つの問題に対する累積正答率(個人)
 def calculate_user_question_accuracy(user, question):
-    # 特定のユーザーの特定の問題に対する正答数を集計
-    correct_answers_count = QuizUserAnswer.objects.filter(
-        user=user,
-        question=question,
-        selected_choices__is_correct=True
-    ).count()
+    # 特定のユーザーの特定の問題に対する回答を集計
+    total_answers_count = QuizUserAnswer.objects.filter(user=user, question=question).count()
+    correct_answers_count = QuizUserAnswer.objects.filter(user=user, question=question, selected_choices__is_correct=True).count()
 
-    # 特定のユーザーの特定の問題に対する回答数を集計
-    total_answers_count = QuizUserAnswer.objects.filter(
-        user=user,
-        question=question
-    ).count()
+    # 特定のユーザーの問題に対する累計正答率を計算（回答がある場合）
+    user_accuracy = (correct_answers_count / total_answers_count * 100) if total_answers_count > 0 else 0
+    return user_accuracy
 
-    # ユーザーの問題に対する累計正答率を計算（回答がある場合）
-    if total_answers_count > 0:
-        user_question_accuracy = (correct_answers_count / total_answers_count) * 100
-    else:
-        user_question_accuracy = 0
-
-    return user_question_accuracy
 
 #１つの問題に対する累積正答率(全ユーザー)
 def calculate_all_users_question_accuracy(question):
