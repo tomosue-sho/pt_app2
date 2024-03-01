@@ -95,17 +95,17 @@
             <h5>全体の正答率</h5>
             <div class="progress">
                 <div class="progress-bar
-                    {% if user_accuracy >= 60 %}
+                    {% if user_accuracy_all >= 60 %}
                         bg-success
                     {% else %}
                         bg-danger
                     {% endif %}" 
                     role="progressbar" 
-                    style="width: {{ user_accuracy }}%;" 
-                    aria-valuenow="{{ user_accuracy }}" 
+                    style="width: {{ user_accuracy_all }}%;" 
+                    aria-valuenow="{{ user_accuracy_all }}" 
                     aria-valuemin="0" 
                     aria-valuemax="100">
-                    {{ user_accuracy|floatformat:1 }}%
+                    {{ user_accuracy_all|floatformat:1 }}%
                 </div>
             </div>
         </div>

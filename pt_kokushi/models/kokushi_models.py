@@ -77,10 +77,10 @@ class QuizUserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
     selected_choices = models.ManyToManyField(Choice, verbose_name="選んだ選択肢")
+    quiz_session = models.ForeignKey('KokushiQuizSession', on_delete=models.CASCADE, verbose_name="クイズセッション", null=True, blank=True)
     answered_at = models.DateTimeField("回答日時", auto_now_add=True)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
-
     def is_correct(self):
         # すべての選択した選択肢が正解で、正解の選択肢をすべて選んでいるかをチェック
         correct_choices = self.question.choices.filter(is_correct=True)

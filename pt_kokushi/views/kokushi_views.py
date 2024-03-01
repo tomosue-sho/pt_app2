@@ -13,7 +13,7 @@ from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,field
 from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
 from ..helpers import calculate_questions_accuracy,calculate_field_accuracy,calculate_field_accuracy_all
-from ..helpers import calculate_median,calculate_all_user_average_accuracy
+from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy
 from ..helpers import calculate_user_accuracy,calculate_specific_point_accuracy
 import json
 
@@ -179,7 +179,6 @@ def quiz_question_list(request):
     }
     return render(request, 'kokushi/quiz_question_list.html', context)
 
-
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
 def submit_quiz_answers(request, question_id):
@@ -242,8 +241,7 @@ def kokushi_results_view(request):
     exam = get_object_or_404(Exam, year=exam_year) if exam_year else None
 
     if not exam:
-        # 適切なエラーハンドリングやリダイレクトを行う
-        return redirect('適切なURL')
+        return redirect('top')
 
     # 分野ごとの正答率、質問ごとの正答率などを計算
     questions_with_accuracy = calculate_questions_accuracy(user, exam)
@@ -254,19 +252,28 @@ def kokushi_results_view(request):
     # 全ユーザーの正答率の中央値を計算
     all_user_accuracies_list = [q['all_user_accuracy'] for q in questions_with_accuracy]
     all_user_median_accuracy = calculate_median(all_user_accuracies_list)
-    
-    # ユーザーの全体の正答率を計算（これは既存のコードまたは新たなヘルパー関数を利用）
-    user_accuracy = calculate_user_accuracy(user, exam)
-
-    # 3点問題と1点問題の正答率を計算
-    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3)
-    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1)
 
     quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).order_by('-start_time').first()
+
+    if quiz_session:
+        start_time = quiz_session.start_time
+        end_time = quiz_session.end_time
+        user_accuracy_all = calculate_new_user_accuracy(user, exam, start_time, end_time)
+    else:
+        return redirect('some_error_page_or_message')
+    
+    # ユーザーの全体の正答率を計算
+    user_accuracy = calculate_user_accuracy(user, exam)  
+    user_accuracy_all = calculate_new_user_accuracy(user, exam, start_time, end_time)
+    
+    # 3点問題と1点問題の正答率を計算
+    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3, start_time, end_time)
+    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1, start_time, end_time)
 
     context = {
         'exam':exam,
         'user_accuracy': user_accuracy,
+        'user_accuracy_all':user_accuracy_all,
         'user_3_point_accuracy': user_3_point_accuracy,
         'user_1_point_accuracy': user_1_point_accuracy,
         'all_user_average_accuracy': all_user_average_accuracy,

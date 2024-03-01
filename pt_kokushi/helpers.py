@@ -24,32 +24,81 @@ def calculate_login_streak(user):
 
     return streak
 
-def calculate_specific_point_accuracy(user, exam, point):
+#1回の試験での3点問題1点問題の計算
+def calculate_specific_point_accuracy(user, exam, point, start_time, end_time):
     questions = QuizQuestion.objects.filter(exam=exam, point=point)
     correct_count = 0
-    total_questions = questions.count()
+    total_attempts = 0  # 回答した質問の数を追跡
 
     for question in questions:
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
+        user_answers = QuizUserAnswer.objects.filter(
+            user=user, 
+            question=question, 
+            answered_at__gte=start_time, 
+            answered_at__lte=end_time
+        )
 
-        if user_answer:
+        for user_answer in user_answers:
             user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
             correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
 
-            # 不正解の選択肢が含まれているかどうか、および全ての正解が選ばれているかをチェック
             incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
             all_correct_choices_selected = correct_choice_ids.issubset(user_selected_choice_ids) and user_selected_choice_ids.issubset(correct_choice_ids)
 
-
-            # 正解判定
-            is_correct = all_correct_choices_selected and not incorrect_choice_selected
-            
-            if is_correct:
+            if all_correct_choices_selected and not incorrect_choice_selected:
                 correct_count += 1
+            total_attempts += 1
 
-    accuracy = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+    accuracy = (correct_count / total_attempts) * 100 if total_attempts > 0 else 0
     return accuracy
 
+#calculate_specific_point_accuracy関数から正答数と問題数を取得する
+def calculate_specific_point_data(user, exam, point, start_time, end_time):
+    # 特定の点数に関連する質問をフィルタリング
+    questions = QuizQuestion.objects.filter(exam=exam, point=point)
+    correct_count = 0
+    total_questions = questions.count()
+    
+    for question in questions:
+        # 特定のセッション期間内でのユーザーの回答をフィルタリング
+        user_answers = QuizUserAnswer.objects.filter(
+            user=user, 
+            question=question, 
+            answered_at__gte=start_time, 
+            answered_at__lte=end_time
+        )
+        
+        # 各質問に対するユーザーの回答を確認
+        for user_answer in user_answers:
+            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
+            correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
+            
+            # 正解判定
+            is_correct = user_selected_choice_ids == correct_choice_ids
+            if is_correct:
+                correct_count += 1
+    
+    return correct_count, total_questions
+
+
+#今回の試験全体の正答率
+def calculate_new_user_accuracy(user, exam, start_time, end_time):
+     # 3点問題の正答率と問題数を取得
+    correct_3_point, total_3_point = calculate_specific_point_data(user, exam, 3, start_time, end_time)
+    
+    # 1点問題の正答率と問題数を取得
+    correct_1_point, total_1_point = calculate_specific_point_data(user, exam, 1, start_time, end_time)
+    
+    # トータルの正答数と問題数を算出
+    total_correct = correct_3_point + correct_1_point
+    total_questions = total_3_point + total_1_point
+    
+    # 全体の正答率を計算
+    total_accuracy = (total_correct / total_questions) * 100 if total_questions > 0 else 0
+    
+    return total_accuracy
+
+#１つの問題に対する累積正答率
 def calculate_user_accuracy(user, exam):
     questions = QuizQuestion.objects.filter(exam=exam)
     correct_count = 0
@@ -115,7 +164,6 @@ def calculate_questions_accuracy(user, exam):
         })
 
     return questions_with_accuracy
-
 
 def calculate_field_accuracy(user, exam):
     return QuizUserAnswer.objects.filter(user=user, question__exam=exam).annotate(
