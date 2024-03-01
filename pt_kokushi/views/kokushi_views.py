@@ -12,7 +12,7 @@ from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquer
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
-from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy
+from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy,calculate_median
 from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
 from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
 import json
@@ -273,16 +273,25 @@ def kokushi_results_view(request):
     
         # 全ユーザーの正答率
         all_users_accuracy = calculate_all_users_question_accuracy(question)
+    
         
         user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
         correct_text = get_correctness_text(user_answer) if user_answer else "回答なし"
-        
+    
         questions_accuracy.append({
         'question': question,
         'user_accuracy': user_accuracy,
         'is_correct_text': correct_text,
         'all_users_accuracy': all_users_accuracy,
         })
+        
+    all_users_accuracies = []
+    questions = QuizQuestion.objects.filter(exam=exam)
+    for question in questions:
+        accuracy = calculate_all_users_question_accuracy(question)
+        all_users_accuracies.append(accuracy)
+        
+    all_user_median_accuracy = calculate_median(all_users_accuracies)
 
     context = {
         'exam': exam,
@@ -292,6 +301,7 @@ def kokushi_results_view(request):
         'all_user_average_accuracy': all_user_average_accuracy,
         'quiz_session': quiz_session,
         'questions_accuracy': questions_accuracy,
+        'all_user_median_accuracy': all_user_median_accuracy,
     }
 
     return render(request, 'kokushi/kokushi_results.html', context)

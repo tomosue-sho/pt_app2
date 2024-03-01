@@ -210,17 +210,20 @@ def calculate_all_user_average_accuracy(exam):
 
     return all_user_average_accuracy
 
+#中央値の計算
 def calculate_median(values_list):
     if not values_list:
         return 0
     sorted_list = sorted(values_list)
     list_length = len(sorted_list)
-    index = (list_length - 1) // 2
 
+    # リストの長さが奇数の場合
     if list_length % 2:
-        return sorted_list[index]
+        return sorted_list[list_length // 2]
+    # リストの長さが偶数の場合
     else:
-        return (sorted_list[index] + sorted_list[index + 1]) / 2.0
+        return (sorted_list[(list_length // 2) - 1] + sorted_list[list_length // 2]) / 2.0
+
     
 #ランダム問題用
 def calculate_random_quiz_results(user, question_ids):
