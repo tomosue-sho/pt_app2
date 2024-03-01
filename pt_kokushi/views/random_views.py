@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 from pt_kokushi.models.kokushi_models import QuizQuestion, QuizQuestion, Choice, QuizUserAnswer,Exam
 from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_user_average_accuracy
-from ..helpers import calculate_random_questions_accuracy,calculate_random_quiz_results,calculate_questions_accuracy
+from ..helpers import calculate_random_questions_accuracy,calculate_random_quiz_results
 import random
 from django.contrib.auth import get_user_model
 

@@ -170,22 +170,23 @@
             <th>この問題の正答率</th>
             <th>全ユーザーの正答率</th>
         </tr>
-    </thead>
+    </thead>   
     <tbody>
-        {% for question in questions_with_accuracy %}
+        {% for qa in questions_accuracy %}
         <tr>
-            <td>{{ question.session }}</td>
-            <td>{{ question.number }}</td>
-            <td>{{ question.field }}</td>
-            <td>{{ question.is_correct }}</td>
-            <td>{{ question.user_accuracy|floatformat:"1" }}%</td>
-            <td>{{ question.all_user_accuracy|floatformat:"1" }}%</td>
+            <td>{{ qa.question.exam.year }}年 {{ qa.question.time }}</td>
+            <td>{{ qa.question.question_number }}</td>
+            <td>{{ qa.question.field.name }}</td> <!-- 分野名を表示するには.nameを追加 -->
+            <td>{{ qa.is_correct_text }}</td>
+            <td>{{ qa.user_accuracy|floatformat:"1" }}%</td>
+            <td>{{ qa.all_users_accuracy|floatformat:"1" }}%</td>
         </tr>
         {% endfor %}
     </tbody>    
     </table>
   </div>
 </div>
+
 <br>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
 <script>

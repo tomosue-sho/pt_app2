@@ -20,7 +20,7 @@ from pt_kokushi.views.studychart_views import study_content
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
-from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list,calculate_questions_accuracy
+from pt_kokushi.views.kokushi_views import start_kokushi_quiz, quiz_page,quiz_question_list
 from pt_kokushi.views.random_views import random_question_display, random_quiz,submit_random_quiz_answers,quiz_question_detail
 from pt_kokushi.views.random_views import random_quiz_result
 from pt_kokushi.views.practical_views import PracticalChoiceView,PracticalQuizView,toggle_bookmark,practical_quiz_result
@@ -99,7 +99,6 @@ urlpatterns = [
     path('start-quiz/', start_kokushi_quiz, name='start_quiz'),  # クイズを開始するためのURL
     path('quiz/',quiz_page, name='quiz_page'),  # クイズページのURL
     path('quiz_questions/list/', quiz_question_list, name='quiz_question_list'),  # 問題一覧ページへのURL
-    path('calculate_questions_accuracy/',calculate_questions_accuracy, name='calculate_questions_accuracy'),
     path('random/quiz/', random_quiz, name='random_quiz'),
     path('random/question/', random_question_display, name='random_question_display'),#ランダム問題表示
     path('random/quiz/', random_quiz, name='random_choice'),#ランダム問題選択

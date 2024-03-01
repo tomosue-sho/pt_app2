@@ -24,6 +24,13 @@ def calculate_login_streak(user):
 
     return streak
 
+def is_answer_correct(user_answer):
+    correct_choices = set(user_answer.question.choices.filter(is_correct=True).values_list('id', flat=True))
+    selected_choices = set(user_answer.selected_choices.values_list('id', flat=True))
+
+    # ユーザーが選択した選択肢が正解の選択肢と完全に一致するかどうかをチェック
+    return selected_choices == correct_choices and len(selected_choices) == len(correct_choices)
+
 #1回の試験での3点問題1点問題の計算
 def calculate_specific_point_accuracy(user, exam, point, start_time, end_time):
     questions = QuizQuestion.objects.filter(exam=exam, point=point)
@@ -52,7 +59,6 @@ def calculate_specific_point_accuracy(user, exam, point, start_time, end_time):
     accuracy = (correct_count / total_attempts) * 100 if total_attempts > 0 else 0
     return accuracy
 
-#calculate_specific_point_accuracy関数から正答数と問題数を取得する
 def calculate_specific_point_data(user, exam, point, start_time, end_time):
     # 特定の点数に関連する質問をフィルタリング
     questions = QuizQuestion.objects.filter(exam=exam, point=point)
@@ -98,73 +104,68 @@ def calculate_new_user_accuracy(user, exam, start_time, end_time):
     
     return total_accuracy
 
-#１つの問題に対する累積正答率
-def calculate_user_accuracy(user, exam):
-    questions = QuizQuestion.objects.filter(exam=exam)
-    correct_count = 0
-    total_questions = questions.count()
+#１つの問題に対する累積正答率(個人)
+def calculate_user_question_accuracy(user, question):
+    # 特定のユーザーの特定の問題に対する正答数を集計
+    correct_answers_count = QuizUserAnswer.objects.filter(
+        user=user,
+        question=question,
+        selected_choices__is_correct=True
+    ).count()
 
-    for question in questions:
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
+    # 特定のユーザーの特定の問題に対する回答数を集計
+    total_answers_count = QuizUserAnswer.objects.filter(
+        user=user,
+        question=question
+    ).count()
 
-        if user_answer:
-            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
-            correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
-            
-            # 不正解の選択肢が含まれているかどうか、および全ての正解が選ばれているかをチェック
-            incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
-            all_correct_choices_selected = correct_choice_ids.issubset(user_selected_choice_ids) and user_selected_choice_ids.issubset(correct_choice_ids)
+    # ユーザーの問題に対する累計正答率を計算（回答がある場合）
+    if total_answers_count > 0:
+        user_question_accuracy = (correct_answers_count / total_answers_count) * 100
+    else:
+        user_question_accuracy = 0
 
-            
-            # 正解判定
-            is_correct = all_correct_choices_selected and not incorrect_choice_selected
-            
-            if is_correct:
-                correct_count += 1
-        else:
-            # ユーザーが回答していない場合は、この質問を不正解としてカウントしない
-            total_questions -= 1
+    return user_question_accuracy
 
-    # 正答率の計算
-    accuracy = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+#１つの問題に対する累積正答率(全ユーザー)
+def calculate_all_users_question_accuracy(question):
+    # 特定の問題に対する全ユーザーの回答を集計
+    total_answers_count = QuizUserAnswer.objects.filter(question=question).count()
+    correct_answers_count = QuizUserAnswer.objects.filter(question=question, selected_choices__is_correct=True).count()
 
-    return accuracy
+    # 全ユーザーの問題に対する累計正答率を計算（回答がある場合）
+    if total_answers_count > 0:
+        all_users_question_accuracy = (correct_answers_count / total_answers_count) * 100
+    else:
+        all_users_question_accuracy = 0
 
-def calculate_questions_accuracy(user, exam):
+    return all_users_question_accuracy
+
+def calculate_questions_accuracy(user, exam, start_time, end_time):
     questions = QuizQuestion.objects.filter(exam=exam).order_by('time', 'question_number')
     questions_with_accuracy = []
 
     for question in questions:
-        user_answers = QuizUserAnswer.objects.filter(user=user, question=question)
-        correct_count = 0
-
-        for user_answer in user_answers:
-            user_selected_choice_ids = set(user_answer.selected_choices.values_list('id', flat=True))
-            correct_choice_ids = set(question.choices.filter(is_correct=True).values_list('id', flat=True))
-
-            # 全ての正解選択肢が選ばれており、不正解の選択肢が含まれていないことを確認
-            if user_selected_choice_ids == correct_choice_ids:
-                correct_count += 1
-
-        user_total_answers_count = user_answers.count()
-        user_accuracy = (correct_count / user_total_answers_count * 100) if user_total_answers_count > 0 else 0
-
-        # 以下、全ユーザーの正答率の計算（変更なし）
-        all_correct_answers_count = QuizUserAnswer.objects.filter(question=question, selected_choices__is_correct=True).count()
+        user_answers = QuizUserAnswer.objects.filter(user=user, question=question, answered_at__gte=start_time, answered_at__lte=end_time)
+        correct_answers_count = user_answers.filter(selected_choices__is_correct=True).count()
+        
         total_answers_count = QuizUserAnswer.objects.filter(question=question).count()
-        all_user_accuracy = (all_correct_answers_count / total_answers_count * 100) if total_answers_count > 0 else 0
+
+        all_user_accuracy = calculate_all_users_question_accuracy(question)
 
         questions_with_accuracy.append({
+            'question_id': question.id,
             'session': question.time,
             'number': question.question_number,
             'field': question.field.name,
-            'user_accuracy': user_accuracy,
-            'all_user_accuracy': all_user_accuracy,
-            'is_correct': '正解' if correct_count > 0 else '不正解',
+            'user_accuracy': (correct_answers_count / total_answers_count * 100) if total_answers_count > 0 else 0,
+            'all_user_accuracy': all_user_accuracy, 
+            'is_correct_text': '正解' if correct_answers_count > 0 else '不正解',
         })
 
     return questions_with_accuracy
 
+#分野
 def calculate_field_accuracy(user, exam):
     return QuizUserAnswer.objects.filter(user=user, question__exam=exam).annotate(
         is_correct=Case(
