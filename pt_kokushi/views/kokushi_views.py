@@ -450,10 +450,17 @@ def field_result_view(request, exam_id):
     user = request.user
     exam = get_object_or_404(Exam, pk=exam_id)
     
+    # 各分野の正答率を計算
     field_accuracy = calculate_field_accuracy(user, exam)
     
+    # 分野名と正答率の割合をリストに格納
+    labels = [item['question__field__name'] for item in field_accuracy]
+    percentages = [item['accuracy'] for item in field_accuracy]
+
     context = {
         'field_accuracy': field_accuracy,
+        'labels': labels,
+        'percentages': percentages,
         'exam': exam,
     }
     

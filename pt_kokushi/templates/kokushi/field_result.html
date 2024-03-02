@@ -49,39 +49,52 @@
     </tbody>
 </table>
 
-<canvas id="myFieldAccuracyChart" width="400" height="400"></canvas>
+<canvas id="fieldAccuracyChart" width="400" height="400"></canvas>
 
 <p><a href="{% url 'pt_kokushi:kokushi_results' %}" class="btn btn-secondary">成績に戻る</a></p>
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('myFieldAccuracyChart').getContext('2d');
-    var myFieldAccuracyChart = new Chart(ctx, {
-    type: 'pie', // 円グラフのタイプ
-    data: {
-        labels: ['分野1', '分野2', '分野3'], // 各分野の名前
-        datasets: [{
-            data: [20, 30, 50], // 各分野の正答数の割合
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        title: {
-            display: true,
-            text: '各分野の正答数の割合'
-        }
+    function getRandomColor() {
+        var r = Math.floor(Math.random() * 256); // 0-255
+        var g = Math.floor(Math.random() * 256); // 0-255
+        var b = Math.floor(Math.random() * 256); // 0-255
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', 0.7)'; // 透明度0.7で色を生成
     }
-});
-</script>
+    
+    // データセットのデータ
+    var data = {{ percentages|safe }};
+    
+    // データセットのデータに対応する背景色の配列を生成
+    var backgroundColors = data.map(function() {
+        return getRandomColor(); // 各データポイントに対してランダムな色を生成
+    });
+    
+    var ctx = document.getElementById('fieldAccuracyChart').getContext('2d');
+    var fieldAccuracyChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                borderColor: 'rgba(255, 255, 255, 1)', // 境界線色を白に設定
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: '{{ exam.year }}回 国家試験の分野ごとの正答率'
+            }
+        }
+    });
+    </script>
     
 {% endblock %}
