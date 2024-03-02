@@ -144,21 +144,27 @@
                  <h4>全ユーザーの正答率の中央値</h4>
                  <p>{{ all_user_median_accuracy|floatformat:1 }}%</p>
              </div>
-    
-            <div class="stat-card">
-                <h4>今回の解答時間</h4>
-                <table>
-                {% if quiz_session %}
-                <p>開始時刻: {{ quiz_session.start_time }}</p>
-                <p>終了時刻: {{ quiz_session.end_time }}</p>
-                {% if quiz_session.start_time and quiz_session.end_time %}
-                <p>合計試験時間: {{ quiz_session.end_time|timesince:quiz_session.start_time }}</p>
-                {% endif %}
-                {% endif %}
-                </table>
-            </div>
+             <div class="stat-card">
+                <div class="card-body">
+                  <h5 class="card-title">分野ごとの正答率</h5>
+                  <p class="card-text">各分野におけるあなたの正答率を確認してみましょう。</p>
+                  <a href="{% url 'pt_kokushi:field_accuracy' exam_id=exam.id %}" class="btn btn-primary">詳細を見る</a>
+                </div>
+              </div>              
+    <div class="stat-card">
+    <h4>今回の解答時間</h4>
+    <table>
+        {% if quiz_session.start_time and quiz_session.end_time %}
+            <tr><td>開始時刻:</td><td>{{ quiz_session.start_time }}</td></tr>
+            <tr><td>終了時刻:</td><td>{{ quiz_session.end_time }}</td></tr>
+            <tr><td>合計試験時間:</td><td>{{ exam_duration_minutes|floatformat:"0" }} 分</td></tr>
+        {% else %}
+            <p>試験時間情報が利用できません。</p>
+        {% endif %}
+    </table>
     </div>
-
+    
+    </div>
   <div class="excel-table-container">
   <table class="excel-table" height="50">
     <thead>
@@ -188,6 +194,7 @@
 </div>
 
 <br>
+
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');

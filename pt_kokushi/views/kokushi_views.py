@@ -71,11 +71,8 @@ def time_setting_view(request):
 def start_kokushi_quiz(request):
     # クイズ開始時刻を現在時刻とする
     start_time = datetime.now()
-    # タイマーを30分に設定
-    end_time = start_time + timedelta(minutes=30)
-    # 開始時刻と終了時刻をセッションに保存
     request.session['start_time'] = start_time.strftime('%Y-%m-%d %H:%M:%S')
-    request.session['end_time'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
+ 
     # クイズページにリダイレクト
     return redirect('quiz_page')
 
@@ -215,17 +212,13 @@ def submit_quiz_answers(request, question_id):
         if next_question:
             return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
         else:
+            request.session['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             # 全問題に回答したかどうかをチェック
             if exam_year:
-                total_questions = QuizQuestion.objects.filter(exam__year=exam_year).count()
-                answered_questions = QuizUserAnswer.objects.filter(user=user, question__exam__year=exam_year).count()
-
-                if total_questions == answered_questions:
-                    # 全問題に回答した場合、試験セッションの終了時刻を更新
-                    quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
-                    if quiz_session:
-                        quiz_session.end_time = now()
-                        quiz_session.save()
+                quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
+                if quiz_session:
+                    quiz_session.end_time = now()
+                    quiz_session.save()
             
             # 全ての回答が終了したら、結果ページへリダイレクト
             # 結果ページでは、ユーザーの全回答を集計してフィードバックを表示
@@ -233,6 +226,7 @@ def submit_quiz_answers(request, question_id):
 #成績計算-----------------------------------------------------
 @login_required
 def kokushi_results_view(request):
+    
     # 既存のコード
     user = request.user
     exam_year = request.session.get('exam_year', None)
@@ -292,7 +286,15 @@ def kokushi_results_view(request):
         all_users_accuracies.append(accuracy)
         
     all_user_median_accuracy = calculate_median(all_users_accuracies)
+    
+    if quiz_session.end_time:
+        exam_duration = quiz_session.end_time - quiz_session.start_time
+    else:
+        exam_duration = now() - quiz_session.start_time
 
+    # exam_duration を分単位で計算
+    exam_duration_minutes = exam_duration.total_seconds() / 60
+    
     context = {
         'exam': exam,
         'user_accuracy_all': user_accuracy_all,
@@ -302,6 +304,7 @@ def kokushi_results_view(request):
         'quiz_session': quiz_session,
         'questions_accuracy': questions_accuracy,
         'all_user_median_accuracy': all_user_median_accuracy,
+        'exam_duration_minutes': exam_duration_minutes,
     }
 
     return render(request, 'kokushi/kokushi_results.html', context)
@@ -441,3 +444,17 @@ def check_answer(request, question_id):
         correct_choice = Choice.objects.filter(question_id=question_id, is_correct=True).first()
         is_correct = str(correct_choice.id) == selected_choice_id
         return JsonResponse({'is_correct': is_correct})
+  
+#分野ごとの正答率用  
+def field_result_view(request, exam_id):
+    user = request.user
+    exam = get_object_or_404(Exam, pk=exam_id)
+    
+    field_accuracy = calculate_field_accuracy(user, exam)
+    
+    context = {
+        'field_accuracy': field_accuracy,
+        'exam': exam,
+    }
+    
+    return render(request, 'kokushi/field_result.html', context)
