@@ -58,10 +58,13 @@ def field_quiz_answer(request, field_id, question_id):
         question = get_object_or_404(QuizQuestion, pk=question_id)
         selected_choice_ids = request.POST.getlist('choices')
 
-        # ユーザーの選択を保存
-        user_answer, created = QuizUserAnswer.objects.get_or_create(
-            user=user, question=question
-        )
+        # 最新のユーザー回答を取得または新規作成
+        user_answers = QuizUserAnswer.objects.filter(user=user, question=question)
+        if user_answers.exists():
+            user_answer = user_answers.latest('id')  # 最新の回答を取得
+        else:
+            user_answer = QuizUserAnswer.objects.create(user=user, question=question)
+
         user_answer.selected_choices.clear()
         for choice_id in selected_choice_ids:
             choice = get_object_or_404(Choice, pk=choice_id)

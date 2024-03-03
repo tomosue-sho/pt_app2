@@ -201,6 +201,19 @@ def calculate_field_accuracy_all(exam, start_time, end_time):
 
     return field_accuracy_data
 
+#分野別のランキング表示（ユーザー）
+def get_user_field_accuracy_ranking(user, exam=None):
+    if exam:
+        field_accuracy = calculate_field_accuracy(user, exam)
+    else:
+        field_accuracy = calculate_field_accuracy(user, exam)
+    
+    # 正答率でソートしてランキングを作成
+    field_accuracy_ranking = sorted(field_accuracy, key=lambda x: x['accuracy'], reverse=True)
+    
+    return field_accuracy_ranking
+
+
 #全ユーザーの平均正答率
 def calculate_all_user_average_accuracy(exam):
     # 全ユーザーの全問題に対する正答数を集計
@@ -349,7 +362,7 @@ def calculate_practical_quiz_results(user):
     accuracy = (correct_count / total_questions) * 100 if total_questions else 0
     return results, accuracy, correct_count, total_questions
 
-#分野用の計算
+#分野用の計算(分野だけの問題を出すページ)
 def calculate_field_quiz_results(user, field_id):
     # 特定の分野に関連する問題のIDを取得
     question_ids = QuizQuestion.objects.filter(field_id=field_id).values_list('id', flat=True)
@@ -359,7 +372,7 @@ def calculate_field_quiz_results(user, field_id):
 
     for question_id in question_ids:
         question = QuizQuestion.objects.get(id=question_id)
-        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).first()
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
 
         if user_answer:
             # ユーザーが選んだ選択肢のIDのセット
@@ -370,10 +383,10 @@ def calculate_field_quiz_results(user, field_id):
             # 不正解の選択肢が含まれているかどうか、および全ての正解が選ばれているかをチェック
             incorrect_choice_selected = not user_selected_choice_ids.issubset(correct_choice_ids)
             all_correct_choices_selected = user_selected_choice_ids == correct_choice_ids
-            
-            # 正解判定
-            is_correct = all_correct_choices_selected and not incorrect_choice_selected
-            
+
+            # 正解の選択肢とユーザーの選択肢が完全に一致するかどうかをチェック
+            is_correct = user_selected_choice_ids == correct_choice_ids
+
             if is_correct:
                 correct_count += 1
             

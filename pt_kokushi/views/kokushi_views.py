@@ -15,7 +15,8 @@ from django.utils.duration import duration_string
 from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy,calculate_median
 from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
 from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
-import json
+from ..helpers import get_user_field_accuracy_ranking
+import json, random
 from django.utils.dateparse import parse_datetime
 
 
@@ -128,8 +129,18 @@ def quiz_questions_view(request, question_id=None):
         
     previous_question = QuizQuestion.objects.filter(id__lt=question_id).order_by('-id').first()
     
+    #選択肢をランダムにする
+    if question:
+        # 選択肢をランダムに取得
+        choices = list(question.choices.all())  # question に紐づく選択肢をリストとして取得
+        random.shuffle(choices)  # 選択肢をランダムに並べ替え
+    else:
+        choices = []
+
+    
     context = {
         'exam': exam,
+        'choices': choices,
         'question': question,
         'time_limit': time_limit,
         'quiz_session': quiz_session,
@@ -456,6 +467,8 @@ def field_result_view(request, exam_id):
 
     # ユーザーの累積成績を計算
     field_accuracy = calculate_field_accuracy(user, exam)
+    #ユーザー個人のランキング
+    user_ranking = get_user_field_accuracy_ranking(user, exam)
 
     # quiz_session が存在する場合、その start_time と end_time を使用
     if quiz_session:
@@ -466,6 +479,7 @@ def field_result_view(request, exam_id):
         current_exam_accuracy = []
 
     context = {
+        'user_ranking': user_ranking,
         'field_accuracy': field_accuracy,
         'current_exam_accuracy': current_exam_accuracy,
         'labels': [item['question__field__name'] for item in field_accuracy],
