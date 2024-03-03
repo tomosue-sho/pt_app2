@@ -16,6 +16,7 @@ from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calc
 from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
 from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
 import json
+from django.utils.dateparse import parse_datetime
 
 
 # 試験回選択用
@@ -450,18 +451,27 @@ def field_result_view(request, exam_id):
     user = request.user
     exam = get_object_or_404(Exam, pk=exam_id)
     
-    # 各分野の正答率を計算
+    # ユーザーのクイズセッションを取得
+    quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).last()
+
+    # ユーザーの累積成績を計算
     field_accuracy = calculate_field_accuracy(user, exam)
-    
-    # 分野名と正答率の割合をリストに格納
-    labels = [item['question__field__name'] for item in field_accuracy]
-    percentages = [item['accuracy'] for item in field_accuracy]
+
+    # quiz_session が存在する場合、その start_time と end_time を使用
+    if quiz_session:
+        start_time = quiz_session.start_time
+        end_time = quiz_session.end_time
+        current_exam_accuracy = calculate_field_accuracy_all(exam, start_time, end_time)
+    else:
+        current_exam_accuracy = []
 
     context = {
         'field_accuracy': field_accuracy,
-        'labels': labels,
-        'percentages': percentages,
+        'current_exam_accuracy': current_exam_accuracy,
+        'labels': [item['question__field__name'] for item in field_accuracy],
+        'percentages': [item['accuracy'] for item in field_accuracy],
         'exam': exam,
+        'quiz_session': quiz_session,  # quiz_session をコンテキストに追加
     }
     
     return render(request, 'kokushi/field_result.html', context)

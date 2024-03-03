@@ -161,7 +161,7 @@ def calculate_questions_accuracy(user, exam, start_time, end_time):
 
     return questions_with_accuracy
 
-#分野
+#分野(累積の成績)
 def calculate_field_accuracy(user, exam):
     return QuizUserAnswer.objects.filter(user=user, question__exam=exam).annotate(
         is_correct=Case(
@@ -176,20 +176,32 @@ def calculate_field_accuracy(user, exam):
         accuracy=ExpressionWrapper(F('correct_sum') * 100.0 / F('total'), output_field=FloatField())
     ).order_by('question__field__name')
 
-def calculate_field_accuracy_all(exam):
-    return QuizUserAnswer.objects.filter(question__exam=exam).annotate(
+#分野（今回の成績）
+def calculate_field_accuracy_all(exam, start_time, end_time):
+    # 期間内にユーザーが提出した回答をフィルタリング
+    answers_within_period = QuizUserAnswer.objects.filter(
+        question__exam=exam,
+        answered_at__gte=start_time,
+        answered_at__lte=end_time
+    )
+
+    # 分野ごとに正答数と回答数を集計
+    field_accuracy_data = answers_within_period.annotate(
         is_correct=Case(
             When(selected_choices__is_correct=True, then=Value(1)),
             default=Value(0),
             output_field=IntegerField()
         )
     ).values('question__field__name').annotate(
-        total=Count('question'),
-        correct_sum=Sum('is_correct')
+        total=Count('id'),  # 回答数の集計
+        correct_sum=Sum('is_correct')  # 正答数の集計
     ).annotate(
         accuracy=ExpressionWrapper(F('correct_sum') * 100.0 / F('total'), output_field=FloatField())
     ).order_by('question__field__name')
-    
+
+    return field_accuracy_data
+
+#全ユーザーの平均正答率
 def calculate_all_user_average_accuracy(exam):
     # 全ユーザーの全問題に対する正答数を集計
     correct_answers_count = QuizUserAnswer.objects.filter(
