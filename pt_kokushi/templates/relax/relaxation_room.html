@@ -1,23 +1,45 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<style>
+    .column-list {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .column {
+        margin-bottom: 20px;
+    }
+    
+    .column-title {
+        display: block;
+        font-size: 20px;
+        color: #333;
+        text-decoration: none;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .column-title:hover {
+        background-color: #eaeaea;
+    }
+</style>
+<!-- ボタンをクリックしてモーダルを表示する -->
 <h1>休憩室</h1>
-    <div>
-        <h2>コラム</h2>
+
+<div class="column-list">
+    <h2>コラム</h2>
+    <div class="list-group">
         {% for column in columns %}
-            <div>
-                <h3>{{ column.title }}</h3>
-                <p>{{ column.content|linebreaks }}</p>
-            </div>
+            <a href="{% url 'pt_kokushi:column_detail' pk=column.pk %}" class="list-group-item list-group-item-action">{{ column.title }}</a>
         {% endfor %}
     </div>
-    <div>
-        <h2>BGM</h2>
-        <audio controls loop>
-            
-            お使いのブラウザはオーディオ要素をサポートしていません。
-        </audio>
-    </div>
+</div>
 
 {% endblock %}

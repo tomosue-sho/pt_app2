@@ -6,3 +6,4 @@ from .todo_admin import*
 from .admin_org import*
 from .quiz_admin import*
 from .studychart_admin import*
+from .relax_admin import*

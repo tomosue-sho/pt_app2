@@ -7,3 +7,7 @@ class Column(models.Model):
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        verbose_name = "休憩室コラム" 
+        verbose_name_plural = "休憩室コラム" 
