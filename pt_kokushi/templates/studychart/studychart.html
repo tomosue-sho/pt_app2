@@ -120,10 +120,10 @@
                 </thead>
                 <tbody>
                      <tr>
-                        <td>{{ weekly_total|default:"0" }} 時間</td>
-                        <td>{{ monthly_total|default:"0" }} 時間</td>
-                        <td>{{ yearly_total|default:"0" }} 時間</td>
-                        <td>{{ total_study_time|default:"0" }} 時間</td>
+                        <td>{{ weekly_total|floatformat:2 }} 時間</td>
+                        <td>{{ monthly_total|floatformat:2 }} 時間</td>
+                        <td>{{ yearly_total|floatformat:2 }} 時間</td>
+                        <td>{{ total_study_time|floatformat:2 }} 時間</td>
                      </tr>
                 </tbody>
                 </table>

@@ -1,5 +1,8 @@
 {% load custom_filters %}
 {% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -24,9 +27,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
+    
 </head>
 <style>
     .questionsTable {
@@ -99,6 +101,14 @@
     .unanswered {
         background-color: #f8d7da; /* 未回答の問題の背景色 */
     }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* 横スクロールを可能に */
+        margin:10px;
+        -webkit-overflow-scrolling: touch; /* iOSデバイスでのスムーズスクロールを有効化 */
+    }
     
 </style>
 
@@ -107,6 +117,9 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="margin-bottom: 1rem;">
         <div class="container-fluid">
             <a href="{% url 'pt_kokushi:post_list' %}" class="navbar-brand" >理学療法国試対策アプリ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
@@ -130,6 +143,19 @@
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
                     </li>
                     {% endif %}
+                    <li class="nav-item dropdown show">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                            学習メニュー
+                        </a>
+                        <ul class="dropdown-menu show" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:studychart' %}">学習チャート</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:field_choice' %}">分野ごと</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:bookmark_list' %}">ブックマーク問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:random_choice' %}">ランダム問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:practical_choice' %}">3点問題のみ</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:select_field' %}">基礎学習</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -140,6 +166,7 @@
     {% endif %}
 
     <h2>午前の問題</h2>
+    <div class="table-responsive">
     <table id="questionsTableAM" class="display questionsTable">
         <colgroup>
             <col span="1" style="background-color:#EFEFEF;"> <!-- 問題番号のカラム -->
@@ -164,8 +191,9 @@
         {% endfor %}
         </tbody>
     </table>
-    
+    </div>
     <h2>午後の問題</h2>
+    <div class="table-responsive">
     <table id="questionsTablePM" class="display questionsTable">
         <colgroup>
             <!-- colgroup定義 -->
@@ -187,6 +215,7 @@
         {% endfor %}        
         </tbody>
     </table>
+    </div>
     <br>
     <div>
         <a href="{% url 'pt_kokushi:continue_quiz' %}" class="btn btn-info">戻る</a>
@@ -240,4 +269,5 @@
     });
     
 </script>
+
 

@@ -235,6 +235,29 @@ def calculate_all_user_average_accuracy(exam):
 
     return all_user_average_accuracy
 
+#全ユーザーの分野ごとの平均正答率
+def calculate_average_accuracy_by_field_for_all_users(exam):
+    # 分野ごとの正答数と回答数を集計
+    field_accuracy_data = QuizUserAnswer.objects.filter(
+        question__exam=exam
+    ).values('question__field__name').annotate(
+        total_answers=Count('id'),
+        correct_answers=Sum(Case(
+            When(selected_choices__is_correct=True, then=1),
+            default=0,
+            output_field=IntegerField()
+        ))
+    )
+
+    # 分野ごとの平均正答率を計算
+    for field in field_accuracy_data:
+        if field['total_answers'] > 0:
+            field['average_accuracy'] = (field['correct_answers'] / field['total_answers']) * 100
+        else:
+            field['average_accuracy'] = 0
+
+    return field_accuracy_data
+
 #中央値の計算
 def calculate_median(values_list):
     if not values_list:
@@ -362,7 +385,7 @@ def calculate_practical_quiz_results(user):
     accuracy = (correct_count / total_questions) * 100 if total_questions else 0
     return results, accuracy, correct_count, total_questions
 
-#分野用の計算(分野だけの問題を出すページ)
+#分野用の成績計算(分野だけの問題を出すページ)
 def calculate_field_quiz_results(user, field_id):
     # 特定の分野に関連する問題のIDを取得
     question_ids = QuizQuestion.objects.filter(field_id=field_id).values_list('id', flat=True)

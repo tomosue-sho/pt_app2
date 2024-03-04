@@ -1,5 +1,9 @@
 {% load custom_filters %}
 {% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -19,7 +23,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
 </head>
@@ -105,14 +109,36 @@
         background-color: #ffc107; /* より鮮やかな黄色 */
         color: black;
     }
+    .container.d-flex {
+        flex-direction: column; /* コンテナのflex方向を縦に */
+        align-items: center; /* アイテムを中央揃えに */
+    }
+    .container.d-flex > div {
+        width: 100%; /* 子要素の幅をコンテナいっぱいに */
+        margin-bottom: 10px; /* 子要素間のマージン */
+    }
+    .container.mt-3.d-flex {
+        flex-direction: column; /* アイテムを縦に並べる */
+        align-items: center; /* アイテムを中央揃えに */
+    }
 
-
+    .container.mt-3.d-flex > div,
+    .container.mt-3.d-flex > div > form,
+    .container.mt-3.d-flex > div > a,
+    .container.mt-3.d-flex > div > form > button,
+    .container.mt-3.d-flex > div > a.btn {
+        width: 100%; /* ボタンの幅をコンテナの幅に合わせる */
+        margin-bottom: 10px; /* ボタン間のマージンを設定 */
+    }
 
 </style>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="margin-bottom: 1rem;">
         <div class="container-fluid">
             <a href="{% url 'pt_kokushi:post_list' %}" class="navbar-brand" >理学療法国試対策アプリ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
@@ -136,6 +162,19 @@
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
                     </li>
                     {% endif %}
+                    <li class="nav-item dropdown show">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                            学習メニュー
+                        </a>
+                        <ul class="dropdown-menu show" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:studychart' %}">学習チャート</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:field_choice' %}">分野ごと</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:bookmark_list' %}">ブックマーク問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:random_choice' %}">ランダム問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:practical_choice' %}">3点問題のみ</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:select_field' %}">基礎学習</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -185,6 +224,9 @@
     </div>
 </div>
 <div class="container mt-3 d-flex justify-content-around">
+    <div>
+        <button type="button" class="btn btn-success" id="toggleTimerBtn">タイマーを止める</button>
+    </div>
     {% if request.user.is_authenticated %}
         {% if question|is_bookmarked:request.user %}
             <div>
@@ -204,9 +246,6 @@
     {% endif %}
     <div>
         <a href="{% url 'pt_kokushi:quiz_question_list' %}" class="btn btn-primary">問題一覧へ</a>
-    </div>
-    <div>
-        <button type="button" class="btn btn-success" id="toggleTimerBtn">タイマーを止める</button>
     </div>
     <div>
         <a href="{% url 'pt_kokushi:restart_kokushi_quiz' %}" class="btn btn-warning mb-2">最初から解き直す</a>

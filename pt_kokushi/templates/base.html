@@ -34,6 +34,9 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom: 1rem;">
         <div class="container-fluid">
             <a href="{% url 'pt_kokushi:post_list' %}" class="navbar-brand" >理学療法国試対策アプリ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
@@ -57,6 +60,19 @@
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
                     </li>
                     {% endif %}
+                    <li class="nav-item dropdown show d-block d-md-none">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                            学習メニュー
+                        </a>
+                        <ul class="dropdown-menu show" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:studychart' %}">学習チャート</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:field_choice' %}">分野ごと</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:bookmark_list' %}">ブックマーク問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:random_choice' %}">ランダム問題</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:practical_choice' %}">3点問題のみ</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:select_field' %}">基礎学習</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

@@ -83,10 +83,35 @@
     .progress-bar-under60 {
         background-color: #FF5722; /* 赤色 */
     }
+    @media (max-width: 768px) {
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     
+        .stat-card {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        h2, h4, h5 {
+            font-size: smaller;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: larger;
+            margin-bottom: 10px; /* ボタン間のスペース */
+        }
 </style>    
 <h2>第{{ exam.year }}回 国試問題 成績結果</h2>
 <div class="horizontal-container">
+    <div class="row">
+        <div class="col-12">
+    <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#statsContainer" aria-expanded="false" aria-controls="statsContainer">
+        成績結果を見る
+    </button>
+    <div class="collapse" id="statsContainer">
     <div class="stats-container">
     <div class="stat-card">
         <h4>{{ user.nickname }}さんの正答率</h4>
@@ -163,6 +188,10 @@
         {% endif %}
     </table>
     </div>
+    <button class="btn btn-secondary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#statsContainer" aria-expanded="false" aria-controls="statsContainer">
+        成績を閉じる
+    </button>
+    </div>
     </div>
   <div class="excel-table-container">
   <table class="excel-table" height="50">
@@ -190,8 +219,9 @@
     </tbody>    
     </table>
   </div>
+  </div>
 </div>
-
+</div>
 <br>
 
 <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>

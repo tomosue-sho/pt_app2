@@ -308,3 +308,81 @@ p#countTimer span {
     background: #fffaf4;
     border-left: solid 5px #ffaf58;
 }
+
+
+/* スマートフォンや小さなデバイス向けのスタイル */
+@media (max-width: 767px) {
+    /* ナビゲーションバーのロゴやリンクのサイズを小さくする */
+    .navbar-brand, .nav-link {
+        font-size: 14px;
+    }
+
+    /* サイドバーのボタンのスタイルを調整 */
+    .button-001 {
+        width: 100%; /* ボタンを画面幅いっぱいに広げる */
+        margin: 5px 0; /* ボタン間のマージンを調整 */
+    }
+
+    /* サイドバーの表示を調整 */
+    #side-bar {
+        display: block;
+        width: 100%;
+    }
+
+    /* フォームコンテナのレイアウトを調整 */
+    .form-container {
+        flex: 0 0 100%; /* 画面幅いっぱいに広げる */
+    }
+    
+    /* 国試年度ボタンのスタイルを調整 */
+    .national-year {
+        font-size: 12px; /* フォントサイズを小さくする */
+        padding: 5px; /* パディングを調整 */
+    }
+
+    /* タイトルとログイン情報のスタイルを調整 */
+    #title_top, .username-nav {
+        font-size: 18px; /* タイトルのフォントサイズを調整 */
+    }
+
+    /* タイマー表示のスタイルを調整 */
+    #timer {
+        font-size: 16px; /* タイマーのフォントサイズを調整 */
+    }
+    /*国試までのカウントダウン*/
+    #timelimit-view {
+        width: 90%;
+        margin: 10px ; /* コンテナを中央に配置 */
+        padding: 0 5%; /* 内側の余白を追加 */
+    }
+    
+    .atdays, #timer {
+        text-align: center; /* テキストを中央揃えに */
+    }
+
+    /*理学療法のロゴの位置を中央に*/
+    #top-nav {
+        display: flex;
+        flex-direction: column; /* アイテムを縦方向に並べる */
+        align-items: center; /* 横軸中央揃え */
+        justify-content: center; /* 縦軸中央揃え */
+        text-align: center; /* テキスト中央揃え */
+    }
+
+    /* スマートフォン表示時にサイドバーを非表示に */
+    #side-bar {
+        display: none;
+    }
+
+    /*国家試験受験年度*/
+    #national-examination form {
+        width: 80%; /* フォームの幅を画面いっぱいにする */
+        margin-bottom: 15px; /* ボタン間のスペース */
+    }
+    
+    #national-examination button {
+        width: 100%; /* ボタンの幅をフォームの幅に合わせる */
+        padding: 10px 0; /* ボタンのパディングを大きくする */
+        font-size: 16px; /* ボタンのフォントサイズを大きくする */
+    }
+}

@@ -15,7 +15,7 @@ from django.utils.duration import duration_string
 from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy,calculate_median
 from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
 from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
-from ..helpers import get_user_field_accuracy_ranking
+from ..helpers import get_user_field_accuracy_ranking,calculate_average_accuracy_by_field_for_all_users
 import json, random
 from django.utils.dateparse import parse_datetime
 
@@ -469,6 +469,20 @@ def field_result_view(request, exam_id):
     field_accuracy = calculate_field_accuracy(user, exam)
     #ユーザー個人のランキング
     user_ranking = get_user_field_accuracy_ranking(user, exam)
+    
+    # 全ユーザーの分野ごとの平均正答率を計算
+    all_users_average_accuracy = calculate_average_accuracy_by_field_for_all_users(exam)
+    all_users_average_accuracy_dict = {item['question__field__name']: item['average_accuracy'] for item in all_users_average_accuracy}
+
+    # field_accuracy に全ユーザーの平均正答率を追加
+    field_accuracy_with_avg = []
+    for field in field_accuracy:
+        field_name = field['question__field__name']
+        field['all_users_average_accuracy'] = all_users_average_accuracy_dict.get(field_name, 0)
+        field_accuracy_with_avg.append(field)
+    
+    # 平均正答率でソートしてランキングを作成
+    accuracy_ranking = sorted(all_users_average_accuracy, key=lambda x: x['average_accuracy'], reverse=True)
 
     # quiz_session が存在する場合、その start_time と end_time を使用
     if quiz_session:
@@ -481,6 +495,8 @@ def field_result_view(request, exam_id):
     context = {
         'user_ranking': user_ranking,
         'field_accuracy': field_accuracy,
+        'field_accuracy_with_avg': field_accuracy_with_avg,
+        'accuracy_ranking': accuracy_ranking,
         'current_exam_accuracy': current_exam_accuracy,
         'labels': [item['question__field__name'] for item in field_accuracy],
         'percentages': [item['accuracy'] for item in field_accuracy],

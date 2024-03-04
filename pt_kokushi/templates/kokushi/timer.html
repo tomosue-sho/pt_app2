@@ -20,6 +20,19 @@
     .btn-timer{
         border-radius: 15px !important;
     }
+    @media (max-width: 768px) {
+        .card {
+            width: 90%; /* スマートフォンではカードの幅を90%に */
+        }
+        .btn-custom, .btn-timer {
+            width: 100%; /* ボタンの幅を画面幅に合わせる */
+            margin: 10px; /* ボタン間のマージンを増やす */
+        }
+        /* タイトルとカードタイトルのフォントサイズを小さくする */
+        .title, .card-title {
+            font-size: 18px;
+        }
+    }
 </style>
 <div class="container mt-3">
     <h1 class = "title">試験時間設定</h1>

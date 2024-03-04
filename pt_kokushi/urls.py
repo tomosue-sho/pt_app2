@@ -31,6 +31,7 @@ app_name = 'pt_kokushi'
 
 urlpatterns = [
     path('top/', views_org.TopView.as_view(), name='top_view'),
+    path('load-more-years', views_org.load_more_years, name='load-more-years'),
     path('signup/', views_org.signup_view, name='signup'),
     path('login/', views_org.login_view, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

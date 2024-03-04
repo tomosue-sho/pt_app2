@@ -319,3 +319,14 @@ def update_test_year(request):
     else:
         form = TestYearForm(instance=request.user)
     return render(request, 'login_app/update_test_year.html', {'form': form})
+
+#年度の表示を5個にするよう（メディアクエリ）
+def load_more_years(request):
+    offset = int(request.GET.get('offset', 0))
+    limit = int(request.GET.get('limit', 5))
+    years = Exam.objects.all().order_by('-year')[offset:offset + limit]
+    
+    years_data = [{'year': year.year, 'id': year.id} for year in years]
+    new_offset = offset + limit
+    
+    return JsonResponse({'years': years_data, 'new_offset': new_offset})
