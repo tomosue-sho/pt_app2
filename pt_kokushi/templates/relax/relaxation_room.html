@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>休憩室</h1>
+    <div>
+        <h2>コラム</h2>
+        {% for column in columns %}
+            <div>
+                <h3>{{ column.title }}</h3>
+                <p>{{ column.content|linebreaks }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div>
+        <h2>BGM</h2>
+        <audio controls loop>
+            
+            お使いのブラウザはオーディオ要素をサポートしていません。
+        </audio>
+    </div>
+
+{% endblock %}
