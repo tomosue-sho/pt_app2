@@ -503,3 +503,84 @@ def field_result_view(request, exam_id):
     }
     
     return render(request, 'kokushi/field_result.html', context)
+
+#成績ページのメディアクエリ用
+@login_required
+def user_stats_view(request):
+    user = request.user
+    exam_year = request.session.get('exam_year', None)
+    exam = get_object_or_404(Exam, year=exam_year) if exam_year else None
+
+    if not exam:
+        return redirect('top')
+
+    quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).order_by('-start_time').first()
+
+    if not quiz_session:
+        return redirect('top')
+
+    # 各種正答率の計算
+    user_accuracy_all = calculate_new_user_accuracy(user, exam, quiz_session.start_time, quiz_session.end_time)
+    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3, quiz_session.start_time, quiz_session.end_time)
+    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1, quiz_session.start_time, quiz_session.end_time)
+    all_user_average_accuracy = calculate_all_user_average_accuracy(exam)
+
+   # ユーザーが回答した問題を「午前・午後」、「問題番号」の順で並べ替える
+    user_answers = QuizUserAnswer.objects.filter(
+        user=user,
+        question__exam=exam
+    ).order_by('question__time', 'question__question_number')
+
+    # ユーザーが回答した問題のIDのリストを取得（重複なし）
+    questions_seen = set()
+    questions_accuracy = []
+
+    for user_answer in user_answers:
+        question = user_answer.question
+        # 重複チェック
+        if question.id in questions_seen:
+            continue  # この問題は既にリストに追加されているためスキップ
+        questions_seen.add(question.id)
+        # 特定のユーザーの正答率
+        user_accuracy = calculate_user_question_accuracy(user, question)
+        # 全ユーザーの正答率
+        all_users_accuracy = calculate_all_users_question_accuracy(question)
+    
+        user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
+        correct_text = get_correctness_text(user_answer) if user_answer else "回答なし"
+    
+        questions_accuracy.append({
+        'question': question,
+        'user_accuracy': user_accuracy,
+        'is_correct_text': correct_text,
+        'all_users_accuracy': all_users_accuracy,
+        })
+        
+    all_users_accuracies = []
+    questions = QuizQuestion.objects.filter(exam=exam)
+    for question in questions:
+        accuracy = calculate_all_users_question_accuracy(question)
+        all_users_accuracies.append(accuracy)
+        
+    all_user_median_accuracy = calculate_median(all_users_accuracies)
+    
+    if quiz_session.end_time:
+        exam_duration = quiz_session.end_time - quiz_session.start_time
+    else:
+        exam_duration = now() - quiz_session.start_time
+
+    # exam_duration を分単位で計算
+    exam_duration_minutes = exam_duration.total_seconds() / 60
+    
+    context = {
+        'exam': exam,
+        'user_accuracy_all': user_accuracy_all,
+        'user_3_point_accuracy': user_3_point_accuracy,
+        'user_1_point_accuracy': user_1_point_accuracy,
+        'all_user_average_accuracy': all_user_average_accuracy,
+        'quiz_session': quiz_session,
+        'questions_accuracy': questions_accuracy,
+        'all_user_median_accuracy': all_user_median_accuracy,
+        'exam_duration_minutes': exam_duration_minutes,
+    }
+    return render(request, 'kokushi/stats_container.html', context)

@@ -20,7 +20,7 @@ from pt_kokushi.views.studychart_views import study_content
 from pt_kokushi.views.kokushi_views import exam_selection_view,time_setting_view,quiz_questions_view,submit_quiz_answers
 from pt_kokushi.views.kokushi_views import continue_quiz_view,restart_kokushi_quiz_view,exit_quiz, kokushi_results_view
 from pt_kokushi.views.kokushi_views import add_bookmark,remove_bookmark,bookmark_list,question_detail,check_answer
-from pt_kokushi.views.kokushi_views import quiz_page,quiz_question_list,start_kokushi_quiz,field_result_view
+from pt_kokushi.views.kokushi_views import quiz_page,quiz_question_list,start_kokushi_quiz,field_result_view,user_stats_view
 from pt_kokushi.views.random_views import random_question_display, random_quiz,submit_random_quiz_answers,quiz_question_detail
 from pt_kokushi.views.random_views import random_quiz_result
 from pt_kokushi.views.practical_views import PracticalChoiceView,PracticalQuizView,toggle_bookmark,practical_quiz_result
@@ -94,6 +94,7 @@ urlpatterns = [
     path('quiz_questions/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す
     path('quiz_question/exit/', exit_quiz, name='exit_quiz'),
     path('quiz_question/kokushi_results/', kokushi_results_view, name='kokushi_results'),#国試成績
+    path('quiz_question/user_stats/', user_stats_view, name='user_stats'),#国試成績メディアクエリ分離用
     path('quiz_question/<int:question_id>/add_bookmark/', add_bookmark, name='add_bookmark'),
     path('quiz_question/<int:question_id>/remove_bookmark/', remove_bookmark, name='remove_bookmark'),
     path('quiz_question/bookmarks/', bookmark_list, name='bookmark_list'),

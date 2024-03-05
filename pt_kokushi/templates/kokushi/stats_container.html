@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>第{{ exam.year }}回 国試問題 成績結果</h2>
+<div class="horizontal-container">
+    <div class="stats-container">
+    <div class="stat-card">
+        <h4>{{ user.nickname }}さんの正答率</h4>
+        <!-- 全体の正答率 -->
+        <div>
+            <h5>全体の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar
+                    {% if user_accuracy_all >= 60 %}
+                        bg-success
+                    {% else %}
+                        bg-danger
+                    {% endif %}" 
+                    role="progressbar" 
+                    style="width: {{ user_accuracy_all }}%;" 
+                    aria-valuenow="{{ user_accuracy_all }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_accuracy_all|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+        <!-- 3点問題の正答率 -->
+        <div>
+            <h5>3点問題の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" 
+                    style="width: {{ user_3_point_accuracy }}%;" 
+                    aria-valuenow="{{ user_3_point_accuracy }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_3_point_accuracy|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+        <!-- 1点問題の正答率 -->
+        <div>
+            <h5>1点問題の正答率</h5>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" 
+                    style="width: {{ user_1_point_accuracy }}%;" 
+                    aria-valuenow="{{ user_1_point_accuracy }}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ user_1_point_accuracy|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+    </div>
+             <div class="stat-card">
+                 <h4>全ユーザーの平均正答率</h4>
+                 <p>{{ all_user_average_accuracy|floatformat:1 }}%</p>
+             </div>
+             <div class="stat-card">
+                 <h4>全ユーザーの正答率の中央値</h4>
+                 <p>{{ all_user_median_accuracy|floatformat:1 }}%</p>
+             </div>
+             <div class="stat-card">
+                <div class="card-body">
+                  <h5 class="card-title">分野ごとの正答率</h5>
+                  <p class="card-text">各分野におけるあなたの正答率を確認してみましょう。</p>
+                  <a href="{% url 'pt_kokushi:field_accuracy' exam_id=exam.id %}" class="btn btn-primary">詳細を見る</a>
+                </div>
+              </div>              
+    <div class="stat-card">
+    <h4>今回の解答時間</h4>
+    <table>
+        {% if quiz_session.start_time and quiz_session.end_time %}
+            <tr><td>開始時刻:</td><td>{{ quiz_session.start_time }}</td></tr>
+            <tr><td>終了時刻:</td><td>{{ quiz_session.end_time }}</td></tr>
+            <tr><td>合計試験時間:</td><td>{{ exam_duration_minutes|floatformat:"0" }} 分</td></tr>
+        {% else %}
+            <p>試験時間情報が利用できません。</p>
+        {% endif %}
+    </table>
+    </div>
+    </div>
+
+    <p><a href="{% url 'pt_kokushi:kokushi_results' %}" class="btn btn-secondary">成績に戻る</a></p>
+    <p><a href="{% url 'pt_kokushi:top' %}" class="btn btn-secondary">トップに戻る</a></p>
+{% endblock %}

@@ -83,8 +83,26 @@
     .progress-bar-under60 {
         background-color: #FF5722; /* 赤色 */
     }
+    .btn-details {
+        display: none;
+    }
     
-</style>    
+    /* 画面幅が768px以下の場合にボタンを表示 */
+    @media (max-width: 768px) {
+        .btn-details {
+            display: inline-block; /* または、display: block; など、必要に応じて */
+        }
+        .stats-container {
+            display: none;
+        }
+    }
+</style>
+<a href="{% url 'pt_kokushi:field_accuracy' exam_id=exam.id %}" class="btn btn-primary btn-details">詳細を見る</a>
+
+<form action="{% url 'pt_kokushi:user_stats' %}" method="get" class="btn-details">
+    <button type="submit" class="btn btn-primary">成績詳細を見る</button>
+</form>
+
 <h2>第{{ exam.year }}回 国試問題 成績結果</h2>
 <div class="horizontal-container">
     <div class="stats-container">
