@@ -51,7 +51,7 @@
                     <div class="card-content">
                         <h5 class="card-title">
                             <a href="{% url 'pt_kokushi:question_detail' bookmark.question.id %}">
-                                [{{ bookmark.question.exam.year }}年度] 問題{{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatewords:10 }}
+                                [{{ bookmark.question.exam.year }}年度] 問題{{ bookmark.question.question_number }}: {{ bookmark.question.question_text|truncatechars:10 }}
                             </a>
                         </h5>
                         <h6 class="card-subtitle mb-2 text-muted">分野: {{ bookmark.question.field.name }}</h6>

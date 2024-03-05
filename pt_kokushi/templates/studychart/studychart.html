@@ -89,18 +89,40 @@
     .current {
         padding: 5px 10px;
     }
-    
+    @media (max-width: 768px) {
+        .header-container {
+            flex-direction: column;
+            text-align: center;
+        }
+        .study-log-btn, .login-streak-container {
+            width: 100%; /* ボタンとログイン日数をフル幅に */
+            margin: 10px;
+            height:50%;
+        }
+        .study-log-btn {
+            padding: 10px;
+            margin: 10px; /* パディングを調整 */
+        }
+        .login-streak-container {
+            justify-content: center; /* 中央揃え */
+        }
+        .btn-logged-in-user {
+            margin: 10px;
+        }
+    }
     
 </style>
 <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
     <h1 style="margin: 0;">学習チャート</h1>
-    <a href="{% url 'pt_kokushi:study_log_form' %}" class="btn btn-primary" style="font-size: 20px; padding: 10px 20px; border-radius: 10px; border: 3px solid black">学習ログを記録する</a>
+    <div class="header-container">
+    <a href="{% url 'pt_kokushi:study_log_form' %}" class="btn btn-primary btn-logged-in-user" style="font-size: 20px; padding: 10px 20px; border-radius: 10px; border: 3px solid black">学習ログを記録する</a>
     {% if user.is_authenticated %}
     <div style="background-color: #388E3C; color: white; padding: 5px 10px; border-radius: 5px; font-size: 18px; display: inline-flex; align-items: center;">
         <i class="fas fa-fire" style="color: red; margin-right: 5px; font-size: 18px;"></i>
         <span>連続ログイン日数: {{ login_streak }}日</span>
     </div>
     {% endif %}
+    </div>
 </div>
 
 <canvas id="studyLogChart"></canvas>
