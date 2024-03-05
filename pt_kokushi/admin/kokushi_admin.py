@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.text import Truncator
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,Bookmark
 from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField
 
@@ -12,17 +13,23 @@ class QuizQuestionAdmin(admin.ModelAdmin):
         return obj.exam.year
     get_exam_year.short_description = '年度'
     get_exam_year.admin_order_field = 'exam__year'
+    
+    def truncated_question_text(self, obj):
+        return Truncator(obj.question_text).chars(5)
+    truncated_question_text.short_description = '問題文'
 
-    list_display = ('id','get_exam_year', 'field', 'point','time', 'question_number', 'answer_time', 'question_text', 'answer_video_url', 'question_image')
+    list_display = ('id','get_exam_year', 'field', 'point','time', 'question_number', 'answer_time', 'truncated_question_text', 'answer_video_url', 'question_image')
     search_fields = ('field', 'question_text')
     list_filter = ('exam__year', 'field', 'point')
 
     # 選択肢をインラインで表示するための設定
     class ChoiceInline(admin.TabularInline):
         model = Choice
-        extra = 3  # デフォルトで3つの選択肢フィールドを表示
+        extra = 5  # デフォルトで3つの選択肢フィールドを表示
 
     inlines = [ChoiceInline]
+    
+
 
 @admin.register(Choice)
 class ChoiceAdmin(admin.ModelAdmin):

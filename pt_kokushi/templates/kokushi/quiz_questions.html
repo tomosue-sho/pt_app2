@@ -103,7 +103,13 @@
         background-color: #f5c6cb; /* ホバー時は少し明るく */
         border-color: #f1b0b7;
     }
-    
+    .img-responsive {
+        width: 100%;    /* コンテナの幅に応じてサイズが変わる */
+        height: auto;   /* 元の画像の比率が保たれる */
+        max-width: 400px; /* 最大幅を指定 */
+        max-height: 500px; /* 最大高さを指定 */
+      }
+
     @media (max-width: 767px) {
     /* ブックマーク済みボタンのマウスオーバー時 */
     .btn-warning:hover {
@@ -200,7 +206,7 @@
                 
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
-                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 img-responsive" alt="問題画像">
                 {% endif %}
                 <!-- 選択肢の表示 -->
                 {% for choice in choices %}
