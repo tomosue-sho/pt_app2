@@ -63,7 +63,17 @@ class QuizQuestion(models.Model):
         verbose_name = "国試「問題作成」"
         verbose_name_plural = "国試「問題作成」"
 
+class ExplanationImage(models.Model):
+    question = models.ForeignKey(QuizQuestion, related_name='explanation_images', on_delete=models.CASCADE, verbose_name="問題")
+    image = models.ImageField("解説画像", upload_to='explanation_images/', blank=True)
+
+    def __str__(self):
+        return f"{self.question.exam.year}年 {self.question.time} {self.question.question_number}問 解説画像"
     
+    class Meta:
+        verbose_name = "国試「解説用画像」" 
+        verbose_name_plural = "国試「解説用画像」"
+
 class Choice(models.Model):
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
     choice_text = models.CharField("選択肢", max_length=255)

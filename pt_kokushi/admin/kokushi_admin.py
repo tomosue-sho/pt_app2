@@ -1,12 +1,16 @@
 from django.contrib import admin
 from django.utils.text import Truncator
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,Bookmark
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,Bookmark,ExplanationImage
 from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('year',)
-    
+
+class ExplanationImageInline(admin.TabularInline):
+    model = ExplanationImage
+    extra = 1  # デフォルトで表示する空のフォームの数
+
 @admin.register(QuizQuestion)
 class QuizQuestionAdmin(admin.ModelAdmin):
     def get_exam_year(self, obj):
@@ -27,10 +31,9 @@ class QuizQuestionAdmin(admin.ModelAdmin):
         model = Choice
         extra = 5  # デフォルトで3つの選択肢フィールドを表示
 
-    inlines = [ChoiceInline]
+    inlines = [ChoiceInline, ExplanationImageInline]
+
     
-
-
 @admin.register(Choice)
 class ChoiceAdmin(admin.ModelAdmin):
     list_display = ('question', 'choice_text', 'is_correct')
@@ -57,6 +60,7 @@ class QuizUserAnswerAdmin(admin.ModelAdmin):
         return ", ".join([choice.choice_text for choice in obj.selected_choices.all()])
     display_selected_choices.short_description = "選択した選択肢"
 
+
 admin.site.register(KokushiField, KokushiFieldAdmin)  
 admin.site.register(QuizUserAnswer, QuizUserAnswerAdmin)
-#admin.site.register(QuizQuestion, QuizQuestionAdmin)
+#admin.site.register(ExplanationImage, ExplanationImageInline)
