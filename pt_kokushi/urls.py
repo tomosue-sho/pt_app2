@@ -121,7 +121,7 @@ urlpatterns = [
     path('field_quiz_result/<int:field_id>/', field_quiz_result, name='field_quiz_result'),
     path('relaxation-room/', relaxation_room, name='relaxation_room'),#休憩室用
     path('columns/<int:pk>/', column_detail, name='column_detail'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
      urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

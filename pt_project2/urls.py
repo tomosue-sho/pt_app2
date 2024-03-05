@@ -35,4 +35,7 @@ urlpatterns = [
         path('study_content/',study_content, name='study_content'),    
             path('study-log-form/', study_log_form, name='study_log_form'),     
         ])),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
