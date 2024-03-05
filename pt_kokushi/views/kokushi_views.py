@@ -258,29 +258,27 @@ def kokushi_results_view(request):
     user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1, quiz_session.start_time, quiz_session.end_time)
     all_user_average_accuracy = calculate_all_user_average_accuracy(exam)
 
-    # ユーザーが回答した問題を取得
+   # ユーザーが回答した問題を「午前・午後」、「問題番号」の順で並べ替える
     user_answers = QuizUserAnswer.objects.filter(
         user=user,
         question__exam=exam
-    )
+    ).order_by('question__time', 'question__question_number')
 
     # ユーザーが回答した問題のIDのリストを取得（重複なし）
-    answered_question_ids = QuizUserAnswer.objects.filter(
-    user=user,
-    question__exam=exam
-    ).values_list('question', flat=True).distinct()
-
+    questions_seen = set()
     questions_accuracy = []
-    for question_id in answered_question_ids:
-        question = QuizQuestion.objects.get(id=question_id)
-    
+
+    for user_answer in user_answers:
+        question = user_answer.question
+        # 重複チェック
+        if question.id in questions_seen:
+            continue  # この問題は既にリストに追加されているためスキップ
+        questions_seen.add(question.id)
         # 特定のユーザーの正答率
         user_accuracy = calculate_user_question_accuracy(user, question)
-    
         # 全ユーザーの正答率
         all_users_accuracy = calculate_all_users_question_accuracy(question)
     
-        
         user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
         correct_text = get_correctness_text(user_answer) if user_answer else "回答なし"
     
