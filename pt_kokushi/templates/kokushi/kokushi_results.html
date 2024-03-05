@@ -2,112 +2,123 @@
 
 {% block content %}
 <style>
-    .excel-table {
-        margin: auto; /* テーブルを中央に配置 */
-        font-family: "Segoe UI", Arial, sans-serif;
-    }
-    .stats-container, .excel-table-container{
-        margin-bottom: 20px; /* 間隔 */
-    }
-    .excel-table th,
-    .excel-table td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
+        .excel-table {
+            margin: auto; /* テーブルを中央に配置 */
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        .stats-container, .excel-table-container{
+            margin-bottom: 20px; /* 間隔 */
+        }
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .excel-table th {
+            background-color: #f2f2f2;
+            color: black;
+        }
     
-    .excel-table th {
-        background-color: #f2f2f2;
-        color: black;
-    }
-
-    .excel-table tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-    .excel-table tr:nth-child(odd) {
-        background-color: white;
-    }
-    
-    .excel-table tr:hover {
-        background-color: #ddd;
-    }
- 
-    .horizontal-container {
-        display: flex;
-        flex-direction: row; /* 横並び */
-        justify-content: space-around; /* 均等配置 */
-        align-items: flex-start; /* 上端揃え */
-        flex-wrap: nowrap; /* 折り返しなし */
-    }
-    
-    .stats-container {
-        flex: 1; /* 幅を狭く取る */
-        min-width: 150px; /* 最小幅を設定 */
-    }
-    
-    .excel-table-container {
-        flex: 2; /* 幅を広く取る */
-        min-width: 300px; /* 最小幅を設定 */
-        margin: 10px; /* カード間のマージン */
-        padding: 20px; /* 内側の余白 */
-        background-color: #FFFFEE;
-        border-radius: 8px;
-    }
-
-    .stat-card {
-        flex: 1; /* 各カードが均等にスペースを取るように */
-        margin: 10px; /* カード間のマージン */
-        padding: 20px; /* 内側の余白 */
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 影の追加 */
-        border-radius: 8px;
-        background-color: #f2f8ff;
-    }
-    
-    .progress {
-        background-color: #f5f5f5;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-    
-    .progress-bar {
-        font-weight: bold;
-        transition: width 0.6s ease;
-    }
-    
-    /* 60%以上の場合の色 */
-    .progress-bar {
-        background-color: #4CAF50; /* 緑色 */
-    }
-    
-    /* 60%未満の場合の色 */
-    .progress-bar-under60 {
-        background-color: #FF5722; /* 赤色 */
-    }
-    @media (max-width: 768px) {
-        .stats-container {
+        .excel-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .excel-table tr:nth-child(odd) {
+            background-color: white;
+        }
+        
+        .excel-table tr:hover {
+            background-color: #ddd;
+        }
+     
+        .horizontal-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row; /* 横並び */
+            justify-content: space-around; /* 均等配置 */
+            align-items: flex-start; /* 上端揃え */
+            flex-wrap: nowrap; /* 折り返しなし */
+        }
+        
+        .stats-container {
+            flex: 1; /* 幅を狭く取る */
+            min-width: 150px; /* 最小幅を設定 */
+        }
+        
+        .excel-table-container {
+            flex: 2; /* 幅を広く取る */
+            min-width: 300px; /* 最小幅を設定 */
+            margin: 10px; /* カード間のマージン */
+            padding: 20px; /* 内側の余白 */
+            background-color: #FFFFEE;
+            border-radius: 8px;
         }
     
         .stat-card {
-            width: 100%;
-            margin-bottom: 20px;
+            flex: 1; /* 各カードが均等にスペースを取るように */
+            margin: 10px; /* カード間のマージン */
+            padding: 20px; /* 内側の余白 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 影の追加 */
+            border-radius: 8px;
+            background-color: #f2f8ff;
         }
-
-        h2, h4, h5 {
-            font-size: smaller;
+        
+        .progress {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            overflow: hidden;
         }
-        .btn {
-            padding: 10px 20px;
-            font-size: larger;
-            margin-bottom: 10px; /* ボタン間のスペース */
+        
+        .progress-bar {
+            font-weight: bold;
+            transition: width 0.6s ease;
+        }
+        
+        /* 60%以上の場合の色 */
+        .progress-bar {
+            background-color: #4CAF50; /* 緑色 */
+        }
+        
+        /* 60%未満の場合の色 */
+        .progress-bar-under60 {
+            background-color: #FF5722; /* 赤色 */
+        }
+        @media (max-width: 768px) {
+            .stats-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        
+            .stat-card {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        
+            h2, h4, h5 {
+                font-size: smaller;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: larger;
+                margin-bottom: 10px; /* ボタン間のスペース */
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .btn-info {
+                display: none; /* 大きな画面ではボタンを非表示に */
+            }
+        
+            #statsContainer {
+                display: block !important; /* コンテンツを常時表示 */
+            }
         }
 </style>    
 <h2>第{{ exam.year }}回 国試問題 成績結果</h2>
-<div class="horizontal-container">
+<div class="container">
     <div class="row">
-        <div class="col-12">
+        <div class="col-md-6">
     <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#statsContainer" aria-expanded="false" aria-controls="statsContainer">
         成績結果を見る
     </button>
@@ -193,34 +204,34 @@
     </button>
     </div>
     </div>
-  <div class="excel-table-container">
-  <table class="excel-table" height="50">
-    <thead>
-        <tr>
+  <div class="col-md-6">
+    <div class="excel-table-container">
+       <table class="excel-table" height="50">
+       <thead>
+          <tr>
             <th>午前/午後</th>
             <th>問題番号</th>
             <th>分野</th>
             <th>正答判定</th>
             <th>この問題の正答率</th>
             <th>全ユーザーの正答率</th>
-        </tr>
-    </thead>   
-    <tbody>
-        {% for qa in questions_accuracy %}
-        <tr>
+          </tr>
+        </thead>   
+        <tbody>
+         {% for qa in questions_accuracy %}
+         <tr>
             <td>{{ qa.question.exam.year }}年 {{ qa.question.time }}</td>
             <td>{{ qa.question.question_number }}</td>
             <td>{{ qa.question.field.name }}</td> <!-- 分野名を表示するには.nameを追加 -->
             <td>{{ qa.is_correct_text }}</td>
             <td>{{ qa.user_accuracy|floatformat:"1" }}%</td>
             <td>{{ qa.all_users_accuracy|floatformat:"1" }}%</td>
-        </tr>
-        {% endfor %}
-    </tbody>    
-    </table>
+         </tr>
+         {% endfor %}
+        </tbody>    
+        </table>
+    </div>
   </div>
-  </div>
-</div>
 </div>
 <br>
 

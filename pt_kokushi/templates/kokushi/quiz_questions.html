@@ -104,6 +104,7 @@
         border-color: #f1b0b7;
     }
     
+    @media (max-width: 767px) {
     /* ブックマーク済みボタンのマウスオーバー時 */
     .btn-warning:hover {
         background-color: #ffc107; /* より鮮やかな黄色 */
@@ -130,7 +131,7 @@
         width: 100%; /* ボタンの幅をコンテナの幅に合わせる */
         margin-bottom: 10px; /* ボタン間のマージンを設定 */
     }
-
+    }
 </style>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="margin-bottom: 1rem;">
@@ -162,8 +163,8 @@
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログイン</a>
                     </li>
                     {% endif %}
-                    <li class="nav-item dropdown show">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                    <li class="nav-item dropdown show d-block d-md-none">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="True">
                             学習メニュー
                         </a>
                         <ul class="dropdown-menu show" aria-labelledby="navbarDropdownMenuLink">
