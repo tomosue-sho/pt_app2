@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.text import Truncator
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion,Bookmark,ExplanationImage
-from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField
+from pt_kokushi.models.kokushi_models import Choice,QuizUserAnswer,KokushiField,ChoiceExplanation
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
@@ -60,7 +60,12 @@ class QuizUserAnswerAdmin(admin.ModelAdmin):
         return ", ".join([choice.choice_text for choice in obj.selected_choices.all()])
     display_selected_choices.short_description = "選択した選択肢"
 
+class ChoiceExplanationAdmin(admin.ModelAdmin):
+    list_display = ('choice', 'text', 'image', 'video_url')  # 管理リストで表示するフィールド
+    list_filter = ('choice',)  # フィルタサイドバーで使用するフィールド
+    search_fields = ('text',)  # 検索ボックスで検索できるフィールド
 
+admin.site.register(ChoiceExplanation, ChoiceExplanationAdmin)
 admin.site.register(KokushiField, KokushiFieldAdmin)  
 admin.site.register(QuizUserAnswer, QuizUserAnswerAdmin)
 #admin.site.register(ExplanationImage, ExplanationImageInline)

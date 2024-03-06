@@ -82,7 +82,17 @@ class Choice(models.Model):
     class Meta:
         verbose_name = "国試「回答選択肢」" 
         verbose_name_plural = "国試「回答選択肢」"
+
+class ChoiceExplanation(models.Model):
+    choice = models.OneToOneField(Choice, on_delete=models.CASCADE, related_name='explanation')
+    text = models.TextField("解説文", blank=True)
+    image = models.ImageField("解説画像", upload_to='explanations/images/', blank=True, null=True)
+    video_url = models.URLField("解説動画URL", max_length=255, blank=True, null=True)
     
+    class Meta:
+        verbose_name = "国試「選択肢解説」"
+        verbose_name_plural = "国試「選択肢解説」"
+ 
 class QuizUserAnswer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="ユーザー")
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name="問題")
