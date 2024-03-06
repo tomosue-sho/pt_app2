@@ -137,6 +137,38 @@
         width: 100%; /* ボタンの幅をコンテナの幅に合わせる */
         margin-bottom: 10px; /* ボタン間のマージンを設定 */
     }
+    #calculator {
+        width:50%;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    input[type="number"], select {
+        width: 50%;
+        padding: 8px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    #result {
+        margin-top: 10px;
+    }
+    #appContainer {
+        display: flex;
+        justify-content: space-around; /* 子要素間に均等なスペースを配置 */
+    }
+    
+    #calculatorContainer, #notesContainer {
+        /* 必要に応じてスタイルを追加 */
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    
     }
 </style>
 <body>
@@ -188,6 +220,32 @@
     </nav>
     <div id="timer"></div>
 </div>
+<div id="appContainer" style="display: flex;">
+    <div>
+        <button id="toggleCalcBtn">計算機を表示</button>
+        <div id="calculatorContainer" style="display: none;">
+            <!-- 計算機のHTMLコード -->
+            <input type="number" id="number1" required>
+            <select id="operation">
+                <option value="add">+</option>
+                <option value="subtract">-</option>
+                <option value="multiply">×</option>
+                <option value="divide">÷</option>
+            </select>
+            <input type="number" id="number2" required>
+            <button onclick="calculate()">計算する</button>
+            <p id="result">結果: </p>
+        </div>
+    </div>
+
+    <div>
+        <button id="toggleNotesBtn">メモ帳を表示</button>
+        <div id="notesContainer" style="display: none;">
+            <textarea id="userNotes" rows="5" cols="33" placeholder="計算などのメモに...保存はされません"></textarea>
+        </div>
+    </div>
+</div>
+
 
 <div class="alert alert-warning" role="alert">
     {% for message in messages %}
@@ -196,8 +254,7 @@
 </div>
 
 <div class="container mt-3">
-    <h2>第{{ exam.year }}回 国試問題</h2>
-
+    <h2>第{{ exam.year }}回 国試問題</h2> 
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:submit_quiz_answers' question.id %}" method="post">
@@ -268,7 +325,6 @@
     </div>
 </div>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const choices = document.querySelectorAll('.choice-input');
@@ -330,8 +386,6 @@
             }
         });
     });
-    
-    
 
     //解答表示切り替え用
     document.addEventListener('DOMContentLoaded', function() {
@@ -349,8 +403,59 @@
             }
         });
     });
+    /*メモ帳用*/
+    document.getElementById('toggleNotesBtn').addEventListener('click', function() {
+        var notesContainer = document.getElementById('notesContainer');
+        if (notesContainer.style.display === "none") {
+            notesContainer.style.display = "block"; // メモ帳を表示
+            this.textContent = "メモ帳を隠す"; // ボタンのテキストを変更
+        } else {
+            notesContainer.style.display = "none"; // メモ帳を隠す
+            this.textContent = "メモ帳を表示"; // ボタンのテキストを元に戻す
+        }
+    });
+    document.getElementById('toggleCalcBtn').addEventListener('click', function() {
+        var calculatorContainer = document.getElementById('calculatorContainer');
+        if (calculatorContainer.style.display === "none") {
+            calculatorContainer.style.display = "block"; // 計算機を表示
+            this.textContent = "計算機を隠す"; // ボタンのテキストを変更
+        } else {
+            calculatorContainer.style.display = "none"; // 計算機を非表示
+            this.textContent = "計算機を表示"; // ボタンのテキストを元に戻す
+        }
+    });
+    
+
+    function calculate() {
+        var num1 = parseFloat(document.getElementById('number1').value);
+        var num2 = parseFloat(document.getElementById('number2').value);
+        var operation = document.getElementById('operation').value;
+        var result;
+    
+        switch(operation) {
+            case 'add':
+                result = num1 + num2;
+                break;
+            case 'subtract':
+                result = num1 - num2;
+                break;
+            case 'multiply':
+                result = num1 * num2;
+                break;
+            case 'divide':
+                if(num2 !== 0) {
+                    result = num1 / num2;
+                } else {
+                    result = "エラー: 0での除算はできません。";
+                }
+                break;
+            default:
+                result = "無効な操作";
+        }
+    
+        document.getElementById('result').innerHTML = '結果: ' + result;
+    }
 
 </script>
 
 </body>
-
