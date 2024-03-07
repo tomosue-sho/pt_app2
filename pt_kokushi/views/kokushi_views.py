@@ -57,11 +57,14 @@ def time_setting_view(request):
         end_time = now() + timedelta(seconds=time_limit_seconds)
 
         # 新しいセッションを作成または更新
-        KokushiQuizSession.objects.update_or_create(
+        quiz_session = KokushiQuizSession.objects.create(
             user=user,
             exam=exam,
-            defaults={'start_time': now(), 'end_time': end_time}
+            start_time=now(),
+            end_time=end_time
         )
+        
+        request.session['quiz_session_id'] = quiz_session.pk
 
         # 新しいセッション情報をセッションに保存
         request.session['exam_year'] = exam_year
@@ -71,22 +74,22 @@ def time_setting_view(request):
         return render(request, 'kokushi/timer.html')
 
 def start_kokushi_quiz(request):
-    # クイズ開始時刻を現在時刻とする
-    start_time = datetime.now()
-    request.session['start_time'] = start_time.strftime('%Y-%m-%d %H:%M:%S')
- 
-    # クイズページにリダイレクト
-    return redirect('quiz_page')
-
-#最初の1問目を取得
-def start_quiz_view(request):
     exam_year = request.session.get('exam_year', None)
     if exam_year:
-        exam = Exam.objects.get(year=exam_year)
-        first_question = QuizQuestion.objects.filter(exam=exam).order_by('id').first()
-        if first_question:
-            return redirect('pt_kokushi:quiz_questions', question_id=first_question.id)
-    return redirect('pt_kokushi:top')  # 適切なフォールバック先にリダイレクト
+        exam = get_object_or_404(Exam, year=exam_year)
+        questions = QuizQuestion.objects.filter(exam=exam).order_by('id')
+        quiz_session = KokushiQuizSession.objects.create(
+            user=request.user,
+            exam=exam,
+            start_time=now()
+        )
+        # クイズセッションIDをセッションに保存
+        request.session['quiz_session_id'] = quiz_session.pk
+        # 最初の問題へリダイレクト
+        return redirect('pt_kokushi:quiz_questions', question_id=1)
+    else:
+        # 試験年度がセッションにない場合はトップページへリダイレクト
+        return redirect('pt_kokushi:top')
 
 def quiz_page(request):
     # セッションから終了時刻を取得
@@ -147,26 +150,37 @@ def quiz_questions_view(request, question_id=None):
 
 #問題一覧表用
 def quiz_question_list(request):
-    # 試験年度をセッションから取得する例（必要に応じて実装を追加）
     exam_year = request.session.get('exam_year', None)
-
-    # 条件に基づいて問題をフィルタリング（ここではシンプルに時間帯でフィルタリング）
+    quiz_session_id = request.session.get('quiz_session_id')
+    if exam_year and quiz_session_id:
+        quiz_session = get_object_or_404(KokushiQuizSession, pk=quiz_session_id)
+        user_answers = QuizUserAnswer.objects.filter(quiz_session=quiz_session).values_list('question_id', flat=True)
+        
     questions_am = QuizQuestion.objects.filter(time='午前', exam__year=exam_year).order_by('question_number')
     questions_pm = QuizQuestion.objects.filter(time='午後', exam__year=exam_year).order_by('question_number')
-    user_answers = QuizUserAnswer.objects.filter(user=request.user).values_list('question_id', flat=True)
 
-    # 各問題に対する回答状態を追加
-    # 午前と午後の問題を一緒に処理する
-    all_questions = list(questions_am) + list(questions_pm)
-    for question in all_questions:
-        question.answered = question.id in user_answers
+    # 現在のクイズセッションに基づく回答のみを取得する修正
+    if quiz_session_id:
+        quiz_session = get_object_or_404(KokushiQuizSession, pk=quiz_session_id)
+        user_answers_set = set(QuizUserAnswer.objects.filter(
+            user=request.user,
+            quiz_session=quiz_session
+        ).values_list('question_id', flat=True))
+    else:
+        user_answers_set = set()
+
+    # 問題の回答状態の設定を修正
+    for question in questions_am:
+        question.answered = question.id in user_answers_set
+    for question in questions_pm:
+        question.answered = question.id in user_answers_set
 
     context = {
         'questions_am': questions_am,
         'questions_pm': questions_pm,
-        'user_answers': user_answers,
     }
     return render(request, 'kokushi/quiz_question_list.html', context)
+
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
