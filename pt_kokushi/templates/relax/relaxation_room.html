@@ -34,7 +34,7 @@
 <h1>休憩室</h1>
 
 <div class="column-list">
-    <h2>コラム</h2>
+    <h2>短編小説</h2>
     <div class="list-group">
         {% for column in columns %}
             <a href="{% url 'pt_kokushi:column_detail' pk=column.pk %}" class="list-group-item list-group-item-action">{{ column.title }}</a>

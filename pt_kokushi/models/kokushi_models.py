@@ -143,3 +143,15 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.question}"
+
+class QuestionRange(models.Model):
+    exam = models.OneToOneField(Exam, on_delete=models.CASCADE, verbose_name="年度")
+    start_id = models.IntegerField("開始ID")
+    end_id = models.IntegerField("終了ID")
+
+    def __str__(self):
+        return f"{self.exam.year}年: {self.start_id} から {self.end_id} まで"
+    
+    class Meta:
+        verbose_name = "国試「問題ID範囲」"
+        verbose_name_plural = "国試「問題ID範囲」"

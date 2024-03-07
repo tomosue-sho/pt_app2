@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.timezone import now,timedelta,datetime
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
-from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark
+from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark,QuestionRange
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
@@ -66,7 +66,7 @@ def time_setting_view(request):
         # 新しいセッション情報をセッションに保存
         request.session['exam_year'] = exam_year
 
-        return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions'))
+        return HttpResponseRedirect(reverse('pt_kokushi:start_quiz'))
     else:
         return render(request, 'kokushi/timer.html')
 
@@ -77,6 +77,16 @@ def start_kokushi_quiz(request):
  
     # クイズページにリダイレクト
     return redirect('quiz_page')
+
+#最初の1問目を取得
+def start_quiz_view(request):
+    exam_year = request.session.get('exam_year', None)
+    if exam_year:
+        exam = Exam.objects.get(year=exam_year)
+        first_question = QuizQuestion.objects.filter(exam=exam).order_by('id').first()
+        if first_question:
+            return redirect('pt_kokushi:quiz_questions', question_id=first_question.id)
+    return redirect('pt_kokushi:top')  # 適切なフォールバック先にリダイレクト
 
 def quiz_page(request):
     # セッションから終了時刻を取得
@@ -96,71 +106,44 @@ def quiz_page(request):
     }
     return render(request, 'quiz_page.html', context)
 
+def get_questions_for_exam_year(exam_year):
+    exam = get_object_or_404(Exam, year=exam_year)
+    question_range = get_object_or_404(QuestionRange, exam=exam)
+    questions = QuizQuestion.objects.filter(id__range=(question_range.start_id, question_range.end_id))
+    return questions
+
 def quiz_questions_view(request, question_id=None):
     # セッションから試験年度を取得
     exam_year = request.session.get('exam_year', None)
-    time_limit = request.session.get('time_limit')  # 時間設定をセッションから取得
     
     if not exam_year:
         return redirect('pt_kokushi:top')
     
     exam = get_object_or_404(Exam, year=exam_year)
-    question = get_object_or_404(QuizQuestion, pk=question_id) if question_id else None
-    questions = QuizQuestion.objects.filter(exam=exam)
-    quiz_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).first()
-    
-    if not questions.exists():
-        return render(request, 'kokushi/no_questions.html', {'exam': exam})
-    
-    # question_idが指定されていればその質問を、そうでなければ最初の質問を取得
-    if question_id:
-        question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
-    else:
-        question = QuizQuestion.objects.filter(exam=exam).first()
-        
-    if question_id is None:
-        # ここで、例えば最初の質問のIDを取得するか、エラーページにリダイレクトするなどの処理を行う
-        first_question = QuizQuestion.objects.order_by('id').first()
-        if first_question:
-            return redirect('pt_kokushi:quiz_questions_detail', question_id=first_question.id)
-        else:
-            # 適切なエラーメッセージを表示するか、エラーページにリダイレクト
-            return redirect('pt_kokuhsi:quiz_questions')
-        
-    previous_question = QuizQuestion.objects.filter(id__lt=question_id).order_by('-id').first()
-    
-    #選択肢をランダムにする
-    if question:
-        # 選択肢をランダムに取得
-        choices = list(question.choices.all())  # question に紐づく選択肢をリストとして取得
-        random.shuffle(choices)  # 選択肢をランダムに並べ替え
-    else:
-        choices = []
 
+    # question_idが提供されていない場合、クイズの最初の問題を表示するためのロジックを追加
+    if question_id is None:
+        # ここで最初の問題を決定するロジックを追加する
+        # 例: 最初の問題IDを取得する、またはクイズの案内ページへリダイレクトする
+        question = QuizQuestion.objects.filter(exam=exam).order_by('id').first()
+        if question is None:
+            # 問題が見つからない場合の処理
+            return render(request, 'kokushi/no_questions.html', {'exam': exam})
+    else:
+        # question_idに基づいて問題を取得
+        question = get_object_or_404(QuizQuestion, pk=question_id)
     
+    # 以下、選択肢の取得やコンテキストの準備などの処理は変わらない
+    choices = list(question.choices.all())
+    random.shuffle(choices)
+
     context = {
         'exam': exam,
-        'choices': choices,
         'question': question,
-        'time_limit': time_limit,
-        'quiz_session': quiz_session,
-        'has_previous_question': previous_question is not None,
-        'previous_question_id': previous_question.id if previous_question else None,
+        'choices': choices,
+        # 必要に応じて他のコンテキスト変数を追加
     }
     return render(request, 'kokushi/quiz_questions.html', context)
-
-def finish_quiz_view(request):
-    # 試験年度をセッションまたは他の方法から取得
-    exam_year = request.session.get('exam_year', None)
-    if exam_year:
-        exam = Exam.objects.get(year=exam_year)
-        # 現在のユーザーと試験に対応するセッションを取得し、終了時刻を更新
-        session = KokushiQuizSession.objects.get(user=request.user, exam=exam)
-        session.end_time = now()
-        session.save()
-
-    # 終了後のページにリダイレクト
-    return redirect('pt_kokushi:kokushi_results')
 
 #問題一覧表用
 def quiz_question_list(request):
