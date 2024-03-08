@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.timezone import now,timedelta,datetime
 from django.db.models import Q
 from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
-from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark,QuestionRange
+from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark, QuestionRange
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
@@ -35,61 +36,68 @@ def time_setting_view(request):
     if request.method == 'POST':
         user = request.user
 
-        # 不要なセッション情報をクリア
+        # Clear unnecessary session information
         if 'last_question_id' in request.session:
             del request.session['last_question_id']
 
-        # フォームから時間制限と試験年度を取得
+        # Retrieve time limit and exam year from the form
         time_limit = request.POST.get('time_limit')
         custom_time_limit = request.POST.get('custom_time_limit')
         exam_year = request.POST.get('exam_year')
 
-        # 試験年度に基づいて試験オブジェクトを取得
-        exam = None
-        if exam_year:
-            try:
-                exam = Exam.objects.get(year=exam_year)
-            except Exam.DoesNotExist:
-                return render(request, 'kokushi/timer.html', {'error': '指定された試験が存在しません。'})
+        # Attempt to fetch the exam object based on the specified year
+        try:
+            exam = Exam.objects.get(year=exam_year)
+        except Exam.DoesNotExist:
+            return render(request, 'kokushi/timer.html', {'error': '指定された試験が存在しません。'})
 
-        # タイマー設定
+        # Attempt to fetch the question range for the exam
+        try:
+            question_range = QuestionRange.objects.get(exam=exam)
+        except QuestionRange.DoesNotExist:
+            return render(request, 'kokushi/timer.html', {'error': 'この試験の問題範囲が設定されていません。'})
+
+        # Time limit settings
         time_limit_seconds = int(time_limit) * 60 if time_limit else int(custom_time_limit) * 60
-        end_time = now() + timedelta(seconds=time_limit_seconds)
+        end_time = timezone.now() + timezone.timedelta(seconds=time_limit_seconds)
 
-        # 新しいセッションを作成または更新
-        quiz_session = KokushiQuizSession.objects.create(
-            user=user,
-            exam=exam,
-            start_time=now(),
-            end_time=end_time
-        )
+        # Add filtering conditions to get an existing session or create a new one
+        existing_session = KokushiQuizSession.objects.filter(user=user, exam=exam).first()
+
+        if existing_session:
+            existing_session.start_time = timezone.now()
+            existing_session.end_time = end_time
+            
+            existing_session.start_question_id = question_range.start_id
+            existing_session.end_question_id = question_range.end_id
+            existing_session.save()
+        else:
+            new_session = KokushiQuizSession.objects.create(
+                user=user, 
+                exam=exam, 
+                start_time=timezone.now(), 
+                end_time=end_time,
+                start_question_id=question_range.start_id,
+                end_question_id=question_range.end_id
+            )
+
         
-        request.session['quiz_session_id'] = quiz_session.pk
-
-        # 新しいセッション情報をセッションに保存
         request.session['exam_year'] = exam_year
+        request.session['start_question_id'] = question_range.start_id
+        request.session['end_question_id'] = question_range.end_id
 
-        return HttpResponseRedirect(reverse('pt_kokushi:start_quiz'))
+        question_id = 1  # 実際には適切な質問IDを動的に決定する必要があります
+        return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions', kwargs={'question_id': question_id}))
     else:
         return render(request, 'kokushi/timer.html')
-
+    
 def start_kokushi_quiz(request):
-    exam_year = request.session.get('exam_year', None)
-    if exam_year:
-        exam = get_object_or_404(Exam, year=exam_year)
-        questions = QuizQuestion.objects.filter(exam=exam).order_by('id')
-        quiz_session = KokushiQuizSession.objects.create(
-            user=request.user,
-            exam=exam,
-            start_time=now()
-        )
-        # クイズセッションIDをセッションに保存
-        request.session['quiz_session_id'] = quiz_session.pk
-        # 最初の問題へリダイレクト
-        return redirect('pt_kokushi:quiz_questions', question_id=1)
-    else:
-        # 試験年度がセッションにない場合はトップページへリダイレクト
-        return redirect('pt_kokushi:top')
+    # クイズ開始時刻を現在時刻とする
+    start_time = datetime.now()
+    request.session['start_time'] = start_time.strftime('%Y-%m-%d %H:%M:%S')
+ 
+    # クイズページにリダイレクト
+    return redirect('quiz_page')
 
 def quiz_page(request):
     # セッションから終了時刻を取得
@@ -109,78 +117,87 @@ def quiz_page(request):
     }
     return render(request, 'quiz_page.html', context)
 
-def get_questions_for_exam_year(exam_year):
-    exam = get_object_or_404(Exam, year=exam_year)
-    question_range = get_object_or_404(QuestionRange, exam=exam)
-    questions = QuizQuestion.objects.filter(id__range=(question_range.start_id, question_range.end_id))
-    return questions
-
 def quiz_questions_view(request, question_id=None):
     # セッションから試験年度を取得
     exam_year = request.session.get('exam_year', None)
+    time_limit = request.session.get('time_limit')  # 時間設定をセッションから取得
     
     if not exam_year:
         return redirect('pt_kokushi:top')
     
     exam = get_object_or_404(Exam, year=exam_year)
-
-    # question_idが提供されていない場合、クイズの最初の問題を表示するためのロジックを追加
-    if question_id is None:
-        # ここで最初の問題を決定するロジックを追加する
-        # 例: 最初の問題IDを取得する、またはクイズの案内ページへリダイレクトする
-        question = QuizQuestion.objects.filter(exam=exam).order_by('id').first()
-        if question is None:
-            # 問題が見つからない場合の処理
-            return render(request, 'kokushi/no_questions.html', {'exam': exam})
-    else:
-        # question_idに基づいて問題を取得
-        question = get_object_or_404(QuizQuestion, pk=question_id)
     
-    # 以下、選択肢の取得やコンテキストの準備などの処理は変わらない
-    choices = list(question.choices.all())
-    random.shuffle(choices)
+    # QuestionRangeから問題IDの範囲を取得
+    question_range = get_object_or_404(QuestionRange, exam=exam)
+    questions = QuizQuestion.objects.filter(exam=exam, id__range=(question_range.start_id, question_range.end_id))
+    
+    if not questions.exists():
+        return render(request, 'kokushi/no_questions.html', {'exam': exam})
+    
+    # 指定されたquestion_idが範囲内にあるか確認
+    if question_id and (question_range.start_id <= int(question_id) <= question_range.end_id):
+        question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
+    else:
+        question = questions.first()  # 範囲内の最初の問題を取得
+    
+    if question:
+        previous_question = QuizQuestion.objects.filter(id__lt=question.id, id__range=(question_range.start_id, question_range.end_id)).order_by('-id').first()
+    else:
+        previous_question = None
 
+    quiz_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).first()
+    
+    # 選択肢をランダムにする
+    choices = list(question.choices.all()) if question else []
+    random.shuffle(choices)
+    
     context = {
         'exam': exam,
-        'question': question,
         'choices': choices,
-        # 必要に応じて他のコンテキスト変数を追加
+        'question': question,
+        'time_limit': time_limit,
+        'quiz_session': quiz_session,
+        'has_previous_question': previous_question is not None,
+        'previous_question_id': previous_question.id if previous_question else None,
     }
+    
     return render(request, 'kokushi/quiz_questions.html', context)
+
+def finish_quiz_view(request):
+    # 試験年度をセッションまたは他の方法から取得
+    exam_year = request.session.get('exam_year', None)
+    if exam_year:
+        exam = Exam.objects.get(year=exam_year)
+        # 現在のユーザーと試験に対応するセッションを取得し、終了時刻を更新
+        session = KokushiQuizSession.objects.get(user=request.user, exam=exam)
+        session.end_time = now()
+        session.save()
+
+    # 終了後のページにリダイレクト
+    return redirect('pt_kokushi:kokushi_results')
 
 #問題一覧表用
 def quiz_question_list(request):
+    # 試験年度をセッションから取得する例（必要に応じて実装を追加）
     exam_year = request.session.get('exam_year', None)
-    quiz_session_id = request.session.get('quiz_session_id')
-    if exam_year and quiz_session_id:
-        quiz_session = get_object_or_404(KokushiQuizSession, pk=quiz_session_id)
-        user_answers = QuizUserAnswer.objects.filter(quiz_session=quiz_session).values_list('question_id', flat=True)
-        
+
+    # 条件に基づいて問題をフィルタリング（ここではシンプルに時間帯でフィルタリング）
     questions_am = QuizQuestion.objects.filter(time='午前', exam__year=exam_year).order_by('question_number')
     questions_pm = QuizQuestion.objects.filter(time='午後', exam__year=exam_year).order_by('question_number')
+    user_answers = QuizUserAnswer.objects.filter(user=request.user).values_list('question_id', flat=True)
 
-    # 現在のクイズセッションに基づく回答のみを取得する修正
-    if quiz_session_id:
-        quiz_session = get_object_or_404(KokushiQuizSession, pk=quiz_session_id)
-        user_answers_set = set(QuizUserAnswer.objects.filter(
-            user=request.user,
-            quiz_session=quiz_session
-        ).values_list('question_id', flat=True))
-    else:
-        user_answers_set = set()
-
-    # 問題の回答状態の設定を修正
-    for question in questions_am:
-        question.answered = question.id in user_answers_set
-    for question in questions_pm:
-        question.answered = question.id in user_answers_set
+    # 各問題に対する回答状態を追加
+    # 午前と午後の問題を一緒に処理する
+    all_questions = list(questions_am) + list(questions_pm)
+    for question in all_questions:
+        question.answered = question.id in user_answers
 
     context = {
         'questions_am': questions_am,
         'questions_pm': questions_pm,
+        'user_answers': user_answers,
     }
     return render(request, 'kokushi/quiz_question_list.html', context)
-
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
@@ -581,3 +598,4 @@ def user_stats_view(request):
         'exam_duration_minutes': exam_duration_minutes,
     }
     return render(request, 'kokushi/stats_container.html', context)
+
