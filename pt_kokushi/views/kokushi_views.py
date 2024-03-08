@@ -178,26 +178,40 @@ def finish_quiz_view(request):
 
 #問題一覧表用
 def quiz_question_list(request):
-    # 試験年度をセッションから取得する例（必要に応じて実装を追加）
     exam_year = request.session.get('exam_year', None)
+    if exam_year is None:
+        # 適切なエラーハンドリング
+        return redirect('適切なページへのリダイレクト')
 
-    # 条件に基づいて問題をフィルタリング（ここではシンプルに時間帯でフィルタリング）
-    questions_am = QuizQuestion.objects.filter(time='午前', exam__year=exam_year).order_by('question_number')
-    questions_pm = QuizQuestion.objects.filter(time='午後', exam__year=exam_year).order_by('question_number')
-    user_answers = QuizUserAnswer.objects.filter(user=request.user).values_list('question_id', flat=True)
+    exam = get_object_or_404(Exam, year=exam_year)
+    question_range = get_object_or_404(QuestionRange, exam=exam)
 
-    # 各問題に対する回答状態を追加
-    # 午前と午後の問題を一緒に処理する
-    all_questions = list(questions_am) + list(questions_pm)
-    for question in all_questions:
+    # 午前の問題をフィルタリング
+    questions_am = QuizQuestion.objects.filter(
+        exam=exam, 
+        id__range=(question_range.start_id, question_range.end_id),
+        time='午前'
+    ).order_by('question_number')
+
+    # 午後の問題をフィルタリング
+    questions_pm = QuizQuestion.objects.filter(
+        exam=exam, 
+        id__range=(question_range.start_id, question_range.end_id),
+        time='午後'
+    ).order_by('question_number')
+
+    user_answers = QuizUserAnswer.objects.filter(user=request.user, question__exam=exam).values_list('question_id', flat=True)
+
+    # 各問題に対する回答状態をマーク
+    for question in list(questions_am) + list(questions_pm):
         question.answered = question.id in user_answers
 
     context = {
         'questions_am': questions_am,
         'questions_pm': questions_pm,
-        'user_answers': user_answers,
     }
     return render(request, 'kokushi/quiz_question_list.html', context)
+
 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
@@ -207,48 +221,41 @@ def submit_quiz_answers(request, question_id):
         current_question = get_object_or_404(QuizQuestion, pk=question_id)
         selected_choice_ids = request.POST.getlist(f'question_{question_id}')
 
-        if not selected_choice_ids:
-            messages.error(request, '選択肢を選んでください。')
-            return redirect('pt_kokushi:quiz_questions_detail', question_id=question_id)
+    if not selected_choice_ids:
+        messages.error(request, '選択肢を選んでください。')
+        return redirect('pt_kokushi:quiz_questions_detail', question_id=question_id)
 
-        exam_year = request.session.get('exam_year', None)
+    exam_year = request.session.get('exam_year', None)
+    exam = get_object_or_404(Exam, year=exam_year)
+    question_range = get_object_or_404(QuestionRange, exam=exam)
 
-        # 既存のQuizUserAnswerインスタンスを検索して取得するのではなく、新しいインスタンスを常に作成します。
-        quiz_user_answer = QuizUserAnswer.objects.create(
-            user=user,
-            question=current_question,
-            start_time=now()
-        )
-        # end_timeを設定して保存
-        quiz_user_answer.end_time = now()
-        quiz_user_answer.save()
+    quiz_user_answer = QuizUserAnswer.objects.create(
+        user=user,
+        question=current_question,
+        start_time=now()
+    )
+    quiz_user_answer.end_time = now()
+    quiz_user_answer.save()
 
-        # 新しい選択肢を追加（以前の選択をクリアする必要はありません）
-        for choice_id in selected_choice_ids:
-            selected_choice = get_object_or_404(Choice, pk=choice_id)
-            quiz_user_answer.selected_choices.add(selected_choice)
-         
-        # ここでのスコア計算やフィードバックの即時表示は行わない
-        # 正解の選択肢IDセットとユーザーの選択肢IDセットを比較
-        correct_choice_ids = set(current_question.choices.filter(is_correct=True).values_list('id', flat=True))
-        selected_choice_ids_set = set(map(int, selected_choice_ids))
+    for choice_id in selected_choice_ids:
+        selected_choice = get_object_or_404(Choice, pk=choice_id)
+        quiz_user_answer.selected_choices.add(selected_choice)
+    
+    request.session['last_answered_question_id'] = question_id
 
-        # 次の問題へのリダイレクトまたは結果ページへのリダイレクトを行う
-        next_question = QuizQuestion.objects.filter(id__gt=question_id).order_by('id').first()
-        if next_question:
-            return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
-        else:
-            request.session['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            # 全問題に回答したかどうかをチェック
-            if exam_year:
-                quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
-                if quiz_session:
-                    quiz_session.end_time = now()
-                    quiz_session.save()
-            
-            # 全ての回答が終了したら、結果ページへリダイレクト
-            # 結果ページでは、ユーザーの全回答を集計してフィードバックを表示
-            return redirect('pt_kokushi:kokushi_results')
+    next_question = QuizQuestion.objects.filter(id__gt=question_id, id__lte=question_range.end_id).order_by('id').first()
+    if next_question:
+        return redirect('pt_kokushi:quiz_questions', question_id=next_question.id)
+    else:
+        request.session['end_time'] = now().strftime('%Y-%m-%d %H:%M:%S')
+        if exam_year:
+            quiz_session = KokushiQuizSession.objects.filter(user=user, exam__year=exam_year).last()
+            if quiz_session:
+                quiz_session.end_time = now()
+                quiz_session.save()
+
+        return redirect('pt_kokushi:kokushi_results')
+
 #成績計算-----------------------------------------------------
 @login_required
 def kokushi_results_view(request):

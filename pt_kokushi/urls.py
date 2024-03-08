@@ -89,7 +89,6 @@ urlpatterns = [
     path('quiz_question/kokushi_results/timer/', time_setting_view, name='timer'),#国試試験時間,
     path('start/', start_kokushi_quiz, name='start_quiz'),
     path('quiz_question/<int:question_id>/', quiz_questions_view, name='quiz_questions'),  # 質問一覧または最初の質問
-    path('quiz_question/<int:question_id>/', quiz_questions_view, name='quiz_questions_detail'),  # 特定の質問ID
     path('quiz_question/submit_quiz/<int:question_id>/', submit_quiz_answers, name='submit_quiz_answers'),
     path('quiz_question/continue/', continue_quiz_view, name='continue_quiz'),#前回の続きから
     path('quiz_question/start/', restart_kokushi_quiz_view, name='restart_kokushi_quiz'),#最初から解き直す

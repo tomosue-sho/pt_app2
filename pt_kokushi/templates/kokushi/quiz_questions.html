@@ -275,7 +275,7 @@
 
 
                 {% if has_previous_question %}
-                <a href="{% url 'pt_kokushi:quiz_questions_detail' previous_question_id %}" class="btn btn-secondary">前の問題へ</a>
+                <a href="{% url 'pt_kokushi:quiz_questions' previous_question_id %}" class="btn btn-secondary">前の問題へ</a>
                 {% endif %}
                 <button type="submit" class="btn btn-primary">次の問題へ</button>
             </form>

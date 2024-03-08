@@ -183,7 +183,7 @@
         </thead>
         <tbody>
         {% for question in questions_am %}
-            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}" data-href="{% url 'pt_kokushi:question_detail' question.id %}">
+            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}" data-href="{% url 'pt_kokushi:quiz_questions' question.id %}">
                 <td>{{ question.question_number }}</td>
                 <td>{{ question.field.name }}</td>
                 <td>{% if question.answered %}回答済み{% else %}未回答{% endif %}</td>
@@ -207,7 +207,7 @@
         </thead>
         <tbody>
             {% for question in questions_pm %}
-            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}" data-href="{% url 'pt_kokushi:question_detail' question.id %}">
+            <tr class="{% if question.answered %}table-success{% else %}table-danger{% endif %}" data-href="{% url 'pt_kokushi:quiz_questions' question.id %}">
                 <td>{{ question.question_number }}</td>
                 <td>{{ question.field.name }}</td>
                 <td>{% if question.answered %}回答済み{% else %}未回答{% endif %}</td>
