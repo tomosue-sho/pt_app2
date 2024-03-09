@@ -107,6 +107,14 @@
 <div class="horizontal-container">
     <div class="stats-container">
     <div class="stat-card">
+        <h4>{{ user.nickname }}さんの今回の正答数</h4>
+        <p>{{ total_questions_answered_this_session }}問中、{{ total_correct_answers_this_session }}問正解</p>
+        <h4>{{ user.nickname }}さんの累計の正答数</h4>
+        <p>{{ total_questions_answered_cumulative }}問中、{{ total_correct_answers_cumulative }}問正解</p>
+        <h4>{{ user.nickname }}さんの累計の正答率</h4>
+        <p>{{ cumulative_accuracy_rate|floatformat:2 }}%</p>
+        </div>
+    <div class="stat-card">
         <h4>{{ user.nickname }}さんの正答率</h4>
         <!-- 全体の正答率 -->
         <div>

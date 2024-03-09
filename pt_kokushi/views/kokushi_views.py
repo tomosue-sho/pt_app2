@@ -89,7 +89,19 @@ def time_setting_view(request):
         question_id = 1  # 実際には適切な質問IDを動的に決定する必要があります
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions', kwargs={'question_id': question_id}))
     else:
-        return render(request, 'kokushi/timer.html')
+        user = request.user
+        user_all_answers = QuizUserAnswer.objects.filter(user=user)
+        total_questions_answered_cumulative = user_all_answers.count()
+        total_correct_answers_cumulative = sum(1 for answer in user_all_answers if answer.is_correct())
+        cumulative_accuracy_rate = (total_correct_answers_cumulative / total_questions_answered_cumulative * 100) if total_questions_answered_cumulative else 0
+
+        context = {
+            'total_questions_answered_cumulative': total_questions_answered_cumulative,
+            'total_correct_answers_cumulative': total_correct_answers_cumulative,
+            'cumulative_accuracy_rate': cumulative_accuracy_rate,
+        }
+        return render(request, 'kokushi/timer.html', context)
+    
     
 def start_kokushi_quiz(request):
     # クイズ開始時刻を現在時刻とする
@@ -180,27 +192,36 @@ def finish_quiz_view(request):
 def quiz_question_list(request):
     exam_year = request.session.get('exam_year', None)
     if exam_year is None:
-        # 適切なエラーハンドリング
         return redirect('適切なページへのリダイレクト')
 
     exam = get_object_or_404(Exam, year=exam_year)
     question_range = get_object_or_404(QuestionRange, exam=exam)
 
-    # 午前の問題をフィルタリング
+    # 最新のクイズセッションを取得
+    latest_session = KokushiQuizSession.objects.filter(user=request.user, exam=exam).order_by('-start_time').first()
+
+    # 午前と午後の問題をフィルタリング
     questions_am = QuizQuestion.objects.filter(
         exam=exam, 
         id__range=(question_range.start_id, question_range.end_id),
         time='午前'
     ).order_by('question_number')
 
-    # 午後の問題をフィルタリング
     questions_pm = QuizQuestion.objects.filter(
         exam=exam, 
         id__range=(question_range.start_id, question_range.end_id),
         time='午後'
     ).order_by('question_number')
 
-    user_answers = QuizUserAnswer.objects.filter(user=request.user, question__exam=exam).values_list('question_id', flat=True)
+    if latest_session:
+        # latest_sessionが存在する場合、そのセッション内で回答された問題のみを対象とする
+        user_answers = QuizUserAnswer.objects.filter(
+            Q(user=request.user, question__exam=exam) & 
+            Q(answered_at__gte=latest_session.start_time) & 
+            Q(answered_at__lte=latest_session.end_time if latest_session.end_time else now())
+        ).values_list('question_id', flat=True)
+    else:
+        user_answers = []
 
     # 各問題に対する回答状態をマーク
     for question in list(questions_am) + list(questions_pm):
@@ -211,8 +232,7 @@ def quiz_question_list(request):
         'questions_pm': questions_pm,
     }
     return render(request, 'kokushi/quiz_question_list.html', context)
-
-
+ 
 #正解判定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 # 問題に取り組み始めるビュー
 def submit_quiz_answers(request, question_id):
@@ -223,7 +243,7 @@ def submit_quiz_answers(request, question_id):
 
     if not selected_choice_ids:
         messages.error(request, '選択肢を選んでください。')
-        return redirect('pt_kokushi:quiz_questions_detail', question_id=question_id)
+        return redirect('pt_kokushi:quiz_questions', question_id=question_id)
 
     exam_year = request.session.get('exam_year', None)
     exam = get_object_or_404(Exam, year=exam_year)
@@ -269,6 +289,16 @@ def kokushi_results_view(request):
         return redirect('top')
 
     quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).order_by('-start_time').first()
+    
+    # 一回の挑戦での回答数と正答数
+    session_user_answers = QuizUserAnswer.objects.filter(
+        user=user,
+        question__exam=exam,
+        answered_at__gte=quiz_session.start_time,
+        answered_at__lte=quiz_session.end_time if quiz_session.end_time else now()
+    )
+    total_questions_answered_this_session = session_user_answers.count()
+    total_correct_answers_this_session = sum(1 for answer in session_user_answers if answer.is_correct())
 
     if not quiz_session:
         return redirect('top')
@@ -288,6 +318,7 @@ def kokushi_results_view(request):
     # ユーザーが回答した問題のIDのリストを取得（重複なし）
     questions_seen = set()
     questions_accuracy = []
+    is_quiz_incomplete = quiz_session.end_time is None
 
     for user_answer in user_answers:
         question = user_answer.question
@@ -326,6 +357,20 @@ def kokushi_results_view(request):
     # exam_duration を分単位で計算
     exam_duration_minutes = exam_duration.total_seconds() / 60
     
+    total_answered_questions = user_answers.count()
+    user_answers = QuizUserAnswer.objects.filter(user=user, question__exam=exam)
+    total_correct_answers = sum(1 for answer in user_answers if answer.is_correct())
+    user_all_answers = QuizUserAnswer.objects.filter(user=user)
+    total_questions_answered_cumulative = user_all_answers.count()
+    total_correct_answers_cumulative = sum(1 for answer in user_all_answers if answer.is_correct())
+    
+    # 累計の正答率を計算（回答数が0の場合は0とする）
+    if total_questions_answered_cumulative > 0:
+        cumulative_accuracy_rate = (total_correct_answers_cumulative / total_questions_answered_cumulative) * 100
+    else:
+        cumulative_accuracy_rate = 0
+
+    
     context = {
         'exam': exam,
         'user_accuracy_all': user_accuracy_all,
@@ -336,6 +381,15 @@ def kokushi_results_view(request):
         'questions_accuracy': questions_accuracy,
         'all_user_median_accuracy': all_user_median_accuracy,
         'exam_duration_minutes': exam_duration_minutes,
+        'is_quiz_incomplete': is_quiz_incomplete,
+        'questions_accuracy': questions_accuracy,
+        'total_answered_questions': total_answered_questions,
+        'total_correct_answers': total_correct_answers,
+        'total_questions_answered_this_session': total_questions_answered_this_session,
+        'total_correct_answers_this_session': total_correct_answers_this_session,
+        'total_questions_answered_cumulative': total_questions_answered_cumulative,
+        'total_correct_answers_cumulative': total_correct_answers_cumulative,
+        'cumulative_accuracy_rate': cumulative_accuracy_rate,
     }
 
     return render(request, 'kokushi/kokushi_results.html', context)
@@ -377,28 +431,28 @@ def restart_kokushi_quiz_view(request):
     # 必要に応じてセッション情報のリセットも行う
     # request.session.pop('key', None)
 
-    return redirect('pt_kokushi:quiz_questions_detail', question_id=1)
+    return redirect('pt_kokushi:quiz_questions', question_id=1)
 
 #前回の続きから用
 def continue_quiz_view(request):
-    last_question_id = request.session.get('last_question_id', None)
-    if last_question_id is not None:
-        # 最後に解答した質問のIDがある場合、次の質問を探す
-        next_question = QuizQuestion.objects.filter(id__gt=last_question_id).order_by('id').first()
+    last_answered_question_id = request.session.get('last_answered_question_id', None)
+    if last_answered_question_id is not None:
+        # 最後に回答した質問の次の質問を探す
+        next_question = QuizQuestion.objects.filter(id__gt=last_answered_question_id).order_by('id').first()
         if next_question:
             # 次の質問が存在する場合、その質問のページにリダイレクト
-            return redirect('pt_kokushi:quiz_questions_detail', question_id=next_question.id)
+            return redirect('pt_kokushi:quiz_questions', question_id=next_question.id)
         else:
-            # 次の質問が存在しない場合（最後の質問に回答済み）、クイズ結果ページなどにリダイレクト
+            # 次の質問が存在しない場合（最後の質問に回答済み）、クイズ結果ページにリダイレクト
             return redirect('pt_kokushi:kokushi_results')
     else:
-        # セッションに最後の質問のIDがない場合、クイズの最初の質問から開始
+        # セッションに最後に回答した質問のIDがない場合、クイズの最初の質問から開始
         first_question = QuizQuestion.objects.order_by('id').first()
         if first_question:
-            return redirect('pt_kokushi:quiz_questions_detail', question_id=first_question.id)
+            return redirect('pt_kokushi:quiz_questions', question_id=first_question.id)
         else:
-            # 質問が一つもない場合は別のページにリダイレクト（エラーページなど）
-            return redirect('pt_kokushi:error_page')  # 適切なリダイレクト先に変更してください
+            # 質問が一つもない場合はエラーページにリダイレクト
+            return redirect('pt_kokushi:error_page')
 
 def exit_quiz(request):
     # セッションから最後に解答した質問のIDを取得
