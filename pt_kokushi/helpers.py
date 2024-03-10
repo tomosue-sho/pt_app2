@@ -177,12 +177,12 @@ def calculate_field_accuracy(user, exam):
     ).order_by('question__field__name')
 
 #分野（今回の成績）
-def calculate_field_accuracy_all(exam, start_time, end_time):
+def calculate_field_accuracy_all(exam, start_question_id, end_question_id):
     # 期間内にユーザーが提出した回答をフィルタリング
     answers_within_period = QuizUserAnswer.objects.filter(
         question__exam=exam,
-        answered_at__gte=start_time,
-        answered_at__lte=end_time
+        question__id__gte=start_question_id,
+        question__id__lte=end_question_id
     )
 
     # 分野ごとに正答数と回答数を集計

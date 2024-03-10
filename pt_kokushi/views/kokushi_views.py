@@ -534,13 +534,15 @@ def check_answer(request, question_id):
 def field_result_view(request, exam_id):
     user = request.user
     exam = get_object_or_404(Exam, pk=exam_id)
-    
-    # ユーザーのクイズセッションを取得
-    quiz_session = KokushiQuizSession.objects.filter(user=user, exam=exam).last()
+
+    # request.session から試験年、開始問題ID、終了問題IDを取得
+    exam_year = request.session.get('exam_year')
+    start_question_id = request.session.get('start_question_id')
+    end_question_id = request.session.get('end_question_id')
 
     # ユーザーの累積成績を計算
     field_accuracy = calculate_field_accuracy(user, exam)
-    #ユーザー個人のランキング
+    # ユーザー個人のランキング
     user_ranking = get_user_field_accuracy_ranking(user, exam)
     
     # 全ユーザーの分野ごとの平均正答率を計算
@@ -557,13 +559,13 @@ def field_result_view(request, exam_id):
     # 平均正答率でソートしてランキングを作成
     accuracy_ranking = sorted(all_users_average_accuracy, key=lambda x: x['average_accuracy'], reverse=True)
 
-    # quiz_session が存在する場合、その start_time と end_time を使用
-    if quiz_session:
-        start_time = quiz_session.start_time
-        end_time = quiz_session.end_time
-        current_exam_accuracy = calculate_field_accuracy_all(exam, start_time, end_time)
+    # セッション情報を使って現在の試験の正答率を計算
+    if start_question_id is not None and end_question_id is not None:
+        current_exam_accuracy = calculate_field_accuracy_all(exam, start_question_id, end_question_id)
     else:
+        # 適切な情報がセッションに存在しない場合
         current_exam_accuracy = []
+        # 必要に応じてユーザーにエラーメッセージを表示する処理を追加することもできます。
 
     context = {
         'user_ranking': user_ranking,
@@ -574,7 +576,7 @@ def field_result_view(request, exam_id):
         'labels': [item['question__field__name'] for item in field_accuracy],
         'percentages': [item['accuracy'] for item in field_accuracy],
         'exam': exam,
-        'quiz_session': quiz_session,  # quiz_session をコンテキストに追加
+        # quiz_session の使用を削除するか、他の目的で使用する場合はそのまま残します。
     }
     
     return render(request, 'kokushi/field_result.html', context)
