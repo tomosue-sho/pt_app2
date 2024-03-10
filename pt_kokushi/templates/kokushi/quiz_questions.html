@@ -28,6 +28,9 @@
 
 </head>
 <style>
+    #question_text{
+        font-weight: bold;
+    }
     .choice-label {
         display: block;
         padding: 10px;
@@ -211,7 +214,7 @@
         font-weight: bold;
         cursor: pointer;
     }
-    }
+    
 </style>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="margin-bottom: 1rem;">
@@ -302,7 +305,12 @@
             <form action="{% url 'pt_kokushi:submit_quiz_answers' question_id=question.id %}" method="post">
                 {% csrf_token %}
                 <!-- 問題文の表示 -->
-                
+                {% if question %}
+                     <div class="question-text">
+                     <p id = "question_text">{{ question.question_text }}</p>
+                     </div>
+                {% endif %}
+                <!-- 画像の表示 -->
                 {% if question.question_image %}
                 <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 img-responsive question-image" alt="問題画像" style="cursor:pointer;">
                 {% endif %}
