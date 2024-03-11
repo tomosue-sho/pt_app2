@@ -208,7 +208,7 @@
             <td>{{ qa.question.exam.year }}年 {{ qa.question.time }}</td>
             <td>{{ qa.question.question_number }}</td>
             <td>{{ qa.question.field.name }}</td> <!-- 分野名を表示するには.nameを追加 -->
-            <td>{{ qa.is_correct_text }}</td>
+            <td>{% if qa.is_correct_text %}{{ qa.is_correct_text }}{% else %}未回答{% endif %}</td>
             <td>{{ qa.user_accuracy|floatformat:"1" }}%</td>
             <td>{{ qa.all_users_accuracy|floatformat:"1" }}%</td>
         </tr>

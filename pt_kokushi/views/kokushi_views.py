@@ -284,7 +284,8 @@ def kokushi_results_view(request):
     user = request.user
     exam_year = request.session.get('exam_year', None)
     exam = get_object_or_404(Exam, year=exam_year) if exam_year else None
-
+    questions = QuizQuestion.objects.filter(exam=exam).order_by('time', 'question_number')
+    
     if not exam:
         return redirect('top')
 
