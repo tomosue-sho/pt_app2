@@ -2,16 +2,14 @@
 
 {% block content %}
 <div class="container">
-    {% if category %}
-    <h2>{{ category.name }}のPDFファイル</h2>
-    {% else %}
-    <h2>全てのPDFファイル</h2>
-    {% endif %}
-    <ul>
-        {% for document in documents %}
-        <li><a href="{{ document.pdf_file.url }}">{{ document.title }}</a></li>
-        {% endfor %}
-    </ul>
+    <h2>PDFファイル一覧</h2>
+    {% for category_name, documents in category_docs.items %}
+        <h3>{{ category_name }}</h3>
+        <ul>
+            {% for document in documents %}
+                <li><a href="{{ document.pdf_file.url }}">{{ document.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
 </div>
 {% endblock %}
-

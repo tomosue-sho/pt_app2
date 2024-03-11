@@ -126,7 +126,8 @@ urlpatterns = [
     path('aozora/<int:pk>/', aozora_detail, name='aozora_detail'),
     path('select_exam_year/', select_exam_year, name='select_exam_year'),  # 年度選択用のURL
     path('quiz_question_list/', kokushi_question_list, name='kokushi_question_list'),  # 問題一覧表示用のURL
-    path('pdfs/', pdf_list, name='pdf_list'),
+    path('pdfs/', pdf_list, name='pdf_list'),  # カテゴリーIDなし
+    path('pdfs/category/<int:category_id>/', pdf_list, name='category_pdf_list'),  # カテゴリーIDあり
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

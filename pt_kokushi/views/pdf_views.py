@@ -1,10 +1,8 @@
-from django.shortcuts import render, redirect
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from pt_kokushi.forms.pdf_forms import PDFUploadForm
-from pt_kokushi.models.pdf_models import PDFDocument,PDFCategory
+from pt_kokushi.models.pdf_models import PDFDocument, PDFCategory
 
-def pdf_list(request, category_id=None):
+def pdf_list(request):
     if request.method == 'POST':
         form = PDFUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -13,15 +11,11 @@ def pdf_list(request, category_id=None):
     else:
         form = PDFUploadForm()
 
-    if category_id:
-        category = get_object_or_404(PDFCategory, id=category_id)
-        documents = category.pdfs.all()
-    else:
-        category = None
-        documents = PDFDocument.objects.all()
+    # カテゴリごとにドキュメントをグルーピング
+    categories = PDFCategory.objects.prefetch_related('pdfs')
+    category_docs = {cat.name: cat.pdfs.all() for cat in categories}
 
     return render(request, 'pdf/pdf_list.html', {
-        'category': category,
-        'documents': documents,
+        'category_docs': category_docs,
         'form': form
     })
