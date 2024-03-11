@@ -27,6 +27,12 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jQueryライブラリ -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTablesプラグイン -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+
     
 </head>
 
@@ -53,6 +59,9 @@
                         <a class="nav-link" href="{% url 'pt_kokushi:relaxation_room' %}">休憩室</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:pdf_list' %}">評価用紙</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログアウト</a>
                     </li>
                     {% else %}
@@ -65,6 +74,7 @@
                             学習メニュー
                         </a>
                         <ul class="dropdown-menu show" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'pt_kokushi:select_exam_year' %}" >問題検索</a></li>
                             <li><a class="dropdown-item" href="{% url 'pt_kokushi:studychart' %}">学習チャート</a></li>
                             <li><a class="dropdown-item" href="{% url 'pt_kokushi:field_choice' %}">分野ごと</a></li>
                             <li><a class="dropdown-item" href="{% url 'pt_kokushi:bookmark_list' %}">ブックマーク問題</a></li>

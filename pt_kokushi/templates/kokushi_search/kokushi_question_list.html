@@ -89,17 +89,6 @@
             }
         );
     });
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('submit-answer-btn').addEventListener('click', function(e) {
-            // 選択肢が選択されているか確認
-            const isSelected = Array.from(document.querySelectorAll('input[name="choices"]')).some(radio => radio.checked);
-            if (!isSelected) {
-                // 選択されていない場合、アラートを表示して送信を防止
-                alert('選択肢を選んでください。');
-                e.preventDefault();
-            }
-        });
-    });
     
 </script>
 {% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    {% if category %}
+    <h2>{{ category.name }}のPDFファイル</h2>
+    {% else %}
+    <h2>全てのPDFファイル</h2>
+    {% endif %}
+    <ul>
+        {% for document in documents %}
+        <li><a href="{{ document.pdf_file.url }}">{{ document.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+

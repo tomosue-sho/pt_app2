@@ -29,6 +29,7 @@ from pt_kokushi.views.practical_views import clear_quiz_session
 from pt_kokushi.views.field_views import field_choice,field_quiz,field_quiz_answer,field_quiz_result
 from pt_kokushi.views.relax_views import relaxation_room,column_detail,aozora_detail
 from pt_kokushi.views.kokushi_search_views import select_exam_year,kokushi_question_list
+from pt_kokushi.views.pdf_views import pdf_list
 
 app_name = 'pt_kokushi'
 
@@ -125,6 +126,7 @@ urlpatterns = [
     path('aozora/<int:pk>/', aozora_detail, name='aozora_detail'),
     path('select_exam_year/', select_exam_year, name='select_exam_year'),  # 年度選択用のURL
     path('quiz_question_list/', kokushi_question_list, name='kokushi_question_list'),  # 問題一覧表示用のURL
+    path('pdfs/', pdf_list, name='pdf_list'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

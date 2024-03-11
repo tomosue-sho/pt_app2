@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-3">
-    <h2>分野選択</h2>
-    <form action="{% url 'pt_kokushi:field_choice' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="fieldSelect">分野を選択してください</label>
-            <select name="field" id="fieldSelect" class="form-control">
-                {% for field in fields %}
-                <option value="{{ field.id }}">{{ field.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <br>
-        <button type="submit" class="btn btn-primary">問題を開始</button>
-    </form>
+    <h2 class="mb-4">分野選択</h2>
+    <table class="table">
+        <tbody>
+            {% for field in fields %}
+            <tr>
+                <td class="align-middle">{{ field.name }}</td>
+                <td>
+                    <form action="{% url 'pt_kokushi:field_choice' %}" method="post" class="text-right">
+                        {% csrf_token %}
+                        <input type="hidden" name="field" value="{{ field.id }}">
+                        <button type="submit" class="btn btn-primary">挑戦する</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
