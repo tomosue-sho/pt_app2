@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% if questions_am %}
+    <h2 id="exam_title" class="text-info">{{ questions_am.0.exam.year }}年度</h2>
+    {% endif %}
+
+    <h3 class="mt-4">午前の問題</h3>
+    <div class="table-responsive">
+    <table id="questionsTableAM" class="table table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th>問題番号</th>
+                <th>分野</th>
+                <th>問題文</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for question in questions_am %}
+            <tr data-href="{% url 'pt_kokushi:question_detail' question.id %}">
+                <td>{{ question.question_number }}</td>
+                <td>{{ question.field.name }}</td>
+                <td>{{ question.question_text|truncatechars:50 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <h3 class="mt-4">午後の問題</h3>
+    <div class="table-responsive">
+    <table id="questionsTablePM" class="table table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th>問題番号</th>
+                <th>分野</th>
+                <th>問題文</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions_pm %}
+            <tr data-href="{% url 'pt_kokushi:question_detail' question.id %}">
+                <td>{{ question.question_number }}</td>
+                <td>{{ question.field.name }}</td>
+                <td>{{ question.question_text|truncatechars:50 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'pt_kokushi:select_exam_year' %}" class="btn btn-secondary">戻る</a>
+    </div>
+
+<script>
+    $(document).ready( function () {
+        $('#questionsTable').DataTable({
+            "paging": true, // ページング機能を有効にする
+            "ordering": true, // カラムヘッダーでのソート機能を有効にする
+            "info": true, // テーブルの情報表示を有効にする
+            "searching": true // 検索機能を有効にする
+        });
+    });
+
+    $(document).ready(function() {
+        // 午前のテーブルの行がクリックされたとき
+        $("#questionsTableAM tbody tr").click(function() {
+            window.location = $(this).data("href");
+        }).hover(
+            function() {
+                $(this).css('cursor','pointer');
+            }, 
+            function() {
+                $(this).css('cursor','auto');
+            }
+        );
+    
+        // 午後のテーブルの行がクリックされたとき
+        $("#questionsTablePM tbody tr").click(function() {
+            window.location = $(this).data("href");
+        }).hover(
+            function() {
+                $(this).css('cursor','pointer');
+            }, 
+            function() {
+                $(this).css('cursor','auto');
+            }
+        );
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('submit-answer-btn').addEventListener('click', function(e) {
+            // 選択肢が選択されているか確認
+            const isSelected = Array.from(document.querySelectorAll('input[name="choices"]')).some(radio => radio.checked);
+            if (!isSelected) {
+                // 選択されていない場合、アラートを表示して送信を防止
+                alert('選択肢を選んでください。');
+                e.preventDefault();
+            }
+        });
+    });
+    
+</script>
+{% endblock %}
+

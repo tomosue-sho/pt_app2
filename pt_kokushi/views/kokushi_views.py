@@ -280,7 +280,6 @@ def submit_quiz_answers(request, question_id):
 @login_required
 def kokushi_results_view(request):
     
-    # 既存のコード
     user = request.user
     exam_year = request.session.get('exam_year', None)
     exam = get_object_or_404(Exam, year=exam_year) if exam_year else None
@@ -304,12 +303,6 @@ def kokushi_results_view(request):
     if not quiz_session:
         return redirect('top')
 
-    # 各種正答率の計算
-    user_accuracy_all = calculate_new_user_accuracy(user, exam, quiz_session.start_time, quiz_session.end_time)
-    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3, quiz_session.start_time, quiz_session.end_time)
-    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1, quiz_session.start_time, quiz_session.end_time)
-    all_user_average_accuracy = calculate_all_user_average_accuracy(exam)
-
    # ユーザーが回答した問題を「午前・午後」、「問題番号」の順で並べ替える
     user_answers = QuizUserAnswer.objects.filter(
         user=user,
@@ -321,25 +314,22 @@ def kokushi_results_view(request):
     questions_accuracy = []
     is_quiz_incomplete = quiz_session.end_time is None
 
-    for user_answer in user_answers:
-        question = user_answer.question
-        # 重複チェック
-        if question.id in questions_seen:
-            continue  # この問題は既にリストに追加されているためスキップ
-        questions_seen.add(question.id)
-        # 特定のユーザーの正答率
-        user_accuracy = calculate_user_question_accuracy(user, question)
-        # 全ユーザーの正答率
-        all_users_accuracy = calculate_all_users_question_accuracy(question)
-    
+    questions_accuracy = []
+    for question in questions:
         user_answer = QuizUserAnswer.objects.filter(user=user, question=question).order_by('-answered_at').first()
         correct_text = get_correctness_text(user_answer) if user_answer else "回答なし"
     
+        # 特定のユーザーの正答率を計算（ユーザーがその問題に回答している場合のみ）
+        user_accuracy = calculate_user_question_accuracy(user, question) if user_answer else None
+    
+        # 全ユーザーの正答率を計算
+        all_users_accuracy = calculate_all_users_question_accuracy(question)
+    
         questions_accuracy.append({
-        'question': question,
-        'user_accuracy': user_accuracy,
-        'is_correct_text': correct_text,
-        'all_users_accuracy': all_users_accuracy,
+            'question': question,
+            'user_accuracy': user_accuracy,
+            'is_correct_text': correct_text,
+            'all_users_accuracy': all_users_accuracy,
         })
         
     all_users_accuracies = []
@@ -358,6 +348,11 @@ def kokushi_results_view(request):
     # exam_duration を分単位で計算
     exam_duration_minutes = exam_duration.total_seconds() / 60
     
+    # 各種正答率の計算
+    user_accuracy_all = calculate_new_user_accuracy(user, exam, quiz_session.start_time, quiz_session.end_time)
+    user_3_point_accuracy = calculate_specific_point_accuracy(user, exam, 3, quiz_session.start_time, quiz_session.end_time)
+    user_1_point_accuracy = calculate_specific_point_accuracy(user, exam, 1, quiz_session.start_time, quiz_session.end_time)
+    all_user_average_accuracy = calculate_all_user_average_accuracy(exam)
     total_answered_questions = user_answers.count()
     user_answers = QuizUserAnswer.objects.filter(user=user, question__exam=exam)
     total_correct_answers = sum(1 for answer in user_answers if answer.is_correct())

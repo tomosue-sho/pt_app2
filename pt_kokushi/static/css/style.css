@@ -190,8 +190,12 @@ p#countTimer span {
     color: #313131;
 }
 
-
-
+#kokushi_list{
+    background-color: white;
+    width: 50%;
+    border-radius: 50px;
+    padding: 10px;
+}
 
 /*サイドバーのクラス設定*/
 /* ボタンのスタイル */

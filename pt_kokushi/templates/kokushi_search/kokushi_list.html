@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div id = "kokushi_list" class="text-center">
+    {% for year in years %}
+    <div class="mb-2">
+        <form method="post" action="{% url 'pt_kokushi:select_exam_year' %}">
+            {% csrf_token %}
+            <input type="hidden" name="exam_year" value="{{ year }}">
+            <button type="submit" class="btn btn-primary btn-block btn-lg ">
+                第{{ year }}回
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
