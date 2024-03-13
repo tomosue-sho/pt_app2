@@ -126,6 +126,8 @@ class KokushiQuizSession(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="試験")
     start_time = models.DateTimeField("開始時刻", default=now)
     end_time = models.DateTimeField("終了時刻", null=True, blank=True)
+    start_question_id = models.IntegerField("開始問題ID", null=True, blank=True)
+    end_question_id = models.IntegerField("終了問題ID", null=True, blank=True)
 
     def __str__(self):
         return f"{self.user} - {self.exam}"
