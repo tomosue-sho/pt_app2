@@ -1,0 +1,13 @@
+[
+    {
+        "model": "pt_kokushi.subfield",
+        "pk": 1,
+        "fields": {
+            "has_detailed_selection": true,
+            "field": 1,
+            "name": "\u30b5\u30f3\u30d7\u30eb\u8a73\u7d30",
+            "description": "\u30b5\u30f3\u30d7\u30eb\u8a73\u7d30",
+            "icon": ""
+        }
+    }
+]

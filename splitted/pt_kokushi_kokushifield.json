@@ -1,0 +1,198 @@
+[
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 1,
+        "fields": {
+            "name": "\u904b\u52d5\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 2,
+        "fields": {
+            "name": "\u8133\u8840\u7ba1\u969c\u5bb3"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 3,
+        "fields": {
+            "name": "\u751f\u7406\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 4,
+        "fields": {
+            "name": "\u751f\u4f53\u529b\u5b66\u30fb\u8a08\u7b97\u554f\u984c"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 5,
+        "fields": {
+            "name": "\u89e3\u5256\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 7,
+        "fields": {
+            "name": "\u75c5\u7406\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 8,
+        "fields": {
+            "name": "\u4eba\u9593\u767a\u9054\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 9,
+        "fields": {
+            "name": "\u5185\u79d1\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 10,
+        "fields": {
+            "name": "\u81e8\u5e8a\u795e\u7d4c\u533b\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 11,
+        "fields": {
+            "name": "\u5fc3\u7406\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 12,
+        "fields": {
+            "name": "\u7cbe\u795e\u533b\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 13,
+        "fields": {
+            "name": "\u6574\u5f62\u5916\u79d1\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 15,
+        "fields": {
+            "name": "\u904b\u52d5\u7642\u6cd5"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 16,
+        "fields": {
+            "name": "\u8a55\u4fa1\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 17,
+        "fields": {
+            "name": "\u7269\u7406\u7642\u6cd5"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 18,
+        "fields": {
+            "name": "\u5c0f\u5150\u75be\u60a3"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 20,
+        "fields": {
+            "name": "\u795e\u7d4c\u30fb\u7b4b\u969c\u5bb3"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 21,
+        "fields": {
+            "name": "\u810a\u9ac4\u640d\u50b7"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 22,
+        "fields": {
+            "name": "\u7fa9\u80a2\u88c5\u5177\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 23,
+        "fields": {
+            "name": "\u65e5\u5e38\u751f\u6d3b\u6982\u8ad6\uff08ADL)"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 24,
+        "fields": {
+            "name": "\u7406\u5b66\u7642\u6cd5\u6982\u8ad6"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 25,
+        "fields": {
+            "name": "\u5f92\u624b\u7b4b\u529b\u30c6\u30b9\u30c8\uff08MMT)"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 26,
+        "fields": {
+            "name": "\u95a2\u7bc0\u53ef\u52d5\u57df\u6e2c\u5b9a\uff08ROM)"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 27,
+        "fields": {
+            "name": "\u7406\u5b66\u7642\u6cd5\u7814\u7a76\u6cd5"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 28,
+        "fields": {
+            "name": "\u71b1\u50b7\u30fb\u611f\u67d3\u75c7\u30fb\u305d\u306e\u4ed6\u306e\u7406\u5b66\u7642\u6cd5"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 29,
+        "fields": {
+            "name": "\u5730\u57df\u7406\u5b66\u7642\u6cd5\u5b66\uff08\u4ecb\u8b77\u4fdd\u967a\u7b49\uff09"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 30,
+        "fields": {
+            "name": "\u85ac\u7406\u5b66"
+        }
+    },
+    {
+        "model": "pt_kokushi.kokushifield",
+        "pk": 31,
+        "fields": {
+            "name": "\u5fc3\u96fb\u56f3"
+        }
+    }
+]

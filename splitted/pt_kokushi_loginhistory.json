@@ -1,0 +1,250 @@
+[
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-23"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-23"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 3,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-24"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 4,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-25"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 5,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-02-25"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 6,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-02-25"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 7,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-26"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 8,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-02-26"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 9,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-26"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 10,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-02-26"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 11,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-27"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 12,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-28"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 13,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-29"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 14,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-02-29"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 15,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-01"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 16,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-01"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 17,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-03-01"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 18,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-01"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 19,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-03-01"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 20,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-02"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 21,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-03"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 22,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-04"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 23,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-03-04"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 24,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-05"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 25,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-07"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 26,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-07"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 27,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-08"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 28,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-08"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 29,
+        "fields": {
+            "user": 2,
+            "login_date": "2024-03-08"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 30,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-10"
+        }
+    },
+    {
+        "model": "pt_kokushi.loginhistory",
+        "pk": 31,
+        "fields": {
+            "user": 1,
+            "login_date": "2024-03-10"
+        }
+    }
+]

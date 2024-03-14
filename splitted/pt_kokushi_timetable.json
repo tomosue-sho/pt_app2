@@ -1,0 +1,47 @@
+[
+    {
+        "model": "pt_kokushi.timetable",
+        "pk": 1,
+        "fields": {
+            "day": "\u6708",
+            "period": 1,
+            "subject": "\u8133\u795e\u7d4c\u5185\u79d1"
+        }
+    },
+    {
+        "model": "pt_kokushi.timetable",
+        "pk": 2,
+        "fields": {
+            "day": "\u6708",
+            "period": 1,
+            "subject": "\u6574\u5f62\u5916\u79d1"
+        }
+    },
+    {
+        "model": "pt_kokushi.timetable",
+        "pk": 3,
+        "fields": {
+            "day": "\u6708",
+            "period": 2,
+            "subject": "\u8133\u795e\u7d4c\u5185\u79d1"
+        }
+    },
+    {
+        "model": "pt_kokushi.timetable",
+        "pk": 4,
+        "fields": {
+            "day": "\u6708",
+            "period": 3,
+            "subject": "\u7406\u5b66\u7642\u6cd5\u8a55\u4fa1\u984d\u5b9f\u7fd2"
+        }
+    },
+    {
+        "model": "pt_kokushi.timetable",
+        "pk": 5,
+        "fields": {
+            "day": "\u706b",
+            "period": 3,
+            "subject": "\u751f\u7269\u5b66"
+        }
+    }
+]

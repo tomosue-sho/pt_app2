@@ -1,0 +1,44 @@
+[
+    {
+        "model": "pt_kokushi.customuser",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$UZI4H7z5zzLeXwSTFT6tyL$s74zX4CnyCryNCQDvCE+mVjPwZ5KzlPNn9WNII2JNmQ=",
+            "last_login": "2024-03-10T00:58:46.146Z",
+            "is_superuser": true,
+            "nickname": "\u53cb\u672b",
+            "email": "tomotomosho1006@gmail.com",
+            "birth_of_date": "1990-10-06",
+            "school_year": 1,
+            "prefecture": "\u5e83\u5cf6\u770c",
+            "is_active": true,
+            "date_joined": "2024-02-13T15:00:00Z",
+            "is_staff": true,
+            "gender": "\u7537\u6027",
+            "test_year": "2025",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "pt_kokushi.customuser",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$7AB5dW8NiWdLGu3laar7Mz$3GlKoWlf/wVtIxV73RqpCUlc0a3dYmzSOBlkBz2nwl0=",
+            "last_login": "2024-03-08T10:02:50.255Z",
+            "is_superuser": false,
+            "nickname": "saplez3",
+            "email": "sample3@gmail.com",
+            "birth_of_date": "2004-03-01",
+            "school_year": 1,
+            "prefecture": "\u6771\u4eac\u90fd",
+            "is_active": true,
+            "date_joined": "2024-02-25T08:01:17.587Z",
+            "is_staff": false,
+            "gender": "\u5973\u6027",
+            "test_year": "2025",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]

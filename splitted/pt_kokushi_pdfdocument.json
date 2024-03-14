@@ -1,0 +1,12 @@
+[
+    {
+        "model": "pt_kokushi.pdfdocument",
+        "pk": 2,
+        "fields": {
+            "title": "\u6539\u8a02\u7248\u9577\u8c37\u5ddd\u5f0f\u7c21\u6613\u77e5\u80fd\u8a55\u4fa1\u30b9\u30b1\u30fc\u30eb",
+            "pdf_file": "pdfs/\u6539\u8a02\u7248\u9577\u8c37\u5ddd\u5f0f\u7c21\u6613\u77e5\u80fd\u8a55\u4fa1\u30b9\u30b1\u30fc\u30eb.doc",
+            "uploaded_at": "2024-03-11T12:40:46.198Z",
+            "category": 1
+        }
+    }
+]

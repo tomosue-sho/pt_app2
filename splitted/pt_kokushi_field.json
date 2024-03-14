@@ -1,0 +1,11 @@
+[
+    {
+        "model": "pt_kokushi.field",
+        "pk": 1,
+        "fields": {
+            "name": "\u30b5\u30f3\u30d7\u30eb",
+            "description": "\u30b5\u30f3\u30d7\u30eb",
+            "icon": ""
+        }
+    }
+]

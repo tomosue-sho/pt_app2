@@ -1,0 +1,602 @@
+[
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 3,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 4,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-14",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 5,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 6,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 7,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 8,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-19",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 9,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 10,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 11,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 12,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-16",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 13,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-17",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 14,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-17",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 15,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 16,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 17,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-20",
+            "study_duration": 120,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 18,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 19,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 20,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-18",
+            "study_duration": 60,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 21,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-15",
+            "study_duration": 90,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 22,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-15",
+            "study_duration": 90,
+            "study_content": ""
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 23,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 60,
+            "study_content": "q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 24,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 60,
+            "study_content": "a"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 25,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-22",
+            "study_duration": 30,
+            "study_content": "\u3042"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 26,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-19",
+            "study_duration": 60,
+            "study_content": "a"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 27,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-18",
+            "study_duration": 120,
+            "study_content": "8"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 28,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "\u9577\u6587\u306e\u5834\u5408\u306e\u72b6\u614b\u3092\u78ba\u8a8d\u3059\u308b\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20\uff20"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 29,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "\u304a\u8a66\u3057"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 30,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-18",
+            "study_duration": 30,
+            "study_content": "30"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 31,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 15,
+            "study_content": "\u307d"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 32,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 15,
+            "study_content": "\u307d"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 33,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 30,
+            "study_content": "\u3063\u3063\u3063\u3063p"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 34,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "aa"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 35,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "aa"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 36,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "\uff20"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 37,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "\uff20"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 38,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-23",
+            "study_duration": 60,
+            "study_content": "\uff20"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 39,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3044\u3044"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 40,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3044\u3044"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 41,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 42,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 43,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 44,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 45,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-21",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 46,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-20",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 47,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-20",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 48,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-20",
+            "study_duration": 60,
+            "study_content": "\u3063q"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 49,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-26",
+            "study_duration": 60,
+            "study_content": "\u3042\u3042"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 50,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-26",
+            "study_duration": 60,
+            "study_content": "\u3042\u3042"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 51,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-26",
+            "study_duration": 120,
+            "study_content": "aaaa"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 52,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-02-26",
+            "study_duration": 120,
+            "study_content": "aaaa"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 53,
+        "fields": {
+            "user": 2,
+            "study_date": "2024-02-26",
+            "study_duration": 120,
+            "study_content": "ss"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 54,
+        "fields": {
+            "user": 2,
+            "study_date": "2024-02-25",
+            "study_duration": 600,
+            "study_content": "sssss"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 55,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-03-04",
+            "study_duration": 60,
+            "study_content": "o"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 56,
+        "fields": {
+            "user": 2,
+            "study_date": "2024-03-04",
+            "study_duration": 800,
+            "study_content": "@@@"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 57,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-03-04",
+            "study_duration": 500,
+            "study_content": "p"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 58,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-03-03",
+            "study_duration": 400,
+            "study_content": "uj"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 59,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-03-11",
+            "study_duration": 500,
+            "study_content": "a"
+        }
+    },
+    {
+        "model": "pt_kokushi.studylog",
+        "pk": 60,
+        "fields": {
+            "user": 1,
+            "study_date": "2024-03-10",
+            "study_duration": 500,
+            "study_content": "["
+        }
+    }
+]

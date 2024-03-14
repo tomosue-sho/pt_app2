@@ -1,0 +1,22 @@
+[
+    {
+        "model": "pt_kokushi.userscore",
+        "pk": 1,
+        "fields": {
+            "user": 2,
+            "total_score": 2,
+            "total_questions_attempted": 10,
+            "total_correct_answers": 2
+        }
+    },
+    {
+        "model": "pt_kokushi.userscore",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "total_score": 3,
+            "total_questions_attempted": 5,
+            "total_correct_answers": 3
+        }
+    }
+]

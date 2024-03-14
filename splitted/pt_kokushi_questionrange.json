@@ -1,0 +1,38 @@
+[
+    {
+        "model": "pt_kokushi.questionrange",
+        "pk": 1,
+        "fields": {
+            "exam": 1,
+            "start_id": 1,
+            "end_id": 200
+        }
+    },
+    {
+        "model": "pt_kokushi.questionrange",
+        "pk": 2,
+        "fields": {
+            "exam": 2,
+            "start_id": 201,
+            "end_id": 400
+        }
+    },
+    {
+        "model": "pt_kokushi.questionrange",
+        "pk": 3,
+        "fields": {
+            "exam": 3,
+            "start_id": 401,
+            "end_id": 600
+        }
+    },
+    {
+        "model": "pt_kokushi.questionrange",
+        "pk": 4,
+        "fields": {
+            "exam": 4,
+            "start_id": 601,
+            "end_id": 800
+        }
+    }
+]
