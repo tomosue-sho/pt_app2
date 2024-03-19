@@ -21,6 +21,7 @@ class KokushiField(models.Model):
         return self.name
     
     class Meta:
+        ordering = ['name'] 
         verbose_name = "国試「分野追加」"
         verbose_name_plural = "国試「分野追加」"
     
