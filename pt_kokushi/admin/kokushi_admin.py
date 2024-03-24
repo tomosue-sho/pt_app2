@@ -19,7 +19,7 @@ class QuizQuestionAdmin(admin.ModelAdmin):
     get_exam_year.admin_order_field = 'exam__year'
     
     def truncated_question_text(self, obj):
-        return Truncator(obj.question_text).chars(15)
+        return Truncator(obj.question_text).chars(40)
     truncated_question_text.short_description = '問題文'
 
     list_display = ('id','get_exam_year', 'field','time', 'point', 'question_number', 'truncated_question_text', 'answer_video_url', 'question_image')
