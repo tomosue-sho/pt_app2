@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import now,timedelta,datetime
 from django.db.models import Q
-from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer
+from pt_kokushi.models.kokushi_models import Exam,QuizQuestion, Choice, QuizUserAnswer,ExplanationImage
 from pt_kokushi.models.kokushi_models import KokushiQuizSession, Bookmark, QuestionRange
 from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquery
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
@@ -138,8 +138,6 @@ def quiz_questions_view(request, question_id=None):
         return redirect('pt_kokushi:top')
     
     exam = get_object_or_404(Exam, year=exam_year)
-    
-    # QuestionRangeから問題IDの範囲を取得
     question_range = get_object_or_404(QuestionRange, exam=exam)
     questions = QuizQuestion.objects.filter(exam=exam, id__range=(question_range.start_id, question_range.end_id))
     
@@ -151,6 +149,11 @@ def quiz_questions_view(request, question_id=None):
         question = get_object_or_404(QuizQuestion, exam=exam, id=question_id)
     else:
         question = questions.first()  # 範囲内の最初の問題を取得
+        
+    if question:
+        explanation_images = ExplanationImage.objects.filter(question=question)
+    else:
+        explanation_images = []
     
     if question:
         previous_question = QuizQuestion.objects.filter(id__lt=question.id, id__range=(question_range.start_id, question_range.end_id)).order_by('-id').first()
@@ -169,6 +172,7 @@ def quiz_questions_view(request, question_id=None):
         'question': question,
         'time_limit': time_limit,
         'quiz_session': quiz_session,
+        'explanation_images':explanation_images,
         'has_previous_question': previous_question is not None,
         'previous_question_id': previous_question.id if previous_question else None,
     }
