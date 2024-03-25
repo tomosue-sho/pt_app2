@@ -204,7 +204,7 @@
     </thead>   
     <tbody>
         {% for qa in questions_accuracy %}
-        <tr>
+        <tr data-href="{% url 'pt_kokushi:question_detail' qa.question.id %}">
             <td>{{ qa.question.exam.year }}年 {{ qa.question.time }}</td>
             <td>{{ qa.question.question_number }}</td>
             <td>{{ qa.question.field.name }}</td> <!-- 分野名を表示するには.nameを追加 -->
@@ -254,6 +254,18 @@
             }
         }
     });
-    
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // '.excel-table'クラスを持つテーブル内のすべての行に対してイベントリスナーを設定
+        var rows = document.querySelectorAll('.excel-table tbody tr');
+        rows.forEach(function(row) {
+            row.addEventListener('click', function() {
+                var href = this.getAttribute('data-href'); // 'data-href'属性からURLを取得
+                if(href) {
+                    window.location.href = href; // URLがある場合、そのURLに遷移
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}

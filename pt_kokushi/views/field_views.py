@@ -12,16 +12,17 @@ from ..helpers import calculate_field_quiz_results
 
 def field_choice(request):
     if request.method == "POST":
-        # 新しいクイズが開始される前に、セッションから質問リストをクリア
         if 'question_ids' in request.session:
             del request.session['question_ids']
-        
+
         field_id = request.POST.get('field')
+        num_questions = request.POST.get('num_questions')  # 問題数の選択を取得
+        request.session['num_questions'] = num_questions  # セッションに保存
+
         return redirect('pt_kokushi:field_quiz', field_id=field_id)
     else:
         fields = KokushiField.objects.all()
         return render(request, 'field/field_choice.html', {'fields': fields})
-
 
 def field_quiz(request, field_id, question_id=None):
     field = get_object_or_404(KokushiField, pk=field_id)
@@ -30,8 +31,12 @@ def field_quiz(request, field_id, question_id=None):
     if 'question_ids' in request.session:
         question_ids = request.session['question_ids']
     else:
-        # セッションに質問IDリストがない場合、質問を選択してセッションに保存
-        question_ids = list(QuizQuestion.objects.filter(field=field).order_by('?').values_list('id', flat=True)[:10])
+        num_questions = request.session.get('num_questions', 'all')
+        query = QuizQuestion.objects.filter(field=field).order_by('?')
+        if num_questions != 'all':
+            num_questions = int(num_questions)
+            query = query[:num_questions]
+        question_ids = list(query.values_list('id', flat=True))
         request.session['question_ids'] = question_ids
 
     # question_idが指定されている場合、その質問を表示

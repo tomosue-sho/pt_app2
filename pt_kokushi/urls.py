@@ -30,6 +30,7 @@ from pt_kokushi.views.field_views import field_choice,field_quiz,field_quiz_answ
 from pt_kokushi.views.relax_views import relaxation_room,column_detail,aozora_detail
 from pt_kokushi.views.kokushi_search_views import select_exam_year,kokushi_question_list
 from pt_kokushi.views.pdf_views import pdf_list
+from pt_kokushi.views.inquiry_views import inquiry_view,thank_you_view
 
 app_name = 'pt_kokushi'
 
@@ -128,6 +129,8 @@ urlpatterns = [
     path('quiz_question_list/', kokushi_question_list, name='kokushi_question_list'),  # 問題一覧表示用のURL
     path('pdfs/', pdf_list, name='pdf_list'),  # カテゴリーIDなし
     path('pdfs/category/<int:category_id>/', pdf_list, name='category_pdf_list'),  # カテゴリーIDあり
+    path('inquiry/', inquiry_view, name='inquiry'),#問い合わせ
+    path('thank-you/', thank_you_view, name='thank_you'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

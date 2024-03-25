@@ -1,16 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+    .field-name {
+        font-size: 20px; /* フォントサイズを大きく */
+        font-weight: bold; /* フォントを太字に */
+        color: #333; /* フォントカラー */
+        background-color: #f0f0f0; /* 背景色 */
+        padding: 10px; /* 内側の余白 */
+        margin-bottom: 5px; /* 下側の外側の余白 */
+        border: 1px solid #ddd; /* 枠線 */
+        border-radius: 5px; /* 角丸 */
+    }
+    </style>
+    
 <div class="container mt-3">
     <h2 class="mb-4">分野選択</h2>
     <table class="table">
         <tbody>
             {% for field in fields %}
             <tr>
-                <td class="align-middle">{{ field.name }}</td>
+                <td class="align-middle">
+                    <span class="field-name">{{ field.name }}</span>
+                </td>
                 <td>
                     <form action="{% url 'pt_kokushi:field_choice' %}" method="post" class="text-right">
                         {% csrf_token %}
                         <input type="hidden" name="field" value="{{ field.id }}">
+                        <div class="form-group">
+                            <select name="num_questions" class="form-control">
+                                <option value="5">5問</option>
+                                <option value="10">10問</option>
+                                <option value="15">15問</option>
+                                <option value="20">20問</option>
+                                <option value="all">全問</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-primary">挑戦する</button>
                     </form>
                 </td>

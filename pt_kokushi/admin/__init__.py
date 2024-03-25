@@ -8,3 +8,4 @@ from .quiz_admin import*
 from .studychart_admin import*
 from .relax_admin import*
 from .pdf_admin import*
+from .inquiry_admin import*
