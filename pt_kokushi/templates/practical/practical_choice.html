@@ -4,6 +4,7 @@
 <div class="container mt-5">
     <form action="{% url 'pt_kokushi:practical_choice' %}" method="post">
         {% csrf_token %}
+        <h1>３点問題</h1>
         <div class="form-group">
             <label for="yearSelect">年度を選択してください</label>
             <select name="year" id="yearSelect" class="form-control">
