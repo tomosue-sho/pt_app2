@@ -71,6 +71,23 @@
         background-color: #ffc107; /* より鮮やかな黄色 */
         color: black;
     }
+    .question-image {
+        width: 100px; /* 初期の画像サイズ */
+        transition: transform 0.3s ease; /* アニメーション効果 */
+    }
+    .question-image.zoomed {
+        transform: scale(5); /* 5倍に拡大 */
+        cursor: zoom-out;
+    }
+    .explanation-image {
+        /* 初期サイズはHTML内で指定済み */
+        transition: transform 0.3s ease; /* アニメーション効果 */
+        cursor: zoom-in; /* 拡大可能を示すカーソル */
+    }
+    .explanation-image.zoomed {
+        transform: scale(4); /* 4倍に拡大 */
+        cursor: zoom-out; /* 縮小可能を示すカーソル */
+    }
 </style>
 <body>
 
@@ -89,7 +106,7 @@
                 
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
-                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+                <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 question-image" alt="問題画像">
                 {% endif %}
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
@@ -103,6 +120,9 @@
             <br>
             <div id="answer" style="display:none;">
                 <p><strong>解答：</strong>{{ question.answer_text }}</p>
+                {% for explanation_image in question.explanation_images.all %}
+                    <img src="{{ explanation_image.image.url }}" alt="解説画像" class="explanation-image" style="width:300px; cursor:pointer;">
+                {% endfor %}
             </div>
             <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
         </div>
@@ -184,6 +204,29 @@
                 answerDiv.style.display = "none";
                 showAnswerBtn.textContent = "解説を表示"; // ボタンのテキストを変更
             }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 画像要素を取得
+        var img = document.querySelector('.question-image');
+        
+        // 画像がクリックされたときのイベントリスナーを追加
+        img.addEventListener('click', function() {
+            // 'zoomed'クラスの追加または削除
+            this.classList.toggle('zoomed');
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // 解説画像の要素を全て取得
+        var images = document.querySelectorAll('.explanation-image');
+        
+        // 各画像に対してイベントリスナーを追加
+        images.forEach(function(img) {
+            img.addEventListener('click', function() {
+                // 'zoomed'クラスの追加または削除
+                this.classList.toggle('zoomed');
+            });
         });
     });
 </script>

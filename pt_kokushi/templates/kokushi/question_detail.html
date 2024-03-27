@@ -122,6 +122,26 @@
     width: 200px; /* または任意の幅 */
     height: auto;
 }
+<style>
+    .explanation-image {
+        /* 初期サイズはHTML内で指定済み */
+        transition: transform 0.3s ease; /* アニメーション効果 */
+        cursor: zoom-in; /* 拡大可能を示すカーソル */
+    }
+    .explanation-image.zoomed {
+        transform: scale(3); /* 3倍に拡大 */
+        cursor: zoom-out; /* 縮小可能を示すカーソル */
+    }
+    .question-image {
+        width: 200px; /* 初期の画像サイズ */
+        transition: transform 0.3s ease; /* アニメーション効果 */
+        cursor: zoom-in; /* 拡大可能を示すカーソル */
+    }
+    .question-image.zoomed {
+        transform: scale(3); /* 3倍に拡大 */
+        cursor: zoom-out; /* 縮小可能を示すカーソル */
+    }
+</style>
 
 </style>
 <body>
@@ -185,12 +205,8 @@
                 
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
                 {% if question.question_image %}
-                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 img-responsive question-image" alt="問題画像" style="cursor:pointer; width:200px;" >
+                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 img-responsive question-image" alt="問題画像" style="cursor:pointer; width:200px;">
                 {% endif %}
-                <!-- モーダルウィンドウ -->
-                <div id="myModal" class="modal">
-                    <img class="modal-content" id="img01">
-                </div>
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
                 <div>
@@ -203,14 +219,14 @@
             <div id="answer" style="display:none;">
                 <p><strong>解答：</strong>{{ question.answer_text|linebreaksbr }}</p>
                 {% for explanation_image in question.explanation_images.all %}
-                    <img src="{{ explanation_image.image.url }}" alt="解説画像" class="explanation-image" style="width:400px; cursor:pointer;">
+                    <img src="{{ explanation_image.image.url }}" alt="解説画像" class="explanation-image" style="width:300px; cursor:pointer;">
                 {% endfor %}
             </div>
             <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
         </div>
     </div>
     <div>
-        <a href="{% url 'pt_kokushi:quiz_question_list' %}" class="btn btn-primary">戻る</a>
+        <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-primary">戻る</a>
     </div>
 </div>
 
@@ -292,19 +308,26 @@
         });
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        // 画像クリックでモーダルを開く
-        document.querySelectorAll('.explanation-image, .question-image').forEach(item => {
-            item.onclick = function() {
-                document.getElementById('myModal').style.display = "block";
-                document.getElementById('img01').src = this.src;
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // 解説画像の要素を全て取得
+        var images = document.querySelectorAll('.explanation-image');
+        
+        // 各画像に対してイベントリスナーを追加
+        images.forEach(function(img) {
+            img.addEventListener('click', function() {
+                // 'zoomed'クラスの追加または削除
+                this.classList.toggle('zoomed');
+            });
         });
-    
-        // モーダルの画像クリックでモーダルを閉じる
-        document.getElementById('img01').onclick = function() {
-            document.getElementById('myModal').style.display = "none";
-        }
     });
-    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 問題画像要素を取得
+        var img = document.querySelector('.question-image');
+        
+        // 画像がクリックされたときのイベントリスナーを追加
+        img.addEventListener('click', function() {
+            // 'zoomed'クラスの追加または削除
+            this.classList.toggle('zoomed');
+        });
+    });
 </script>

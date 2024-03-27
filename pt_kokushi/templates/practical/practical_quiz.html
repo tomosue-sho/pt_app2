@@ -85,6 +85,23 @@
         background-color: #ffc107; /* より鮮やかな黄色 */
         color: black;
     }
+    .question-image {
+        width: 200px; /* または希望の幅 */
+        height: auto; /* アスペクト比を維持 */
+        max-width: 100%; /* 親要素を超えないようにする */
+    }
+    .question-image {
+        transition: transform 0.3s ease; /* トランジション効果を追加 */
+    }
+    .explanation-image {
+        /* 初期サイズはHTML内で指定済み */
+        transition: transform 0.3s ease; /* アニメーション効果 */
+        cursor: zoom-in; /* 拡大可能を示すカーソル */
+    }
+    .explanation-image.zoomed {
+        transform: scale(2); /* 2倍に拡大 */
+        cursor: zoom-out; /* 縮小可能を示すカーソル */
+    }
 </style>
 
 
@@ -95,17 +112,16 @@
 </div>
 
 <div class="container mt-3">
-    <h2>第{{ exam.year }}回 国試問題</h2>
-
+    <h2>第{{ exam.year }}回 国試問題 (3点問題)</h2>
     <div class="card mb-3">
         <div class="card-body">
             <form action="{% url 'pt_kokushi:practical_quiz' question.id %}" method="post">
                 {% csrf_token %}
                 <!-- 問題文の表示 -->
-                
                 <p class="card-text"><strong>問{{ question.question_number }}: {{ question.question_text }}</strong></p>
+                <!-- 画像の表示 -->
                 {% if question.question_image %}
-                    <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3" alt="問題画像">
+                <img src="{{ question.question_image.url }}" class="card-img-bottom mb-3 img-responsive question-image" alt="問題画像" style="cursor:pointer; max-width: 100%; height: auto;" onclick="toggleImageSize(this);">
                 {% endif %}
                 <!-- 選択肢の表示 -->
                 {% for choice in question.choices.all %}
@@ -122,6 +138,9 @@
             <br>
             <div id="answer" style="display:none;">
                 <p><strong>解答：</strong>{{ question.answer_text }}</p>
+                {% for explanation_image in question.explanation_images.all %}
+                    <img src="{{ explanation_image.image.url }}" alt="解説画像" class="explanation-image" style="width:300px; cursor:pointer;">
+                {% endfor %}
             </div>
             <button id="show-answer-btn" class="btn btn-info">解答を表示</button>
         </div>
@@ -226,5 +245,27 @@
         });
     });
 
+    function toggleImageSize(image) {
+        // 'expanded' クラスの存在をチェックし、あれば削除、なければ追加
+        if (image.classList.contains('expanded')) {
+            image.classList.remove('expanded');
+            image.style.transform = "scale(1)"; // 元のサイズに戻す
+        } else {
+            image.classList.add('expanded');
+            image.style.transform = "scale(2)"; // 2倍のサイズに拡大
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // 解説画像の要素を全て取得
+        var images = document.querySelectorAll('.explanation-image');
+        
+        // 各画像に対してイベントリスナーを追加
+        images.forEach(function(img) {
+            img.addEventListener('click', function() {
+                // 'zoomed'クラスの追加または削除
+                this.classList.toggle('zoomed');
+            });
+        });
+    });
 </script>
 {% endblock %}
