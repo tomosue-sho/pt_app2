@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<h1>学習資料</h1>
+<h5>転載・個人利用自由です。（ただしトラブルの責任は持てません。）</h5>
+<div class="accordion" id="accordionMaterials">
+    {% for field, materials in materials_dict.items %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                    {{ field }}
+                </button>
+            </h2>
+            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}">
+                <div class="accordion-body">
+                    <ul>
+                        {% for material in materials %}
+                            <li>
+                                タイトル: {{ material.title }} | <a href="{{ material.file.url }}" download>ダウンロード</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

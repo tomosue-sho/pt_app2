@@ -31,6 +31,7 @@ from pt_kokushi.views.relax_views import relaxation_room,column_detail,aozora_de
 from pt_kokushi.views.kokushi_search_views import select_exam_year,kokushi_question_list
 from pt_kokushi.views.pdf_views import pdf_list
 from pt_kokushi.views.inquiry_views import inquiry_view,thank_you_view
+from pt_kokushi.views.learning_views import learning_material_list
 
 app_name = 'pt_kokushi'
 
@@ -131,6 +132,7 @@ urlpatterns = [
     path('pdfs/category/<int:category_id>/', pdf_list, name='category_pdf_list'),  # カテゴリーIDあり
     path('inquiry/', inquiry_view, name='inquiry'),#問い合わせ
     path('thank-you/', thank_you_view, name='thank_you'),
+    path('learning-materials/', learning_material_list, name='learning_material_list'),#学習資料
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

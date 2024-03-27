@@ -1,15 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h2>ファイル一覧</h2>
-    {% for category_name, documents in category_docs.items %}
-        <h3>{{ category_name }}</h3>
-        <ul>
-            {% for document in documents %}
-                <li><a href="{{ document.pdf_file.url }}">{{ document.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
+<div class="container mt-3">
+    <h2 class="mb-4">ファイル一覧</h2>
+    <div class="accordion" id="accordionDocs">
+        {% for category_name, documents in category_docs.items %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                        {{ category_name }}
+                    </button>
+                </h2>
+                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            {% for document in documents %}
+                                <li class="list-group-item">
+                                    <a href="{{ document.pdf_file.url }}">{{ document.title }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
