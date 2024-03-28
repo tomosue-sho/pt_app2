@@ -13,10 +13,10 @@ from django.db.models import Count, Sum, Avg,Q,Case,When,Value,OuterRef, Subquer
 from django.db.models import F, FloatField, ExpressionWrapper,IntegerField,fields
 from django.db.models.functions import Cast
 from django.utils.duration import duration_string 
-from ..helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy,calculate_median
-from ..helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
-from ..helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
-from ..helpers import get_user_field_accuracy_ranking,calculate_average_accuracy_by_field_for_all_users
+from pt_kokushi.helpers import calculate_field_accuracy,calculate_field_accuracy_all,calculate_all_users_question_accuracy,calculate_median
+from pt_kokushi.helpers import calculate_median,calculate_all_user_average_accuracy,calculate_new_user_accuracy,calculate_user_question_accuracy
+from pt_kokushi.helpers import calculate_specific_point_accuracy,is_answer_correct,calculate_questions_accuracy,get_correctness_text
+from pt_kokushi.helpers import get_user_field_accuracy_ranking,calculate_average_accuracy_by_field_for_all_users
 import json, random
 from django.utils.dateparse import parse_datetime
 

@@ -10,7 +10,7 @@ from django.utils.timezone import now, timedelta
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
-from ..helpers import calculate_login_streak
+from pt_kokushi.helpers import calculate_login_streak
 from pt_kokushi.models.LoginHistory_models import LoginHistory
 
 User = get_user_model()

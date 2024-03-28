@@ -7,7 +7,7 @@ from django.utils.timezone import now
 from django.views.generic import CreateView
 from django.views.decorators.http import require_POST
 from pt_kokushi.models.kokushi_models import QuizQuestion, Exam, Choice,QuizUserAnswer,KokushiQuizSession,Bookmark
-from ..helpers import calculate_practical_quiz_results
+from pt_kokushi.helpers import calculate_practical_quiz_results
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin

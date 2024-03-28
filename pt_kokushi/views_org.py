@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from pt_kokushi.models.calender_models import Event
-from .forms_org import CustomLoginForm, forms
-from .forms_org import CustomUserForm, TestYearForm
-from .forms_org import CustomPasswordChangeForm, CustomNicknameChangeForm
+from pt_kokushi.forms_org import CustomLoginForm, forms
+from pt_kokushi.forms_org import CustomUserForm, TestYearForm
+from pt_kokushi.forms_org import CustomPasswordChangeForm, CustomNicknameChangeForm
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
@@ -17,10 +17,10 @@ from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.urls import reverse
 from datetime import date, datetime ,timedelta
-from .helpers import calculate_login_streak
+from pt_kokushi.helpers import calculate_login_streak
 from pt_kokushi.models.LoginHistory_models import LoginHistory
 from pt_kokushi.models.kokushi_models import Exam
-from .helpers import calculate_login_streak
+from pt_kokushi.helpers import calculate_login_streak
 
 #これを使わないとDjangoのUserを使ってしまう
 CustomUser = get_user_model()

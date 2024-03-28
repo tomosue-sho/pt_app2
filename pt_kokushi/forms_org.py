@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
-from .models_org import CustomUser
+from pt_kokushi.models_org import CustomUser
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.utils.text import capfirst

@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from pt_kokushi.models.kokushi_models import QuizQuestion, Exam, Choice,QuizUserAnswer
 from pt_kokushi.models.kokushi_models import KokushiQuizSession,Bookmark,KokushiField
-from ..helpers import calculate_field_quiz_results
+from pt_kokushi.helpers import calculate_field_quiz_results
 
 def field_choice(request):
     if request.method == "POST":
