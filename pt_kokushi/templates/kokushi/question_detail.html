@@ -131,6 +131,10 @@
     .explanation-image.zoomed {
         transform: scale(3); /* 3倍に拡大 */
         cursor: zoom-out; /* 縮小可能を示すカーソル */
+        position: absolute; /* 位置をページ上で自由に変更可能にする */
+        left: 50%; /* 親要素の左から50%の位置に配置 */
+        top: 50%; /* 親要素の上から50%の位置に配置 */
+        transform: translate(-50%, -50%) scale(3); /* 中心からの位置調整と拡大 */
     }
     .question-image {
         width: 200px; /* 初期の画像サイズ */
