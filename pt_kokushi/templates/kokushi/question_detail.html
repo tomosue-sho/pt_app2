@@ -144,6 +144,10 @@
     .question-image.zoomed {
         transform: scale(3); /* 3倍に拡大 */
         cursor: zoom-out; /* 縮小可能を示すカーソル */
+        position: absolute; /* 位置をページ上で自由に変更可能にする */
+        left: 50%; /* 親要素の左から50%の位置に配置 */
+        top: 50%; /* 親要素の上から50%の位置に配置 */
+        transform: translate(-50%, -50%) scale(3); /* 中心からの位置調整と拡大 */
     }
 </style>
 
@@ -172,6 +176,15 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'pt_kokushi:relaxation_room' %}">休憩室</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:pdf_list' %}">評価用紙</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:learning_material_list' %}">学習資料</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pt_kokushi:inquiry' %}">お問い合わせ</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'pt_kokushi:login' %}">ログアウト</a>

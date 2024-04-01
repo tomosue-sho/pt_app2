@@ -25,6 +25,12 @@ def field_choice(request):
         return render(request, 'field/field_choice.html', {'fields': fields})
 
 def field_quiz(request, field_id, question_id=None):
+    if request.method == 'POST':
+        selected_choice_ids = request.POST.getlist('choice')
+        if not selected_choice_ids:
+            messages.error(request, '選択肢を選んでください。')
+            return redirect('pt_kokushi:field_quiz', question_id=question_id)
+        
     field = get_object_or_404(KokushiField, pk=field_id)
 
     # セッションから質問IDリストを取得

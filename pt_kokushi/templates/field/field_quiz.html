@@ -93,6 +93,10 @@
     .question-image.zoomed {
         transform: scale(3); /* 3倍に拡大 */
         cursor: zoom-out; /* 縮小可能を示すカーソル */
+        position: absolute; /* 位置をページ上で自由に変更可能にする */
+        left: 50%; /* 親要素の左から50%の位置に配置 */
+        top: 50%; /* 親要素の上から50%の位置に配置 */
+        transform: translate(-50%, -50%) scale(3); /* 中心からの位置調整と拡大 */
     }
     .explanation-image {
         /* 初期サイズはHTML内で指定済み */
@@ -269,6 +273,16 @@
                 // 'zoomed'クラスの追加または削除
                 this.classList.toggle('zoomed');
             });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form'); // フォームを選択するセレクターを適宜調整してください
+        form.addEventListener('submit', function(e) {
+            const choices = document.querySelectorAll('.choice-input:checked');
+            if (choices.length === 0) {
+                e.preventDefault(); // フォームの送信を止める
+                alert('選択肢を選んでください。'); // ユーザーに警告を表示
+            }
         });
     });
 </script>

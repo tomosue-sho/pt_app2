@@ -86,7 +86,7 @@ def time_setting_view(request):
         request.session['start_question_id'] = question_range.start_id
         request.session['end_question_id'] = question_range.end_id
 
-        question_id = 1  # 実際には適切な質問IDを動的に決定する必要があります
+        question_id = 1 
         return HttpResponseRedirect(reverse('pt_kokushi:quiz_questions', kwargs={'question_id': question_id}))
     else:
         user = request.user

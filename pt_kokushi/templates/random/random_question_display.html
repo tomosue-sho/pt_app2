@@ -78,6 +78,10 @@
     .question-image.zoomed {
         transform: scale(5); /* 5倍に拡大 */
         cursor: zoom-out;
+        position: absolute; /* 位置をページ上で自由に変更可能にする */
+        left: 50%; /* 親要素の左から50%の位置に配置 */
+        top: 50%; /* 親要素の上から50%の位置に配置 */
+        transform: translate(-50%, -50%) scale(3); /* 中心からの位置調整と拡大 */
     }
     .explanation-image {
         /* 初期サイズはHTML内で指定済み */
