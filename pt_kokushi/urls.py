@@ -32,6 +32,7 @@ from pt_kokushi.views.kokushi_search_views import select_exam_year,kokushi_quest
 from pt_kokushi.views.pdf_views import pdf_list
 from pt_kokushi.views.inquiry_views import inquiry_view,thank_you_view
 from pt_kokushi.views.learning_views import learning_material_list
+from pt_kokushi.views.exam_results_views import exam_results
 
 app_name = 'pt_kokushi'
 
@@ -133,6 +134,7 @@ urlpatterns = [
     path('inquiry/', inquiry_view, name='inquiry'),#問い合わせ
     path('thank-you/', thank_you_view, name='thank_you'),
     path('learning-materials/', learning_material_list, name='learning_material_list'),#学習資料
+    path('exam-results/', exam_results, name='exam_results'),#国試の合格者数集計
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

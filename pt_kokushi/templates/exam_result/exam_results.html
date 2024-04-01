@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">理学療法士試験結果</h1>
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>受験年度</th>
+                <th>出願者数(総合)</th>
+                <th>出願者数(新卒者)</th>
+                <th>受験者数(総合)</th>
+                <th>受験者数(新卒者)</th>
+                <th>合格者数(総合)</th>
+                <th>合格者数(新卒)</th>
+                <th>総合合格率</th>
+                <th>新卒合格率</th>
+                <th>新卒以外の合格率</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>第{{ result.exam_year }}回</td>
+                <td>{{ result.applicants_total }}人</td>
+                <td>{{ result.applicants_new_graduates }}人</td>
+                <td>{{ result.examinees_total }}人</td>
+                <td>{{ result.examinees_new_graduates }}人</td>
+                <td>{{ result.passers_total }}人</td>
+                <td>{{ result.passers_new_graduates }}人</td>
+                <td>{{ result.pass_rate_total|floatformat:2 }}%</td>
+                <td>{{ result.pass_rate_new_graduates|floatformat:2 }}%</td>
+                <td>{{ result.pass_rate_non_new_graduates|floatformat:2 }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container mt-5">
+    <canvas id="examResultsChart" width="400" height="200"></canvas>
+</div>
+<br>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var ctx = document.getElementById('examResultsChart').getContext('2d');
+    var examYears = [{% for result in results %}'第{{ result.exam_year }}回', {% endfor %}].reverse(); // 年度を逆順にする
+    var passRatesTotal = [{% for result in results %}{{ result.pass_rate_total }}, {% endfor %}].reverse(); // 総合合格率を逆順にする
+    var passRatesNewGraduates = [{% for result in results %}{{ result.pass_rate_new_graduates }}, {% endfor %}].reverse(); // 新卒合格率を逆順にする
+    var passRatesNonNewGraduates = [{% for result in results %}{{ result.pass_rate_non_new_graduates }}, {% endfor %}].reverse(); // 新卒以外の合格率を逆順にする
+    
+    var examResultsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: examYears, // X軸のラベル
+            datasets: [{
+                label: '総合合格率',
+                data: passRatesTotal,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }, {
+                label: '新卒合格率',
+                data: passRatesNewGraduates,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }, {
+                label: '新卒以外の合格率',
+                data: passRatesNonNewGraduates,
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
+    
+
+    
+
+
+{% endblock %}

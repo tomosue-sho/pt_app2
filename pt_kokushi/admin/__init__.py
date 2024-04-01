@@ -10,3 +10,4 @@ from .relax_admin import*
 from .pdf_admin import*
 from .inquiry_admin import*
 from .learning_admin import*
+from .exam_results_admin import*
