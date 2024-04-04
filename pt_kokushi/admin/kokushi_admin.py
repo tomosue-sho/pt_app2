@@ -23,7 +23,7 @@ class QuizQuestionAdmin(admin.ModelAdmin):
     truncated_question_text.short_description = '問題文'
 
     list_display = ('id','get_exam_year', 'field','time', 'point', 'question_number', 'truncated_question_text', 'answer_video_url', 'question_image')
-    search_fields = ('question_text',)
+    search_fields = ('question_text','answer_text',)
     list_filter = ('exam__year', 'field', 'point')
 
     # 選択肢をインラインで表示するための設定
